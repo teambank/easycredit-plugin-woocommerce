@@ -25,7 +25,7 @@ class QuoteBuilder
     protected $customer;
 
     public function __construct(
-        \WC_Gateway_RatenkaufByEasyCredit $gateway,
+        \WC_Easycredit_Gateway $gateway,
         \Netzkollektiv\EasyCredit\Api\Storage $storage
     ) {
         $this->gateway = $gateway;

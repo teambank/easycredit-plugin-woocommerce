@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WC_Gateway_Ratenkaufbyeasycredit_Loader
+class WC_Easycredit_Loader
 {
     protected $includes_path;
     protected $plugin_path;
@@ -22,15 +22,16 @@ class WC_Gateway_Ratenkaufbyeasycredit_Loader
         require_once dirname(__FILE__) . '/../vendor/autoload.php';
         spl_autoload_register([$this, 'autoloader']);
 
-        require_once $plugin->includes_path . '/class-wc-gateway-ratenkaufbyeasycredit.php';
-        require_once $plugin->includes_path . '/class-wc-gateway-ratenkaufbyeasycredit-widget.php';
-        require_once $plugin->includes_path . '/class-wc-gateway-ratenkaufbyeasycredit-widget-cart.php';
-        require_once $plugin->includes_path . '/class-wc-gateway-ratenkaufbyeasycredit-widget-product.php';
-        require_once $plugin->includes_path . '/class-wc-gateway-ratenkaufbyeasycredit-marketing.php';
-        require_once $plugin->includes_path . '/class-wc-gateway-ratenkaufbyeasycredit-marketing-blocks.php';
-        require_once $plugin->includes_path . '/class-wc-gateway-ratenkaufbyeasycredit-express-checkout.php';
-        require_once $plugin->includes_path . '/order-management.php';
-        require_once $plugin->includes_path . '/rest-api.php';
+        require_once $plugin->includes_path . '/class-gateway-easycredit.php';
+        require_once $plugin->includes_path . '/class-plugin.php';
+        require_once $plugin->includes_path . '/class-widget.php';
+        require_once $plugin->includes_path . '/class-widget-cart.php';
+        require_once $plugin->includes_path . '/class-widget-product.php';
+        require_once $plugin->includes_path . '/class-marketing.php';
+        require_once $plugin->includes_path . '/class-marketing-blocks.php';
+        require_once $plugin->includes_path . '/class-express-checkout.php';
+        require_once $plugin->includes_path . '/class-order-management.php';
+        require_once $plugin->includes_path . '/class-rest-api.php';
 
         add_filter('woocommerce_payment_gateways', [$this, 'payment_gateways']);
     }
@@ -50,7 +51,7 @@ class WC_Gateway_Ratenkaufbyeasycredit_Loader
 
     public function payment_gateways($gateways)
     {
-        $gateways[] = 'WC_Gateway_RatenkaufByEasyCredit';
+        $gateways[] = 'WC_Easycredit_Gateway';
         return $gateways;
     }
 }

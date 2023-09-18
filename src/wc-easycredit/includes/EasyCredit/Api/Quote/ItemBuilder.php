@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace Netzkollektiv\EasyCredit\Api\Quote;
 
-use Netzkollektiv\EasyCredit\Helper\MetaDataProvider;
-use Teambank\RatenkaufByEasyCreditApiV3\Integration;
 use Teambank\RatenkaufByEasyCreditApiV3\Model\ShoppingCartInformationItem;
 
 class ItemBuilder

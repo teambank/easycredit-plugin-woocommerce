@@ -26,6 +26,6 @@
     "symplify/easy-coding-standard": "^11.2"
   },
   "config": {
-    "vendor-dir": "src/woocommerce-gateway-ratenkaufbyeasycredit/vendor"
+    "vendor-dir": "src/wc-easycredit/vendor"
   }
 }

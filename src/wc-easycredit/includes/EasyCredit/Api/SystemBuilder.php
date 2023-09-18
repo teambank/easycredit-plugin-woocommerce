@@ -25,7 +25,7 @@ class SystemBuilder
 
     public function getModuleVersion()
     {
-        return \WC_RATENKAUFBYEASYCREDIT_VERSION;
+        return \WC_EASYCREDIT_VERSION;
     }
 
     public function build()

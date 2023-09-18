@@ -1,20 +1,20 @@
 <?php
 /** @var WC_Order $order */
-/** @var WC_Gateway_RatenkaufByEasyCredit $gateway */
+/** @var WC_Easycredit_Gateway $gateway */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 ?>
 
-<p><?php _e('Please review and confirm your order', 'woocommerce-gateway-ratenkaufbyeasycredit'); ?></p>
+<p><?php _e('Please review and confirm your order', 'wc-easycredit'); ?></p>
 
-<div class="ratenkaufbyeasycredit-review-container">
+<div class="easycredit-review-container">
 	<?php wc_get_template('order/order-details-customer.php', [
 	    'order' => $order,
 	]); ?>
 
-	<section class="woocommerce-payment-details ratenkaufbyeasycredit-payment-details">
+	<section class="woocommerce-payment-details easycredit-payment-details">
 
 			<section class="woocommerce-columns woocommerce-columns--2 col2-set addresses">
 				<div class="woocommerce-column woocommerce-column--1 col-1">
@@ -22,9 +22,9 @@ if (!defined('ABSPATH')) {
 					<h2 class="woocommerce-column__title">
 						<?php _e(
 						    'Payment Method',
-						    'woocommerce-gateway-ratenkaufbyeasycredit'
+						    'wc-easycredit'
 						);
-?>
+					?>
 					</h2>
 					<easycredit-checkout-label>
 					</easycredit-checkout-label>
@@ -61,25 +61,22 @@ if (!defined('ABSPATH')) {
                     'product' => $product,
                 ]);
             }
-?>
+            ?>
 		<?php do_action('woocommerce_order_items_table', $order); ?>
 	</tbody>
 
 	<tfoot>
 		<?php
-    $totals = apply_filters(
-        'woocommerce_ratenkaufbyeasycredit_order_item_totals',
-        $order
-    );
-foreach ($totals as $key => $total) {
-    ?>
-				<tr>
-					<th scope="row"><?php echo $total['label']; ?></th>
-					<td><?php echo $total['value']; ?></td>
-				</tr>
-				<?php
-}
-?>
+    	$totals = apply_filters(
+        	'woocommerce_easycredit_order_item_totals',
+        	$order
+    	);
+		foreach ($totals as $key => $total) : ?>
+            <tr>
+                <th scope="row"><?php echo $total['label']; ?></th>
+                <td><?php echo $total['value']; ?></td>
+            </tr>
+		<?php endforeach; ?>
 		<?php if ($order->get_customer_note()) : ?>
 			<tr>
 				<th><?php _e('Note:', 'woocommerce'); ?></th>
@@ -90,7 +87,7 @@ foreach ($totals as $key => $total) {
 </table>
 
 <form name="checkout" method="post" class="checkout woocommerce-checkout" action="<?php echo esc_url($gateway->get_confirm_url()); ?>" enctype="multipart/form-data">
-	<div class="ratenkaufbyeasycredit checkout-review-button">
+	<div class="easycredit checkout-review-button">
 
         <?php wc_get_template('checkout/terms.php'); ?>
 	

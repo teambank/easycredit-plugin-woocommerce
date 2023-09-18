@@ -9,7 +9,7 @@ use Teambank\RatenkaufByEasyCreditApiV3\Model\ConstraintViolation;
 use Teambank\RatenkaufByEasyCreditApiV3\Model\RefundRequest;
 use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 
-class WC_Gateway_Ratenkaufbyeasycredit_Order_Management
+class WC_Easycredit_Order_Management
 {
     protected $_field = 'merchant-status';
     protected $plugin;
@@ -116,7 +116,7 @@ class WC_Gateway_Ratenkaufbyeasycredit_Order_Management
 
         add_meta_box(
             'easycredit-merchant-status',
-            __('Order Management', 'woocommerce-gateway-ratenkaufbyeasycredit'),
+            __('Order Management', 'wc-easycredit'),
             [$this, 'add_order_management_meta_box'],
             $screen,
             'side',
@@ -160,7 +160,7 @@ class WC_Gateway_Ratenkaufbyeasycredit_Order_Management
             try {
                 $txId = $order->get_transaction_id();
                 if (!$txId) {
-                    throw new \Exception(__('The transaction id of this transaction is not available. This usually happens if the webhook which confirms the transaction is not working properly.', 'woocommerce-gateway-ratenkaufbyeasycredit'));
+                    throw new \Exception(__('The transaction id of this transaction is not available. This usually happens if the webhook which confirms the transaction is not working properly.', 'wc-easycredit'));
                 }
 
                 $this->gateway->get_merchant_client()
@@ -168,7 +168,7 @@ class WC_Gateway_Ratenkaufbyeasycredit_Order_Management
                         $txId,
                         new CaptureRequest([])
                     );
-                $order->add_order_note(__('Shipment automatically set in easyCredit-Ratenkauf', 'woocommerce-gateway-ratenkaufbyeasycredit'));
+                $order->add_order_note(__('Shipment automatically set in easyCredit-Ratenkauf', 'wc-easycredit'));
             } catch (ApiException $e) {
                 if ($e->getResponseObject() instanceof ConstraintViolation) {
                     $error = 'easyCredit-Ratenkauf: ';
@@ -180,7 +180,7 @@ class WC_Gateway_Ratenkaufbyeasycredit_Order_Management
                 throw $e;
             }
         } catch (\Exception $e) {
-            $order->add_order_note(sprintf(__('Shipment update failed with message: %s', 'woocommerce-gateway-ratenkaufbyeasycredit'), $e->getMessage()));
+            $order->add_order_note(sprintf(__('Shipment update failed with message: %s', 'wc-easycredit'), $e->getMessage()));
         }
     }
 
@@ -194,7 +194,7 @@ class WC_Gateway_Ratenkaufbyeasycredit_Order_Management
             try {
                 $txId = $order->get_transaction_id();
                 if (!$txId) {
-                    throw new \Exception(__('The transaction id of this transaction is not available. This usually happens if the webhook which confirms the transaction is not working properly.', 'woocommerce-gateway-ratenkaufbyeasycredit'));
+                    throw new \Exception(__('The transaction id of this transaction is not available. This usually happens if the webhook which confirms the transaction is not working properly.', 'wc-easycredit'));
                 }
 
                 $this->gateway->get_merchant_client()
@@ -204,7 +204,7 @@ class WC_Gateway_Ratenkaufbyeasycredit_Order_Management
                             'value' => $order->get_total(),
                         ])
                     );
-                $order->add_order_note(__('Refund automatically set in easyCredit-Ratenkauf', 'woocommerce-gateway-ratenkaufbyeasycredit'));
+                $order->add_order_note(__('Refund automatically set in easyCredit-Ratenkauf', 'wc-easycredit'));
             } catch (ApiException $e) {
                 if ($e->getResponseObject() instanceof ConstraintViolation) {
                     $error = 'easyCredit-Ratenkauf: ';
@@ -216,7 +216,7 @@ class WC_Gateway_Ratenkaufbyeasycredit_Order_Management
                 throw $e;
             }
         } catch (\Exception $e) {
-            $order->add_order_note(sprintf(__('Refund update failed with message: %s', 'woocommerce-gateway-ratenkaufbyeasycredit'), $e->getMessage()));
+            $order->add_order_note(sprintf(__('Refund update failed with message: %s', 'wc-easycredit'), $e->getMessage()));
         }
     }
 

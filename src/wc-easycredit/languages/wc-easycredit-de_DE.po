@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: easyCredit-Ratenkauf for Woocommerce\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-14 14:43+0000\n"
-"PO-Revision-Date: 2023-06-12 14:11+0000\n"
+"PO-Revision-Date: 2023-09-18 11:15+0000\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.6.3; wp-6.1.1"
+"X-Loco-Version: 2.6.6; wp-6.3.1"
 
 #: includes/admin-fields.php:225
 msgid "Activate bar"
@@ -94,8 +94,8 @@ msgstr "Erstellt via Express-Checkout "
 #: includes/class-wc-gateway-ratenkaufbyeasycredit-plugin.php:442
 msgid "Credentials valid!"
 msgstr ""
-"Die Zugangsdaten sind korrekt. Du kannst deinen Kunden nun ratenkauf by "
-"easyCredit anbieten."
+"Die Zugangsdaten sind korrekt. Du kannst deinen Kunden nun easyCredit-"
+"Ratenkauf anbieten."
 
 #: includes/admin-fields.php:113
 msgid "CSS Selector to include widget at product page"
@@ -384,8 +384,8 @@ msgstr "Einstellungen"
 #: includes/order-management.php:176
 msgid "Shipment automatically set in easyCredit-Ratenkauf"
 msgstr ""
-"Die Lieferung wurde auf Basis des Bestellstatus automatisch an ratenkauf by "
-"easyCredit gemeldet."
+"Die Lieferung wurde auf Basis des Bestellstatus automatisch an easyCredit-"
+"Ratenkauf gemeldet."
 
 #: includes/order-management.php:188
 #, php-format

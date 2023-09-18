@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WC_Gateway_Ratenkaufbyeasycredit_Widget_Cart extends WC_Gateway_Ratenkaufbyeasycredit_Widget
+class WC_Easycredit_Widget_Cart extends WC_Easycredit_Widget
 {
     public function add_meta_tags($array)
     {

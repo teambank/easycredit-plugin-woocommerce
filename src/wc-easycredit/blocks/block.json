@@ -2,7 +2,7 @@
     "apiVersion": 3,
     "title": "Marketing Card",
     "description": "The card component advertises easyCredit-Ratenkauf. The default image shown in the card can be overwritten. This allows you to use an image that matches your product offering.",
-    "textdomain": "woocommerce-gateway-ratenkaufbyeasycredit",
+    "textdomain": "wc-easycredit",
     "name": "easycredit-ratenkauf/marketing-card",
     "category": "easycredit-ratenkauf",
     "icon": "ec-card",

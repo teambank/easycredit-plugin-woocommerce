@@ -6,14 +6,9 @@ if (!defined('ABSPATH')) {
 use Automattic\WooCommerce\Blocks\StoreApi\Utilities\OrderController as LegacyOrderController;
 
 use Automattic\WooCommerce\StoreApi\Utilities\OrderController;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\MessageFormatter;
-use GuzzleHttp\Middleware;
-use Netzkollektiv\EasyCredit\Api\Storage;
-use Psr\Log\LoggerInterface;
 use Teambank\RatenkaufByEasyCreditApiV3 as ApiV3;
 
-class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
+class WC_Easycredit_Gateway extends WC_Payment_Gateway
 {
     public static $initialized = false;
 
@@ -31,12 +26,12 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
 
     public function __construct()
     {
-        $this->plugin = wc_ratenkaufbyeasycredit();
+        $this->plugin = wc_easycredit();
         
-        $this->id = WC_RATENKAUFBYEASYCREDIT_ID;
+        $this->id = WC_EASYCREDIT_ID;
 
         $this->has_fields = false;
-        $this->method_title = __('easyCredit-Ratenkauf', 'woocommerce-gateway-ratenkaufbyeasycredit');
+        $this->method_title = __('easyCredit-Ratenkauf', 'wc-easycredit');
         $this->method_description = __('easyCredit-Ratenkauf - jetzt die einfachste Teilzahlungslösung Deutschlands nutzen. Unser Credo einfach, fair und sicher gilt sowohl für Ratenkaufkunden als auch für Händler. Der schnelle, einfache und medienbruchfreie Prozess mit sofortiger Online-Bonitätsprüfung lässt sich sicher in den Onlineshop integrieren. Wir übernehmen das Ausfallrisiko und Sie können Ihren Umsatz bereits nach drei Tagen verbuchen.');
 
         $this->init_form_fields();
@@ -50,7 +45,7 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
 
         $this->has_fields = true;
 
-        $this->order_button_text = __('Continue to pay by installments', 'woocommerce-gateway-ratenkaufbyeasycredit');
+        $this->order_button_text = __('Continue to pay by installments', 'wc-easycredit');
 
         if (self::$initialized) {
             return; // initialize payment gateway only once, e.g. WPML Woocommerce tries to initialize again which results in duplicate/wrong behavior
@@ -70,7 +65,7 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
                 [$this, 'proccess_payment_order_details']
             );
             add_action(
-                'woocommerce_ratenkaufbyeasycredit_order_item_totals',
+                'woocommerce_easycredit_order_item_totals',
                 [$this, 'order_item_totals']
             );
         }
@@ -98,13 +93,13 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
         ob_end_clean();
 
         $shipping_methods = '';
-        foreach (WC()->shipping()->load_shipping_methods() as $code => $method) {
+        foreach (WC()->shipping()->load_shipping_methods() as $method) {
             $selected = ($this->get_option('clickandcollect_shipping_method') == $method->id) ? 'selected="selected"' : '';
             $shipping_methods .= '<option value="' . $method->id . '" ' . $selected . '>' . $method->get_method_title() . '</option>';
         }
 
         $parent_options = preg_replace(
-            '!(id="woocommerce_ratenkaufbyeasycredit_clickandcollect_shipping_method".*?>)(.+?)(</select>)!s',
+            '!(id="woocommerce_easycredit_clickandcollect_shipping_method".*?>)(.+?)(</select>)!s',
             '$1$2' . $shipping_methods . '$3',
             (string)$parent_options
         );
@@ -113,13 +108,13 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
             'express_checkout', 'widget', 'modal', 'card', 'flashbox', 'bar', 'clickandcollect'
         ];
         foreach ( $marketing_settings as $marketing_setting ) {
-            $html_extracted = preg_match(
-                '!(<h3 class="wc-settings-sub-title " id="woocommerce_ratenkaufbyeasycredit_marketing_components_' . $marketing_setting . '".*?>)(.+?)\K(<table class="form-table">)(.+?)(</table>)!s',
+            preg_match(
+                '!(<h3 class="wc-settings-sub-title " id="woocommerce_easycredit_marketing_components_' . $marketing_setting . '".*?>)(.+?)\K(<table class="form-table">)(.+?)(</table>)!s',
                 (string)$parent_options,
                 $html_extracted_matches
             );
             $parent_options = preg_replace(
-                '!(<h3 class="wc-settings-sub-title " id="woocommerce_ratenkaufbyeasycredit_marketing_components_' . $marketing_setting . '".*?>)(.+?)(<table class="form-table">)(.+?)(</table>)!s',
+                '!(<h3 class="wc-settings-sub-title " id="woocommerce_easycredit_marketing_components_' . $marketing_setting . '".*?>)(.+?)(<table class="form-table">)(.+?)(</table>)!s',
                 '',
                 (string)$parent_options
             );
@@ -130,7 +125,7 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
             );
         }
         ?>
-        <div class="ratenkaufbyeasycredit-wrapper">
+        <div class="easycredit-wrapper">
             <?php include(dirname(__FILE__) . '/../templates/template-intro.php'); ?>
             <?php echo $parent_options; ?>
         </div>
@@ -156,7 +151,7 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
             wc_add_notice(
                 sprintf(__(
                     '%s: ' . $error,
-                    'woocommerce-gateway-ratenkaufbyeasycredit'
+                    'wc-easycredit'
                 ), $this->get_title()),
                 'error'
             );
@@ -257,7 +252,7 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
             if (!$checkout->isInitialized()
                 || !$checkout->isApproved()
             ) {
-                throw new \Exception(__('Transaction not approved', 'woocommerce-gateway-ratenkaufbyeasycredit'));
+                throw new \Exception(__('Transaction not approved', 'wc-easycredit'));
             }
         } catch (\Exception $e) {
             $this->handleError($e->getMessage());
@@ -292,13 +287,13 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
             if (!$checkout->isInitialized()
                 || !$checkout->isApproved()
             ) {
-                throw new \Exception(__('Transaction not approved', 'woocommerce-gateway-ratenkaufbyeasycredit'));
+                throw new \Exception(__('Transaction not approved', 'wc-easycredit'));
             }
 
             ob_start(); // Suppress error output from akismet
     
             if (!$checkout->authorize($order->get_order_number())) {
-                throw new \Exception(__('Transaction could not be captured', 'woocommerce-gateway-ratenkaufbyeasycredit'));
+                throw new \Exception(__('Transaction could not be captured', 'wc-easycredit'));
             }
 
             // check transaction status right away
@@ -327,10 +322,13 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
         }
     }
     
+    /*
+     * add notice, redirect to cart / cancel order and clear easycredit storage 
+     **/
     public function handleError($message)
     {
         $this->get_logger()->error($message);
-        wc_add_notice(__($message, 'woocommerce-gateway-ratenkaufbyeasycredit'), 'error');
+        wc_add_notice(__($message, 'wc-easycredit'), 'error');
         $this->get_checkout()->clear();
 
         $url = wc_get_page_permalink('cart');
@@ -346,7 +344,7 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
     public function auto_check_requirements()
     {
         if (!filter_var(ini_get('allow_url_fopen'), \FILTER_VALIDATE_BOOLEAN)) {
-            echo $this->_display_settings_error(__('To use easyCredit-Ratenkauf the php.ini setting "allow_url_fopen" must be enabled.', 'woocommerce-gateway-ratenkaufbyeasycredit'));
+            echo $this->_display_settings_error(__('To use easyCredit-Ratenkauf the php.ini setting "allow_url_fopen" must be enabled.', 'wc-easycredit'));
         }
     }
 
@@ -378,13 +376,13 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
                 try {
                     $this->get_checkout()->verifyCredentials($apiKey, $apiToken, $apiSignature);
                 } catch (ApiV3\Integration\ApiCredentialsInvalidException $e) {
-                    $settingsUri = admin_url('admin.php?page=wc-settings&tab=checkout&section=ratenkaufbyeasycredit');
+                    $settingsUri = admin_url('admin.php?page=wc-settings&tab=checkout&section=easycredit');
                     return implode(' ', [
-                        __('easyCredit-Ratenkauf credentials are not valid.', 'woocommerce-gateway-ratenkaufbyeasycredit'),
-                        sprintf(__('Please go to <a href="%s">plugin settings</a> and correct API Key and API Token.', 'woocommerce-gateway-ratenkaufbyeasycredit'), $settingsUri),
+                        __('easyCredit-Ratenkauf credentials are not valid.', 'wc-easycredit'),
+                        sprintf(__('Please go to <a href="%s">plugin settings</a> and correct API Key and API Token.', 'wc-easycredit'), $settingsUri),
                     ]);
                 } catch (ApiV3\Integration\ApiCredentialsNotActiveException $e) {
-                    return __('Your credentials are valid, but your account has not been activated yet.', 'woocommerce-gateway-ratenkaufbyeasycredit');
+                    return __('Your credentials are valid, but your account has not been activated yet.', 'wc-easycredit');
                 } catch (ApiV3\ApiException $e) {
                     if ($e->getResponseObject() instanceof ApiV3\Model\PaymentConstraintViolation) {
                         $messages = [];
@@ -392,18 +390,18 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
                             $messages[] = $violation->getMessageDE() ? $violation->getMessageDE() :  $violation->getMessage();
                         }
                         return implode(' ', [
-                            __('easyCredit-Ratenkauf credentials are not valid.', 'woocommerce-gateway-ratenkaufbyeasycredit'),
-                            sprintf(__('An error occured while checking your credentials: %s', 'woocommerce-gateway-ratenkaufbyeasycredit'), implode(', ', $messages)),
+                            __('easyCredit-Ratenkauf credentials are not valid.', 'wc-easycredit'),
+                            sprintf(__('An error occured while checking your credentials: %s', 'wc-easycredit'), implode(', ', $messages)),
                         ]);
                     }
                     throw $e;
                 }
             } catch (\Exception $e) {
                 error_log($e->getMessage());
-                return sprintf(__('An error occured while checking your credentials: %s', 'woocommerce-gateway-ratenkaufbyeasycredit'), $e->getMessage());
+                return sprintf(__('An error occured while checking your credentials: %s', 'wc-easycredit'), $e->getMessage());
             }
         } else {
-            return __('Please enter your credentials to use easyCredit-Ratenkauf payment plugin in the <a href="%s">plugin settings</a>.', 'woocommerce-gateway-ratenkaufbyeasycredit');
+            return __('Please enter your credentials to use easyCredit-Ratenkauf payment plugin in the <a href="%s">plugin settings</a>.', 'wc-easycredit');
         }
     }
 
@@ -419,7 +417,7 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
         }
 
         echo $this->_display_settings_error(
-            __('The "easyCredit-Ratenkauf" review page does not exist. Probably it was deleted by mistake. The page is necessary to confirm "easyCredit-Ratenkauf" payments after being returned from the payment terminal. To restore the page, please restore it from the trash under "Pages", or deactivate and activate the plugin in the <a href="%s">plugin administration</a>.', 'woocommerce-gateway-ratenkaufbyeasycredit'),
+            __('The "easyCredit-Ratenkauf" review page does not exist. Probably it was deleted by mistake. The page is necessary to confirm "easyCredit-Ratenkauf" payments after being returned from the payment terminal. To restore the page, please restore it from the trash under "Pages", or deactivate and activate the plugin in the <a href="%s">plugin administration</a>.', 'wc-easycredit'),
             is_multisite() ? admin_url('network/plugins.php?s=easycredit') : admin_url('plugins.php?s=easycredit')
         );
         return;
@@ -503,8 +501,8 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
 
     public function init_form_fields()
     {
-        $fields = require(wc_ratenkaufbyeasycredit()->includes_path . 'admin-fields.php');
-        $fields = apply_filters('wc_ratenkaufbyeasycredit_form_fields', $fields);
+        $fields = require(wc_easycredit()->includes_path . 'admin-fields.php');
+        $fields = apply_filters('wc_easycredit_form_fields', $fields);
         $this->form_fields = $fields;
     }
 
@@ -661,12 +659,12 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
             }
             throw new Exception(sprintf(__(
                 'Could not initialize easycredit payment: %s',
-                'woocommerce-gateway-ratenkaufbyeasycredit'
+                'wc-easycredit'
             ), implode(', ', $messages)));
         } catch (\Exception $e) {
             throw new Exception(__(
                 'Could not initialize easycredit payment',
-                'woocommerce-gateway-ratenkaufbyeasycredit'
+                'wc-easycredit'
             ));
         }
 
@@ -680,7 +678,7 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
         if (!$paymentPageUrl) {
             throw new Exception(__(
                 'Payment Page URI could not be retrieved',
-                'woocommerce-gateway-ratenkaufbyeasycredit'
+                'wc-easycredit'
             ));
         }
 
@@ -701,7 +699,7 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
             }
             if ($key == 'order_total') {
                 $_totals['interest'] = [
-                    'label' => __('Interest:', 'woocommerce-gateway-ratenkaufbyeasycredit'),
+                    'label' => __('Interest:', 'wc-easycredit'),
                     'value' => wc_price($interest, ['currency', $order->get_currency()]),
                 ];
                 $total['value'] = $this->get_total_including_interest($order);
@@ -765,7 +763,7 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
 
         $order = new \WC_Order();
         $order->set_created_via('easycredit-express-checkout');
-        $order->add_order_note(__('Created via express checkout', 'woocommerce-gateway-ratenkaufbyeasycredit'));
+        $order->add_order_note(__('Created via express checkout', 'wc-easycredit'));
         $order->set_payment_method($this->id);
 
         if (class_exists(OrderController::class)) {
@@ -793,7 +791,7 @@ class WC_Gateway_RatenkaufByEasyCredit extends WC_Payment_Gateway
         }
 
         if ($uri === null) {
-            $uri = admin_url('admin.php?page=wc-settings&tab=checkout&section=ratenkaufbyeasycredit');
+            $uri = admin_url('admin.php?page=wc-settings&tab=checkout&section=easycredit');
         }
         return implode([
             '<div class="error"><p>',

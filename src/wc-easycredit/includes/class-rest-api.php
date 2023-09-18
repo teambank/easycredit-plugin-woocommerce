@@ -13,7 +13,7 @@ use Teambank\RatenkaufByEasyCreditApiV3\ApiException;
 use Teambank\RatenkaufByEasyCreditApiV3\Model\CaptureRequest;
 use Teambank\RatenkaufByEasyCreditApiV3\Model\RefundRequest;
 
-class WC_Gateway_Ratenkaufbyeasycredit_RestApi
+class WC_Easycredit_RestApi
 {
     protected $plugin;
     protected $plugin_url;

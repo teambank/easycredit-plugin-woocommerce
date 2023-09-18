@@ -14,11 +14,11 @@ parameters:
     - # ignore false positive
         message: '#Constant WC_ABSPATH not found#'
         paths:
-          - 'includes/class-wc-gateway-ratenkaufbyeasycredit-plugin.php'
+          - 'includes/class-plugin.php'
     - # ignore false positive
         message: '#Action callback returns bool but should not return anything#'
         paths:
-          - 'includes/class-wc-gateway-ratenkaufbyeasycredit.php'
+          - 'includes/class-gateway-easycredit.php'
     - # ignore false positive
         message: '#Function apply_filters invoked with 3 parameters, 2 required#'
         paths:

@@ -9,12 +9,9 @@ declare(strict_types=1);
 
 namespace Netzkollektiv\EasyCredit\Api;
 
-use Monolog\Logger;
-use Symfony\Component\HttpFoundation\Session\Session;
-
 class Storage implements \Teambank\RatenkaufByEasyCreditApiV3\Integration\StorageInterface
 {
-    protected $key = 'wc_ratenkaufbyeasycredit';
+    protected $key = 'wc_easycredit';
 
     protected $session;
 

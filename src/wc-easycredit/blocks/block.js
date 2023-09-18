@@ -37,7 +37,7 @@
                     },
                     el(InspectorControls,
                         null,
-                        el(PanelBody, { title: __( 'Image', 'woocommerce-gateway-ratenkaufbyeasycredit' ), initialOpen: true },
+                        el(PanelBody, { title: __( 'Image', 'wc-easycredit' ), initialOpen: true },
                             el(MediaUpload, {
                                 onSelect: onSelectImage,
                                 type: 'image',
@@ -49,7 +49,7 @@
                                                 className: 'components-button editor-post-featured-image__toggle',
                                                 onClick: obj.open
                                             },
-                                            __( 'Upload Image', 'woocommerce-gateway-ratenkaufbyeasycredit' )
+                                            __( 'Upload Image', 'wc-easycredit' )
                                         )
                                     } else {
                                         return el('div', {},
@@ -62,14 +62,14 @@
                                                     className: 'components-button is-secondary',
                                                     onClick: obj.open
                                                 },
-                                                __( 'Replace Image', 'woocommerce-gateway-ratenkaufbyeasycredit' )
+                                                __( 'Replace Image', 'wc-easycredit' )
                                             ),
                                             el(components.Button, {
                                                     className: 'components-button is-link is-destructive',
                                                     onClick: onRemoveImage,
                                                     style: { marginTop: '1em', display: 'block' }
                                                 },
-                                                __( 'Remove Image', 'woocommerce-gateway-ratenkaufbyeasycredit' )
+                                                __( 'Remove Image', 'wc-easycredit' )
                                             ),
                                         )
                                     }

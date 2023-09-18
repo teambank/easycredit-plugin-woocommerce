@@ -4,12 +4,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class WC_Gateway_Ratenkaufbyeasycredit_Marketing
+class WC_Easycredit_Marketing
 {
     protected $plugin;
     protected $plugin_url;
@@ -95,13 +94,13 @@ class WC_Gateway_Ratenkaufbyeasycredit_Marketing
     public function enqueue_frontend_ressources($hook)
     {
         wp_enqueue_script(
-            'wc_ratenkaufbyeasycredit_js',
+            'wc_easycredit_js',
             $this->plugin_url . 'modules/frontend/build/index.js',
             ['easycredit-components-module'],
             '1.0'
         );
         wp_enqueue_style(
-            'wc_ratenkaufbyeasycredit_css',
+            'wc_easycredit_css',
             $this->plugin_url . 'modules/frontend/build/styles.css'
         );
     }

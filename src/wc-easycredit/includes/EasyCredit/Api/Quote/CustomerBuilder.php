@@ -25,7 +25,7 @@ class CustomerBuilder
     public function getPrefix(): ?string
     {
         return $this->prefixConverter->convert(
-            $this->quote->get_meta('ratenkaufbyeasycredit-prefix')
+            $this->quote->get_meta('easycredit-prefix')
         );
     }
 

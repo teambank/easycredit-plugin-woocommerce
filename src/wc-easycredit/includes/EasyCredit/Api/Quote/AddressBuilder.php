@@ -9,10 +9,6 @@ declare(strict_types=1);
 
 namespace Netzkollektiv\EasyCredit\Api\Quote;
 
-use Netzkollektiv\EasyCredit\Api\QuoteInvalidException;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
-
 class AddressBuilder
 {
     protected $address = null;

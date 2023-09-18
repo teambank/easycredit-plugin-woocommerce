@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WC_Gateway_Ratenkaufbyeasycredit_Express_Checkout
+class WC_Easycredit_Express_Checkout
 {
     protected $plugin;
 
