@@ -1,0 +1,35 @@
+#woocommerce_ratenkaufbyeasycredit_api_verify_credentials {
+  width: auto;
+  padding: 0 10px 1px;
+}
+
+.wp-admin mark.order-status {
+  margin: auto 0.2em 0.45em auto;
+}
+
+.wp-admin .easycredit-tx-status-widget {
+  margin-top: -0.25em;
+}
+
+.easycredit-intro {
+  padding: 15px 0;
+  background: #fff;
+}
+
+.easycredit-intro easycredit-logo {
+  display: inline-block;
+  padding: 15px;
+  width: 170px;
+}
+
+.easycredit-intro div {
+  display: inline-block;
+}
+
+.wp-admin.post-type-shop_order td.column-order_status {
+  display: flex
+}
+
+.wp-admin.post-type-shop_order td.column-order_status .easycredit-merchant-status-widget {
+  margin-left: 5px;
+}

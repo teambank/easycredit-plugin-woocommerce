@@ -1,0 +1,293 @@
+/* Breakpoints */
+/* Colors - Base */
+/* Colors - eC */
+/* Variables - eC */
+.easycredit-marketing {
+  margin-top: 30px;
+  margin-bottom: 30px;
+  padding: 35px 30px;
+  background-color: #fff;
+  border-radius: 15px;
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: normal;
+  /* Headings & Typo */
+  /* Headings */
+  /* Typo */
+  /* Links */
+  /* Buttons */
+  /* Form table (WC) */
+}
+.easycredit-marketing h2, .easycredit-marketing h3,
+.easycredit-marketing p, .easycredit-marketing ul, .easycredit-marketing label {
+  margin-top: 0;
+  margin-bottom: 1em;
+  color: #002C5A;
+}
+.easycredit-marketing h2 {
+  font-size: 28px;
+}
+.easycredit-marketing h3 {
+  margin-top: 1.5em;
+  font-size: 16.1px;
+}
+.easycredit-marketing p, .easycredit-marketing ul, .easycredit-marketing label {
+  font-size: 14px;
+  line-height: 1.55;
+}
+.easycredit-marketing a {
+  color: #0066B3;
+}
+.easycredit-marketing a[target=_blank]:after {
+  content: "";
+  display: inline-block;
+  margin-left: 7px;
+  width: 8px;
+  height: 8px;
+  background: transparent url("../img/icon-external-link.svg") center center no-repeat;
+  background-size: contain;
+}
+.easycredit-marketing .btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #0066B3;
+  border: 0;
+  border-radius: 20px;
+  transition: all 0.1s cubic-bezier(0.73, 0.32, 0.14, 0.99);
+  cursor: pointer;
+  font-weight: bold;
+  color: #fff !important;
+  line-height: 1.4;
+  text-decoration: none;
+}
+.easycredit-marketing .btn.btn-primary {
+  background-color: #F37122;
+}
+.easycredit-marketing .btn:hover, .easycredit-marketing .btn:active, .easycredit-marketing .btn:focus, .easycredit-marketing .btn:visited {
+  background-color: #0066B3 !important;
+  color: #fff !important;
+}
+.easycredit-marketing .btn:hover.btn-primary, .easycredit-marketing .btn:active.btn-primary, .easycredit-marketing .btn:focus.btn-primary, .easycredit-marketing .btn:visited.btn-primary {
+  background-color: #F37122 !important;
+}
+.easycredit-marketing .btn:hover.btn-primary {
+  background-color: #ef620d !important;
+}
+.easycredit-marketing .btn:active, .easycredit-marketing .btn:focus {
+  box-shadow: 0 0 0 0.2rem rgba(243, 113, 34, 0.4) !important;
+}
+.easycredit-marketing .btn:disabled, .easycredit-marketing .btn.disabled {
+  cursor: default;
+  pointer-events: none;
+  background-color: rgba(243, 113, 34, 0.5) !important;
+  color: #fff;
+}
+.easycredit-marketing .form-table th, .easycredit-marketing .form-table td {
+  vertical-align: top;
+}
+.easycredit-marketing .form-table label {
+  margin-bottom: 0;
+}
+.easycredit-marketing .form-table label .woocommerce-help-tip {
+  top: 0 !important;
+  margin-top: 2px !important;
+}
+@media (max-width: 782px) {
+  .easycredit-marketing .form-table label .woocommerce-help-tip {
+    right: 0 !important;
+  }
+}
+.easycredit-marketing__tabs {
+  display: flex;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  max-width: 100%;
+  overflow: scroll;
+  border-bottom: 1px solid #E5EAEE;
+}
+.easycredit-marketing__tab {
+  flex: 0 0 auto;
+  position: relative;
+  padding: 0 16px 8px;
+  white-space: nowrap;
+  font-size: 14px;
+  text-decoration: none !important;
+}
+.easycredit-marketing__tab:first-child {
+  margin-left: -16px;
+}
+.easycredit-marketing__tab:not(.active) {
+  cursor: pointer;
+  color: #002C5A;
+}
+.easycredit-marketing__tab.active {
+  font-weight: 600;
+  color: #002C5A;
+}
+.easycredit-marketing__tab.active:after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  height: 2px;
+  width: calc(100% - 32px);
+  border-bottom: 2px solid #002C5A;
+}
+.easycredit-marketing__tab-content:not(.active) {
+  display: none;
+}
+.easycredit-marketing__tab-content p + .btn {
+  margin-top: 20px;
+}
+.easycredit-marketing__tab-content .ec-img {
+  position: relative;
+}
+.easycredit-marketing__tab-content .ec-img img, .easycredit-marketing__tab-content .ec-img:before {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border: 1px solid #8c8f94;
+  border-radius: 4px;
+}
+.easycredit-marketing__tab-content .ec-img:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  background: transparent url("../img/image-placeholder.svg") center center no-repeat;
+  background-size: cover;
+}
+.easycredit-marketing__tab-content .ec-img img {
+  position: relative;
+  z-index: 1;
+}
+.easycredit-marketing__tab-content .ec-img img[src=""] {
+  visibility: hidden;
+}
+.easycredit-marketing__tab-content .ec-img img[src=""] + .ec-delete-img {
+  pointer-events: none;
+  opacity: 0.5;
+  color: #8095AC;
+}
+.easycredit-marketing__tab-content .ec-img .ec-delete-img {
+  display: block;
+}
+.easycredit-marketing__grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  grid-column-gap: 48px;
+}
+@media (max-width: 782px) {
+  .easycredit-marketing__grid {
+    display: block;
+  }
+}
+.easycredit-marketing__tab-content .easycredit-intro__grid {
+  padding-top: 24px;
+}
+.easycredit-marketing__image.bg {
+  position: relative;
+  overflow: hidden;
+  background-color: #E5EAEE;
+  border-radius: 15px;
+}
+.easycredit-marketing__image.bg:after {
+  content: "";
+  display: block;
+  width: 100%;
+  padding-bottom: 75%;
+}
+.easycredit-marketing__image.bg img {
+  position: absolute;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.easycredit-marketing__image img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  background-color: transparent;
+  border-radius: 7px;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.25);
+}
+@media (max-width: 782px) {
+  .easycredit-marketing__image {
+    margin-top: 2em;
+  }
+}
+.easycredit-marketing .express .easycredit-marketing__image.bg img,
+.easycredit-marketing .widget .easycredit-marketing__image.bg img {
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 200px;
+  height: auto;
+  border-radius: 0 0 30px 30px;
+}
+.easycredit-marketing .modal .easycredit-marketing__image.bg img {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: auto;
+  border-radius: 5px;
+}
+.easycredit-marketing .eccard .easycredit-marketing__image.bg {
+  min-height: 280px;
+}
+.easycredit-marketing .eccard .easycredit-marketing__image.bg img {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  height: 80%;
+  max-height: 325px;
+  border-radius: 8px;
+}
+.easycredit-marketing .flashbox .easycredit-marketing__image.bg img {
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 80%;
+  height: auto;
+  box-shadow: none;
+  border-radius: 0;
+}
+.easycredit-marketing .ecbar .easycredit-marketing__image.bg img {
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 100%;
+  height: auto;
+  box-shadow: none;
+  border-radius: 0;
+}
+.easycredit-marketing.intro .easycredit-marketing__image img {
+  margin-left: auto;
+  width: 120px;
+  border-radius: 0;
+  box-shadow: none;
+}
+.easycredit-marketing.clickandcollect {
+  margin-bottom: 1em;
+}
+.easycredit-marketing.clickandcollect .easycredit-marketing__image.bg {
+  background-color: #002C5A;
+}
+.easycredit-marketing.clickandcollect .easycredit-marketing__image.bg img {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: none;
+}
+
+.block-editor .block-editor-block-icon .dashicons-ec-card {
+  background: transparent url("../img/icon-easycredit-ratenkauf.svg") center center no-repeat;
+  background-size: contain;
+}
+
+/*# sourceMappingURL=easycredit-backend-marketing.min.css.map */
