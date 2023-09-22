@@ -12,6 +12,87 @@ test.beforeEach(async ({page}, testInfo) => {
   })
 })
 
+/*
+test.beforeAll(async ({ request}, testInfo) => {
+  var headers = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json'
+  }
+
+  var response = await request.post('/api/oauth/token', {
+    headers: headers,
+    data: {
+      "client_id": "administration",
+      "grant_type": "password",
+      "scopes": "write",
+      "username": "admin",
+      "password": "shopware"
+    }
+  });
+  const authorization = await response.json()
+  headers['Authorization'] = 'Bearer ' + authorization.access_token;
+
+  response = await request.get('/api/sales-channel', {
+    headers: headers
+  })
+  const salesChannel = await response.json().then((data) => {
+    console.log(data);
+    return data.data.find(e => e.name === 'Storefront')
+  })
+
+  response = await request.get('/api/tax', {
+    headers: headers
+  })
+  const taxId = await response.json().then((data) => {
+    return data.data.find(e => e.taxRate === 19).id
+  })
+
+  console.log({
+    currencyId: salesChannel.currencyId,
+    taxId: taxId,
+    salesChannelId: salesChannel.id
+  })
+
+  var response = await request.post('/api/product', {
+    headers: headers,
+    data: {
+      "name": "Product",
+      "productNumber": "123456",
+      "stock": 99999,
+      "taxId": taxId,
+      "price": [
+        {
+          "currencyId": salesChannel.currencyId,
+          "gross": 201,
+          "net": 200,
+          "linked": false
+        }
+      ],
+      "visibilities": [{
+        "salesChannelId": salesChannel.id,
+        "visibility": 30
+      }],
+      "categories": [
+        {
+        "displayNestedProducts": true,
+        "type": "page",
+        "productAssignmentType": "product",
+        "name": "Home",
+        "navigationSalesChannels": [{
+          "id": salesChannel.id
+        }]
+        }
+      ]
+    }
+  })
+
+  response = await request.get('/api/product', {
+    headers: headers
+  })
+  console.log(await response.json())
+})
+*/
+
 test.afterEach(async ({ page }, testInfo) => {
   if (testInfo.status !== testInfo.expectedStatus) {
     // Get a unique place for the screenshot.
@@ -106,7 +187,6 @@ test('legacyCheckout', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Telefon *' }).fill('012345678');
   await page.getByLabel('E-Mail-Adresse *').fill('ralf.ratenkauf@teambank.de');
 
-  
   /* Confirm Page */
   await page.locator('easycredit-checkout-label').click()
   await page.locator('easycredit-checkout').getByRole('button', { name: 'Weiter zum Ratenkauf' }).click();
@@ -116,7 +196,6 @@ test('legacyCheckout', async ({ page }) => {
   await confirmOrder(page)
 });
 
-/*
 test('blocksCheckout', async ({ page }) => {
 
   if (!isBlocksCheckout()) {
@@ -146,7 +225,6 @@ test('blocksCheckout', async ({ page }) => {
   await goThroughPaymentPage(page)
   await confirmOrder(page)
 });
-*/
 
 test('expressCheckout', async ({ page }) => {
 
@@ -193,13 +271,12 @@ test('settingsCheck', async ({ page }) => {
   await page.goto('/wp-admin/admin.php?page=wc-settings&tab=checkout')
 
   //await page.getByRole('link', { name: 'easyCredit-Ratenkauf', exact: true }).click();
-  await page.goto('/wp-admin/admin.php?page=wc-settings&tab=checkout&section=ratenkaufbyeasycredit')
+  await page.goto('/wp-admin/admin.php?page=wc-settings&tab=checkout&section=easycredit')
 
   page.on('dialog', async (dialog) => {
     expect(dialog.message()).toContainText('Die Zugangsdaten sind korrekt')
     await dialog.accept()
   })
   //await page.getByRole('button', { name: 'Zugangsdaten überprüfen' }).click();
-  await page.locator('#woocommerce_ratenkaufbyeasycredit_api_verify_credentials').click()
-
+  await page.locator('#woocommerce_easycredit_api_verify_credentials').click()
 });

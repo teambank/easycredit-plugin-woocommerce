@@ -16,6 +16,8 @@
     "phpstan": "export $(cat .env | xargs) && cd $PLUGIN_DIR && vendor/bin/phpstan analyse .",
     "fix-cs": "export $(cat .env | xargs) && cd $PLUGIN_DIR && vendor/bin/ecs check --fix --config=../../ecs.php"
   },
+  "author": "NETZKOLLEKTIV <corporate@netzkollektiv.com>",
+  "license": "MIT",
   "dependencies": {
     "@playwright/test": "^1.38.0"
   }
