@@ -5,21 +5,22 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+namespace Netzkollektiv\EasyCredit\Widget;
 
-abstract class WC_Easycredit_Widget
+use Netzkollektiv\EasyCredit\Plugin;
+use Netzkollektiv\EasyCredit\Gateway;
+
+abstract class WidgetAbstract
 {
-    protected $plugin;
-    protected $plugin_url;
-    protected $gateway;
+    protected Plugin $plugin;
+    protected Gateway\Ratenkauf $payment;
 
-    public function __construct($plugin)
-    {
+    public function __construct(
+        Plugin $plugin,
+        Gateway\Ratenkauf $payment
+    ) {
         $this->plugin = $plugin;
-        $this->plugin_url = $plugin->plugin_url;
-        $this->gateway = $this->plugin->get_gateway();
+        $this->payment = $payment;
 
         add_action('wp', [$this, 'run']);
     }

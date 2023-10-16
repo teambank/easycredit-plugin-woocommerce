@@ -12,6 +12,8 @@ use Teambank\RatenkaufByEasyCreditApiV3\Model\InvoiceAddress;
 use Teambank\RatenkaufByEasyCreditApiV3\Model\ShippingAddress;
 use Teambank\RatenkaufByEasyCreditApiV3\Model\Transaction;
 
+use Netzkollektiv\EasyCredit\Gateway;
+
 class QuoteBuilder
 {
     protected $gateway;
@@ -25,8 +27,8 @@ class QuoteBuilder
     protected $customer;
 
     public function __construct(
-        \WC_Easycredit_Gateway $gateway,
-        \Netzkollektiv\EasyCredit\Api\Storage $storage
+        Gateway\GatewayAbstract $gateway,
+        Storage $storage
     ) {
         $this->gateway = $gateway;
         $this->storage = $storage;

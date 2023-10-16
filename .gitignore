@@ -8,6 +8,6 @@ node_modules/
 .vscode
 /env
 /build
-/src/woocommerce-gateway-ratenkaufbyeasycredit/vendor
+/src/wc-easycredit/vendor
 /docker-compose.override.yml
 /wordpress

@@ -1,16 +1,18 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
-}
+namespace Netzkollektiv\EasyCredit\Gateway;
 
-use Automattic\WooCommerce\Blocks\StoreApi\Utilities\OrderController as LegacyOrderController;
-
-use Automattic\WooCommerce\StoreApi\Utilities\OrderController;
 use Teambank\RatenkaufByEasyCreditApiV3 as ApiV3;
 
-class WC_Easycredit_Gateway extends WC_Payment_Gateway
+use Netzkollektiv\EasyCredit\Config\FieldProvider;
+use Netzkollektiv\EasyCredit\Integration;
+use Netzkollektiv\EasyCredit\Plugin;
+
+abstract class GatewayAbstract extends \WC_Payment_Gateway
 {
     public static $initialized = false;
+
+    protected $fieldProvider;
+    protected $integration;
 
     public $plugin;
     public $id;
@@ -23,29 +25,29 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
 
     protected $tmp_order;
 
+    abstract function _construct();
 
-    public function __construct()
-    {
-        $this->plugin = wc_easycredit();
-        
-        $this->id = WC_EASYCREDIT_ID;
+    public function __construct(
+        Plugin $plugin,
+        Integration $integration,
+        FieldProvider $fieldProvider
+    ) {
+        $this->_construct();
 
-        $this->has_fields = false;
-        $this->method_title = __('easyCredit-Ratenkauf', 'wc-easycredit');
-        $this->method_description = __('easyCredit-Ratenkauf - jetzt die einfachste Teilzahlungslösung Deutschlands nutzen. Unser Credo einfach, fair und sicher gilt sowohl für Ratenkaufkunden als auch für Händler. Der schnelle, einfache und medienbruchfreie Prozess mit sofortiger Online-Bonitätsprüfung lässt sich sicher in den Onlineshop integrieren. Wir übernehmen das Ausfallrisiko und Sie können Ihren Umsatz bereits nach drei Tagen verbuchen.');
+        $this->plugin = $plugin;
+        $this->integration = $integration;
+        $this->fieldProvider = $fieldProvider;
 
+        $this->has_fields = true;
         $this->init_form_fields();
         $this->init_settings();
 
         $title = $this->get_option('title');
         $this->title = !empty($title) ? $title : $this->method_title;
+
         $this->description = '';
         $this->instructions = $this->get_option('instructions');
         $this->debug = $this->get_option('debug', false);
-
-        $this->has_fields = true;
-
-        $this->order_button_text = __('Continue to pay by installments', 'wc-easycredit');
 
         if (self::$initialized) {
             return; // initialize payment gateway only once, e.g. WPML Woocommerce tries to initialize again which results in duplicate/wrong behavior
@@ -75,11 +77,8 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
                 'woocommerce_update_options_payment_gateways_' . $this->id,
                 [$this, 'process_admin_options']
             );
-            add_action('admin_notices', [$this, 'auto_check_credentials']);
-            add_action('admin_notices', [$this, 'auto_check_requirements']);
-            add_action('admin_notices', [$this, 'check_review_page_exists']);
         }
-        
+
         add_action('woocommerce_email_before_order_table', [$this, 'email_instructions'], 10, 3);
 
         self::$initialized = true;
@@ -107,7 +106,7 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
         $marketing_settings = [
             'express_checkout', 'widget', 'modal', 'card', 'flashbox', 'bar', 'clickandcollect'
         ];
-        foreach ( $marketing_settings as $marketing_setting ) {
+        foreach ($marketing_settings as $marketing_setting) {
             preg_match(
                 '!(<h3 class="wc-settings-sub-title " id="woocommerce_easycredit_marketing_components_' . $marketing_setting . '".*?>)(.+?)\K(<table class="form-table">)(.+?)(</table>)!s',
                 (string)$parent_options,
@@ -124,12 +123,12 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
                 (string)$parent_options
             );
         }
-        ?>
+?>
         <div class="easycredit-wrapper">
             <?php include(dirname(__FILE__) . '/../templates/template-intro.php'); ?>
             <?php echo $parent_options; ?>
         </div>
-        <?php
+<?php
     }
 
     public function validate_fields()
@@ -144,8 +143,9 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
         try {
             $checkout = $this->get_checkout();
 
+            $checkout = $this->integration->checkout();
             $this->get_storage()->set('express', false);
-            $checkout->isAvailable($this->get_quote_builder()->build($order));
+            $checkout->isAvailable($this->integration->quote_builder()->build($order));
         } catch (\Exception $e) {
             $error = $e->getMessage();
             wc_add_notice(
@@ -160,7 +160,7 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
         }
         return true;
     }
-    
+
     public function get_title()
     {
         $backtrace = debug_backtrace();
@@ -182,64 +182,27 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
         return parent::get_icon();
     }
 
-    public function payment_review_before()
-    {
-        if ((int)get_option('woocommerce_easycredit_checkout_review_page_id') === (int)get_queried_object_id()) {
-            try {
-                $this->get_checkout()->loadTransaction();
-            } catch (\Exception $e) {
-                return $this->handleError($e->getMessage());
-            }
-        }
-    }
-
-    public function payment_review()
-    {
-        if (is_admin()) {
-            return;
-        }
-
-        $transaction = $this->get_checkout()->loadTransaction();
-
-        if ($this->get_storage()->get('express')) {
-            $this->create_express_checkout_order($transaction);
-        }
- 
-        $order = $this->get_current_order();
-        if (!$order) {
-            return;
-        }
-
-        ob_start();
-        $this->plugin->load_template('review-order', [
-            'gateway' => $this,
-            'order' => $order,
-        ]);
-        $content = ob_get_contents();
-        ob_end_clean();
-        return $content;
-    }
-    
     public function maybe_expire_order()
     {
-        $order = $this->get_current_order();
+        $order = $this->plugin->get_current_order();
         if (!$order) {
             return;
         }
         if (!WC()->session) {
             return;
         }
-        
-        $quote = $this->get_quote_builder()->build($order);
 
-        $checkout = $this->get_checkout();
-        if ($this->get_storage()->get('authorized_amount') != $quote->getOrderDetails()->getOrderValue()
+        $quote = $this->integration->quote_builder()->build($order);
+
+        $checkout = $this->integration->checkout();
+        if (
+            $this->integration->storage()->get('authorized_amount') != $quote->getOrderDetails()->getOrderValue()
             && !$checkout->verifyAddress($quote)
         ) {
             $checkout->clear();
         }
     }
-    
+
     public function maybe_return_from_payment_page()
     {
         if (!isset($_GET['woo-' . $this->id . '-return'])) {
@@ -247,27 +210,28 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
         }
 
         try {
-            $checkout = $this->get_checkout();
+            $checkout = $this->integration->checkout();
 
-            if (!$checkout->isInitialized()
+            if (
+                !$checkout->isInitialized()
                 || !$checkout->isApproved()
             ) {
                 throw new \Exception(__('Transaction not approved', 'wc-easycredit'));
             }
         } catch (\Exception $e) {
-            $this->handleError($e->getMessage());
+            $this->plugin->handleError($e->getMessage());
         }
     }
-    
+
     public function maybe_order_confirm()
     {
         if (!isset($_POST['woo-' . $this->id . '-confirm'])) {
             return;
         }
-       
-        $order = $this->get_current_order();
+
+        $order = $this->plugin->get_current_order();
         if (!$order) {
-            $this->handleError('Could not find order');
+            $this->plugin->handleError('Could not find order');
             return;
         }
 
@@ -280,93 +244,49 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
             wc_add_notice(__('Please read and accept the terms and conditions to proceed with your order.', 'woocommerce'), 'error');
             return;
         }
-        
+
         try {
-            $checkout = $this->get_checkout();
-    
-            if (!$checkout->isInitialized()
+            $checkout = $this->integration->checkout();
+
+            if (
+                !$checkout->isInitialized()
                 || !$checkout->isApproved()
             ) {
                 throw new \Exception(__('Transaction not approved', 'wc-easycredit'));
             }
 
             ob_start(); // Suppress error output from akismet
-    
+
             if (!$checkout->authorize($order->get_order_number())) {
                 throw new \Exception(__('Transaction could not be captured', 'wc-easycredit'));
             }
 
             // check transaction status right away
-            $tx = $checkout->loadTransaction($this->get_storage()->get('token'));
+            $tx = $checkout->loadTransaction($this->integration()->storage()->get('token'));
             if ($tx->getStatus() === ApiV3\Model\TransactionInformation::STATUS_AUTHORIZED) {
                 $order->payment_complete(
-                    $this->get_storage()->get('transaction_id')
+                    $this->integration()->storage()->get('transaction_id')
                 );
             }
 
-            $order->add_meta_data($this->id . '-interest-amount', $this->get_storage()->get('interest_amount'), true);
-            $order->add_meta_data($this->id . '-transaction-id', $this->get_storage()->get('transaction_id'), true);
-            $order->add_meta_data($this->id . '-token', $this->get_storage()->get('token'), true);
+            $storage = $this->integration->storage();
+            
+            $order->add_meta_data($this->id . '-interest-amount', $storage->get('interest_amount'), true);
+            $order->add_meta_data($this->id . '-transaction-id',$storage->get('transaction_id'), true);
+            $order->add_meta_data($this->id . '-token', $storage->get('token'), true);
 
             $order->save();
-            
+
             WC()->cart->empty_cart();
             $checkout->clear();
-            
+
             ob_end_clean();
-            
+
             wp_redirect($order->get_checkout_order_received_url());
             exit;
         } catch (\Exception $e) {
-            $this->handleError($e->getMessage());
+            $this->plugin->handleError($e->getMessage());
         }
-    }
-    
-    /*
-     * add notice, redirect to cart / cancel order and clear easycredit storage 
-     **/
-    public function handleError($message)
-    {
-        $this->get_logger()->error($message);
-        wc_add_notice(__($message, 'wc-easycredit'), 'error');
-        $this->get_checkout()->clear();
-
-        $url = wc_get_page_permalink('cart');
-        
-        $order = $this->get_current_order();
-        if ($order) {
-            $url = $order->get_cancel_order_url_raw();
-        }
-        wp_safe_redirect($url);
-        exit;
-    }
-    
-    public function auto_check_requirements()
-    {
-        if (!filter_var(ini_get('allow_url_fopen'), \FILTER_VALIDATE_BOOLEAN)) {
-            echo $this->_display_settings_error(__('To use easyCredit-Ratenkauf the php.ini setting "allow_url_fopen" must be enabled.', 'wc-easycredit'));
-        }
-    }
-
-    public function auto_check_credentials()
-    {
-        if (get_current_screen()->parent_base !== 'woocommerce' ||
-            $this->_get_transient($this->id . '-settings-checked')
-        ) {
-            return;
-        }
-
-
-        $apiKey = $this->get_option('api_key');
-        $apiToken = $this->get_option('api_token');
-        $apiSignature = $this->get_option('api_signature');
-
-        $error = $this->check_credentials($apiKey, $apiToken, $apiSignature);
-        if ($error) {
-            echo $this->_display_settings_error($error);
-            return;
-        }
-        set_transient($this->id . '-settings-checked', true, DAY_IN_SECONDS);
     }
 
     public function check_credentials($apiKey, $apiToken, $apiSignature = null)
@@ -374,7 +294,7 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
         if (!empty($apiKey) && !empty($apiToken)) {
             try {
                 try {
-                    $this->get_checkout()->verifyCredentials($apiKey, $apiToken, $apiSignature);
+                    $this->integration->checkout()->verifyCredentials($apiKey, $apiToken, $apiSignature);
                 } catch (ApiV3\Integration\ApiCredentialsInvalidException $e) {
                     $settingsUri = admin_url('admin.php?page=wc-settings&tab=checkout&section=easycredit');
                     return implode(' ', [
@@ -405,28 +325,10 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
         }
     }
 
-    public function check_review_page_exists()
-    {
-        if (get_current_screen()->parent_base !== 'woocommerce') {
-            return;
-        }
-
-        $page_path = current($this->plugin->get_review_page_data())['name'];
-        if (get_page_by_path($page_path, OBJECT)) {
-            return;
-        }
-
-        echo $this->_display_settings_error(
-            __('The "easyCredit-Ratenkauf" review page does not exist. Probably it was deleted by mistake. The page is necessary to confirm "easyCredit-Ratenkauf" payments after being returned from the payment terminal. To restore the page, please restore it from the trash under "Pages", or deactivate and activate the plugin in the <a href="%s">plugin administration</a>.', 'wc-easycredit'),
-            is_multisite() ? admin_url('network/plugins.php?s=easycredit') : admin_url('plugins.php?s=easycredit')
-        );
-        return;
-    }
-
     public function abort_create_order($order)
     {
         $this->tmp_order = $order;
-        throw new Exception(__CLASS__ . '_tmp_order');
+        throw new \Exception(__CLASS__ . '_tmp_order');
     }
 
     public function prevent_remove_items()
@@ -439,7 +341,7 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
         add_action('woocommerce_checkout_create_order', [$this, 'abort_create_order']);
         add_filter('woocommerce_order_has_status', [$this, 'prevent_remove_items']);
 
-        $wc_checkout = WC_Checkout::instance();
+        $wc_checkout = \WC_Checkout::instance();
         $postData = [];
         if (isset($_POST['post_data'])) {
             parse_str($_POST['post_data'], $postData);
@@ -463,7 +365,7 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
     public function payment_fields()
     {
         $error = false;
-        $checkout = $this->get_checkout();
+        $checkout = $this->integration->checkout();
 
         global $wp;
         if (isset($wp->query_vars['order-pay'])) {
@@ -477,14 +379,15 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
         }
 
         try {
-            $this->get_storage()->set('express', 0);
-            $quote = $this->get_quote_builder()->build($order);
+            $this->integration->storage()->set('express', 0);
+            $quote = $this->integration->quote_builder()->build($order);
             $checkout->isAvailable($quote);
         } catch (\Exception $e) {
             $error = $e->getMessage();
         }
 
-        if (isset($quote) &&
+        if (
+            isset($quote) &&
             $quote->getOrderDetails()->getInvoiceAddress()->getCountry() != 'DE' &&
             $quote->getOrderDetails()->getInvoiceAddress()->getCountry() != ''
         ) {
@@ -501,7 +404,7 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
 
     public function init_form_fields()
     {
-        $fields = require(wc_easycredit()->includes_path . 'admin-fields.php');
+        $fields = $this->fieldProvider->get_fields_by_section($this->id);
         $fields = apply_filters('wc_easycredit_form_fields', $fields);
         $this->form_fields = $fields;
     }
@@ -545,92 +448,13 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
 
     public function email_instructions($order, $sent_to_admin, $plain_text = false)
     {
-        if ($this->instructions &&
+        if (
+            $this->instructions &&
             !$sent_to_admin &&
             $this->id === $order->payment_method
         ) {
             echo wpautop(wptexturize($this->instructions)) . PHP_EOL;
         }
-    }
-    
-    public function get_storage()
-    {
-        if ($this->storage == null) {
-            $this->storage = new \Netzkollektiv\EasyCredit\Api\Storage(
-                WC()->session,
-                $this->get_logger()
-            );
-        }
-        return $this->storage;
-    }
-
-    public function get_logger()
-    {
-        if ($this->logger == null) {
-            $this->logger = new \Netzkollektiv\EasyCredit\Api\Logger($this);
-        }
-        return $this->logger;
-    }
-
-    public function get_config()
-    {
-        return ApiV3\Configuration::getDefaultConfiguration()
-            ->setHost('https://ratenkauf.easycredit.de')
-            ->setUsername($this->get_option('api_key'))
-            ->setPassword($this->get_option('api_token'))
-            ->setAccessToken($this->get_option('api_signature'));
-    }
-
-    public function get_checkout()
-    {
-        $logger = $this->get_logger();
-        $config = $this->get_config();
-
-        $client = new ApiV3\Client($logger);
-
-        $webshopApi = new ApiV3\Service\WebshopApi(
-            $client,
-            $config
-        );
-        $transactionApi = new ApiV3\Service\TransactionApi(
-            $client,
-            $config
-        );
-        $installmentPlanApi = new ApiV3\Service\InstallmentplanApi(
-            $client,
-            $config
-        );
-
-        return new ApiV3\Integration\Checkout(
-            $webshopApi,
-            $transactionApi,
-            $installmentPlanApi,
-            $this->get_storage(),
-            new ApiV3\Integration\Util\AddressValidator(),
-            new ApiV3\Integration\Util\PrefixConverter(),
-            $this->get_logger()
-        );
-    }
-
-    public function get_quote_builder()
-    {
-        return new \Netzkollektiv\EasyCredit\Api\QuoteBuilder(
-            $this,
-            $this->get_storage()
-        );
-    }
-
-    public function get_merchant_client()
-    {
-        $logger = $this->get_logger();
-        $config = $this->get_config()
-            ->setHost('https://partner.easycredit-ratenkauf.de');
-        $client = new ApiV3\Client($logger);
-
-        return new ApiV3\Service\TransactionApi(
-            $client,
-            $config
-        );
     }
 
     public function get_confirm_url()
@@ -640,15 +464,15 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
         ];
         return add_query_arg($query_args, $this->plugin->get_review_page_uri());
     }
-    
+
     public function process_payment($order_id)
     {
         $order = wc_get_order($order_id);
 
         try {
-            $quote = $this->get_quote_builder()->build($order);
+            $quote = $this->integration->quote_builder()->build($order);
 
-            $checkout = $this->get_checkout();
+            $checkout = $this->integration->checkout();
             $checkout->start($quote);
         } catch (ApiV3\ApiException $e) {
             $messages = [];
@@ -657,26 +481,25 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
                     $messages[] = $violation->getMessageDE() ? $violation->getMessageDE() :  $violation->getMessage();
                 }
             }
-            throw new Exception(sprintf(__(
+            throw new \Exception(sprintf(__(
                 'Could not initialize easycredit payment: %s',
                 'wc-easycredit'
             ), implode(', ', $messages)));
         } catch (\Exception $e) {
-            throw new Exception(__(
+            throw new \Exception(__(
                 'Could not initialize easycredit payment',
                 'wc-easycredit'
             ));
         }
 
-        $this->get_storage()
+        $this->integration->storage()
             ->set('order_id', $order_id)
-            ->set('return_url', $this->get_return_url($order))
-        ;
+            ->set('return_url', $this->get_return_url($order));
 
         $paymentPageUrl = $checkout->getRedirectUrl();
 
         if (!$paymentPageUrl) {
-            throw new Exception(__(
+            throw new \Exception(__(
                 'Payment Page URI could not be retrieved',
                 'wc-easycredit'
             ));
@@ -687,11 +510,11 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
             'redirect' => $paymentPageUrl,
         ];
     }
-    
+
     public function order_item_totals($order)
     {
-        $interest = $this->get_storage()->get('interest_amount');
-    
+        $interest = $this->integration->storage()->get('interest_amount');
+
         $_totals = [];
         foreach ($order->get_order_item_totals() as $key => $total) {
             if ($key == 'payment_method') {
@@ -719,96 +542,15 @@ class WC_Easycredit_Gateway extends WC_Payment_Gateway
         }
     }
 
-    protected function get_current_order()
-    {
-        $order_id = $this->get_storage()->get('order_id');
-        if (!$order_id) {
-            return false;
-        }
-           
-        return wc_get_order($order_id);
-    }
-
-    protected function create_express_checkout_order($transaction)
-    {
-        $updateAddress = function ($address, $type = 'billing') {
-            $fields = [
-                'first_name' => $address->getFirstName(),
-                'last_name' => $address->getLastName(),
-                'address_1' => $address->getAddress(),
-                'address_2' => '',
-                'city' => $address->getCity(),
-                'state' => '',
-                'postcode' => $address->getZip(),
-                'country' => $address->getCountry(),
-            ];
-            array_walk($fields, function ($value, $field) use ($type) {
-                WC()->customer->{"set_{$type}_{$field}"}($value);
-            });
-        };
-        $updateAddress($transaction->getTransaction()->getOrderDetails()->getInvoiceAddress());
-        $updateAddress($transaction->getTransaction()->getOrderDetails()->getShippingAddress(), 'shipping');
-
-        $contact = $transaction->getTransaction()->getCustomer()->getContact();
-        WC()->customer->set_billing_phone($contact->getMobilePhoneNumber());
-        WC()->customer->set_billing_email($contact->getEmail());
-        WC()->customer->save();
-
-        $order_data = [];
-        foreach (['billing', 'shipping'] as $prefix) {
-            array_walk(WC()->customer->get_data()[$prefix], function ($value, $field) use (&$order_data, $prefix) {
-                $order_data[$prefix . '_' . $field] = $value;
-            });
-        }
-
-        $order = new \WC_Order();
-        $order->set_created_via('easycredit-express-checkout');
-        $order->add_order_note(__('Created via express checkout', 'wc-easycredit'));
-        $order->set_payment_method($this->id);
-
-        if (class_exists(OrderController::class)) {
-            $orderController = new OrderController();
-            $orderController->update_order_from_cart($order);
-        } elseif (class_exists(LegacyOrderController::class)) {
-            $orderController = new LegacyOrderController();
-            $orderController->update_order_from_cart($order);
-        }
-
-        $this->get_storage()
-            ->set('order_id', $order->get_id())
-            ->set('express', false);
-    }
-
-    protected function _get_transient($name)
-    {
-        return ($this->debug) ? false : get_transient($name);
-    }
-
-    protected function _display_settings_error($msg, $uri = null)
-    {
-        if (is_array($msg)) {
-            $msg = implode(' ', $msg);
-        }
-
-        if ($uri === null) {
-            $uri = admin_url('admin.php?page=wc-settings&tab=checkout&section=easycredit');
-        }
-        return implode([
-            '<div class="error"><p>',
-            sprintf($msg, $uri),
-            '</p></div>',
-        ]);
-    }
-
     protected function get_total_including_interest($order)
     {
-        $interest = $this->get_storage()->get('interest_amount');
+        $interest = $this->integration->storage()->get('interest_amount');
 
         $total = $order->get_total();
         $order->set_total($total + $interest);
         $_total = $order->get_formatted_order_total();
         $order->set_total($total);
-        
+
         return $_total;
     }
 }

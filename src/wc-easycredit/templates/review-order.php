@@ -1,6 +1,6 @@
 <?php
 /** @var WC_Order $order */
-/** @var WC_Easycredit_Gateway $gateway */
+/** @var WC_Easycredit_Gateway_Abstract $gateway */
 
 if (!defined('ABSPATH')) {
     exit;

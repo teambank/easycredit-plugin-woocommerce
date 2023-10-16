@@ -22,14 +22,30 @@ defined('ABSPATH') or exit;
 define('WC_EASYCREDIT_VERSION', '3.0.0');
 define('WC_EASYCREDIT_ID', 'easycredit');
 
+use Netzkollektiv\EasyCredit\Plugin;
+
 function wc_easycredit()
 {
     static $plugin;
 
     if (!isset($plugin)) {
-        require_once(dirname(__FILE__) . '/includes/class-plugin.php');
 
-        $plugin = new WC_Easycredit_Plugin(
+        require_once dirname(__FILE__) . '/vendor/autoload.php';
+
+        spl_autoload_register(function ($class) {
+            $ds = DIRECTORY_SEPARATOR;
+            $includesPath = plugin_dir_path(__FILE__) . 'includes';
+            if (mb_strpos($class, 'Netzkollektiv\EasyCredit') === 0) {
+
+                $file = str_replace(['_', 'Netzkollektiv\\EasyCredit\\', '\\'], $ds, $class) . '.php';
+                if (file_exists($includesPath . $file)) {
+                    require_once $includesPath . $file;
+                    return;
+                }
+            }
+        });
+
+        $plugin = new Plugin(
             __FILE__
         );
     }

@@ -9,19 +9,21 @@ declare(strict_types=1);
 
 namespace Netzkollektiv\EasyCredit\Api;
 
+use Netzkollektiv\EasyCredit\Plugin;
+
 class Logger
 {
-    protected $_gateway;
+    protected $plugin;
 
-    public function __construct(\WC_Settings_API $gateway)
+    public function __construct(Plugin $plugin)
     {
-        $this->_gateway = $gateway;
+        $this->plugin = $plugin;
     }
 
     public function __call(string $name, array $arguments)
     {
         if (
-            $this->_gateway->get_option('debug') != 'yes' &&
+            $this->plugin->get_option('debug') != 'yes' &&
             $name === 'debug'
         ) {
             return;

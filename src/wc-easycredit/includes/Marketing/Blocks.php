@@ -5,19 +5,18 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+namespace Netzkollektiv\EasyCredit\Marketing;
 
-class WC_Easycredit_Marketing_Blocks
+use Netzkollektiv\EasyCredit\Plugin;
+
+class Blocks
 {
     protected $plugin;
-    protected $plugin_url;
 
-    public function __construct($plugin)
-    {
+    public function __construct(
+        Plugin $plugin
+    ) {
         $this->plugin = $plugin;
-        $this->plugin_url = $plugin->plugin_url;
 
         add_filter( 'block_categories_all', [$this, 'block_categories']);
         add_action( 'init', [$this, 'register_block']);
@@ -51,7 +50,7 @@ class WC_Easycredit_Marketing_Blocks
     public function add_url_var()
     {
         $outputs = '<script type="text/javascript">';
-        $outputs .= 'var ecPluginUrl = ' . json_encode( $this->plugin_url ) . ';';
+        $outputs .= 'var ecPluginUrl = ' . json_encode( $this->plugin->plugin_url ) . ';';
         $outputs .= '</script>';
 
         echo $outputs;

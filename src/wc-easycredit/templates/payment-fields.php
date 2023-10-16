@@ -1,5 +1,5 @@
 <?php
-/** @var WC_Easycredit_Gateway $easyCredit */
+/** @var WC_Easycredit_Gateway_Abstract $easyCredit */
 /** @var string $easyCreditWebshopId */
 /** @var string $easyCreditError */
 /** @var string $easyCreditAmount */

@@ -4,21 +4,28 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+namespace Netzkollektiv\EasyCredit\Marketing;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class WC_Easycredit_Marketing
+use Netzkollektiv\EasyCredit\Plugin;
+use Netzkollektiv\EasyCredit\Gateway;
+
+class Components
 {
     protected $plugin;
-    protected $plugin_url;
-    protected $gateway;
 
-    public function __construct($plugin)
-    {
+    protected $payment;
+
+    public function __construct(
+        Plugin $plugin, 
+        Gateway\Ratenkauf $payment
+    ) {
         $this->plugin = $plugin;
-        $this->plugin_url = $plugin->plugin_url;
-        $this->gateway = $this->plugin->get_gateway();
+        $this->payment = $payment;
 
         add_action('wp', [$this, 'run']);
     }
@@ -38,15 +45,15 @@ class WC_Easycredit_Marketing
 
     public function add_component_tags_footer($array)
     {
-        if ( $this->gateway->get_option('modal_enabled') == 'yes' ) {
-            echo '<easycredit-box-modal src="' . $this->gateway->get_option('modal_src') . '" is-open="false" delay="' . $this->gateway->get_option('modal_delay') * 1000 . '" snooze-for="' . $this->gateway->get_option('modal_snooze_for') . '"></easycredit-box-modal>';
+        if ( $this->payment->get_option('modal_enabled') == 'yes' ) {
+            echo '<easycredit-box-modal src="' . $this->payment->get_option('modal_src') . '" is-open="false" delay="' . $this->payment->get_option('modal_delay') * 1000 . '" snooze-for="' . $this->payment->get_option('modal_snooze_for') . '"></easycredit-box-modal>';
         }
 
-        if ( $this->gateway->get_option('flashbox_enabled') == 'yes' ) {
-            echo '<easycredit-box-flash is-open="false" src="' . $this->gateway->get_option('flashbox_src') . '"></easycredit-box-flash>';
+        if ( $this->payment->get_option('flashbox_enabled') == 'yes' ) {
+            echo '<easycredit-box-flash is-open="false" src="' . $this->payment->get_option('flashbox_src') . '"></easycredit-box-flash>';
         }
 
-        if ( $this->gateway->get_option('bar_enabled') == 'yes' ) {
+        if ( $this->payment->get_option('bar_enabled') == 'yes' ) {
             echo '<easycredit-box-top></easycredit-box-top>';
         }
     }
@@ -61,8 +68,8 @@ class WC_Easycredit_Marketing
             return;
         }
 
-        if ( $this->gateway->get_option('card_enabled') == 'yes' ) {
-            echo '<easycredit-box-listing class="easycredit-box-listing-adjusted" src="' . $this->gateway->get_option('card_src') . '" position="' . $this->gateway->get_option('card_position') . '"></easycredit-box-listing>';
+        if ( $this->payment->get_option('card_enabled') == 'yes' ) {
+            echo '<easycredit-box-listing class="easycredit-box-listing-adjusted" src="' . $this->payment->get_option('card_src') . '" position="' . $this->payment->get_option('card_position') . '"></easycredit-box-listing>';
         }
 
         do_action( 'add_component_tags_shop_loop' );
@@ -77,14 +84,14 @@ class WC_Easycredit_Marketing
             return;
         }
 
-        if ( $this->gateway->get_option('card_search_enabled') == 'yes' ) {
-            echo '<easycredit-box-listing class="easycredit-box-listing-adjusted" src="' . $this->gateway->get_option('card_src') . '" position="' . $this->gateway->get_option('card_position') . '"></easycredit-box-listing>';
+        if ( $this->payment->get_option('card_search_enabled') == 'yes' ) {
+            echo '<easycredit-box-listing class="easycredit-box-listing-adjusted" src="' . $this->payment->get_option('card_src') . '" position="' . $this->payment->get_option('card_position') . '"></easycredit-box-listing>';
         }
     }
 
     public function add_body_class($classes)
     {
-        if ( $this->gateway->get_option('bar_enabled') == 'yes' ) {
+        if ( $this->payment->get_option('bar_enabled') == 'yes' ) {
             $classes[] = 'easycredit-box-top';
         }
 

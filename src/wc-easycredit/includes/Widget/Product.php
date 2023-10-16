@@ -5,21 +5,19 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+namespace Netzkollektiv\EasyCredit\Widget;
 
-class WC_Easycredit_Widget_Product extends WC_Easycredit_Widget
+class Product extends WidgetAbstract
 {
     public function add_meta_tags($array)
     {
         $post = get_post();
 
-        $product = new WC_Product($post->ID);
+        $product = new \WC_Product($post->ID);
         if ($product->get_id()) {
-            echo '<meta name="easycredit-widget-selector" content="' . $this->gateway->get_option('widget_selector') . '">';
+            echo '<meta name="easycredit-widget-selector" content="' . $this->payment->get_option('widget_selector') . '">';
             echo '<meta name="easycredit-widget-price" content="' . $product->get_price() . '">';
-            echo '<meta name="easycredit-api-key" content="' . $this->gateway->get_option('api_key') . '">';
+            echo '<meta name="easycredit-api-key" content="' . $this->plugin->get_option('api_key') . '">';
         }
     }
 
@@ -34,7 +32,7 @@ class WC_Easycredit_Widget_Product extends WC_Easycredit_Widget
         if ($post->post_type != 'product'
             || !$post->ID
             || !is_product()
-            || $this->gateway->get_option('widget_enabled') != 'yes'
+            || $this->payment->get_option('widget_enabled') != 'yes'
         ) {
             return false;
         }

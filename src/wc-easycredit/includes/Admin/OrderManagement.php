@@ -1,7 +1,5 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
-}
+namespace Netzkollektiv\EasyCredit\Admin;
 
 use Teambank\RatenkaufByEasyCreditApiV3\ApiException;
 use Teambank\RatenkaufByEasyCreditApiV3\Model\CaptureRequest;
@@ -9,18 +7,23 @@ use Teambank\RatenkaufByEasyCreditApiV3\Model\ConstraintViolation;
 use Teambank\RatenkaufByEasyCreditApiV3\Model\RefundRequest;
 use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 
-class WC_Easycredit_Order_Management
+use Netzkollektiv\EasyCredit\Plugin;
+use Netzkollektiv\EasyCredit\Integration;
+
+class OrderManagement
 {
     protected $_field = 'merchant-status';
-    protected $plugin;
-    protected $plugin_url;
-    protected $gateway;
 
-    public function __construct($plugin)
-    {
+    protected $plugin;
+
+    protected $integration;
+
+    public function __construct(
+        Plugin $plugin,
+        Integration $integration
+    ) {
         $this->plugin = $plugin;
-        $this->plugin_url = $plugin->plugin_url;
-        $this->gateway = $this->plugin->get_gateway();
+        $this->integration = $integration;
 
         /* Wordpress Approach: HPOS disabled or older version */
         add_action('manage_shop_order_posts_custom_column', function($column, $order) {
@@ -48,8 +51,8 @@ class WC_Easycredit_Order_Management
         add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
 
         foreach (['shipped', 'refunded'] as $state) {
-            if ($this->gateway->get_option('mark_' . $state) == 'yes') {
-                $status = $this->gateway->get_option('mark_' . $state . '_status');
+            if ($this->plugin->get_option('mark_' . $state) == 'yes') {
+                $status = $this->plugin->get_option('mark_' . $state . '_status');
                 $status = str_replace('wc-', '', $status);
 
                 add_action('woocommerce_order_status_' . $status, [$this, 'mark_' . $state], 10, 2);
@@ -112,6 +115,9 @@ class WC_Easycredit_Order_Management
 
         if ($screen === 'shop_order' && $post_type !== 'shop_order') {
             return;
+        }
+        if (!$this->plugin->is_easycredit_method($this->get_order()->get_payment_method())) {
+            return false;
         }
 
         add_meta_box(
@@ -225,9 +231,6 @@ class WC_Easycredit_Order_Management
         if ($post === null) {
             global $post;
         }
-        if ($post instanceof WP_Post) {
-            $post = $post->ID;
-        }
-        return wc_get_order($post);
+        return new \WC_Order($post_id);
     }
 }

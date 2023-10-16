@@ -5,25 +5,33 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+namespace Netzkollektiv\EasyCredit;
 
 use Teambank\RatenkaufByEasyCreditApiV3 as ApiV3;
 use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 
-class WC_Easycredit_Plugin
+use Netzkollektiv\EasyCredit\Gateway;
+
+class Plugin
 {
     public $id;
-    public $file;
-    public $plugin_path;
+
+    private $file;
+
+    private $plugin_path;
+
     public $plugin_url;
-    public $includes_path;
-    public $gateway;
-    public $rewrite_rules = [
+
+    private $rewrite_rules = [
         'easycredit/(cancel)/?' => 'index.php?easycredit[action]=$matches[1]',
         'easycredit/(express)/?' => 'index.php?easycredit[action]=$matches[1]'
     ];
+
+    private $integration;
+
+    private $expressCheckout;
+
+    private $payment_gateways;
 
     public function __construct($file)
     {
@@ -32,27 +40,67 @@ class WC_Easycredit_Plugin
         
         $this->plugin_path = trailingslashit(plugin_dir_path($this->file));
         $this->plugin_url = trailingslashit(plugin_dir_url($this->file));
-        $this->includes_path = $this->plugin_path . trailingslashit('includes');
     }
 
     public function run()
     {
-        require_once $this->includes_path . 'class-loader.php';
-        new WC_Easycredit_Loader($this);
+        $plugin = $this;
+
+        $this->integration = $integration = new Integration(
+            $plugin
+        );
+        $fieldProvider = new Config\FieldProvider();
+
+        $this->payment_gateways = [];
+        foreach (['Ratenkauf','Rechnung'] as $method) {
+            $class = 'Netzkollektiv\\EasyCredit\\Gateway\\'.$method;
+            $this->payment_gateways[$method] = new $class(
+                $plugin,
+                $integration,
+                $fieldProvider
+            );
+        }
+        $configGeneralSection = new Config\General(
+            $fieldProvider
+        );
+        $sectionsRenderer = new Config\SectionsRenderer(
+            $configGeneralSection,
+            $this->payment_gateways
+        );
 
         if (!is_admin()) {
-            new WC_Easycredit_Widget_Product($this);
-            new WC_Easycredit_Widget_Cart($this);
-            new WC_Easycredit_Express_Checkout($this);
-            new WC_Easycredit_Marketing($this);
+            new Widget\Product(
+                $plugin,
+                $this->payment_gateways['Ratenkauf']
+            );
+            new Widget\Cart(
+                $plugin,
+                $this->payment_gateways['Ratenkauf']
+            );
+            $this->expressCheckout = new ExpressCheckout(
+                $plugin,
+                $integration,
+                $this->payment_gateways['Ratenkauf']
+            );
+            new Marketing\Components(
+                $plugin,
+                $this->payment_gateways['Ratenkauf']
+            );
         }
 
         if (is_admin()) {
-            new WC_Easycredit_Order_Management($this);
-            new WC_Easycredit_Marketing_Blocks($this);
+            new Admin\OrderManagement(
+                $plugin,
+                $integration
+            );
+            new Admin\RestApi(
+                $plugin, 
+                $integration
+            );
+            new Marketing\Blocks($plugin);
         }
 
-        add_action('rest_api_init', [$this, 'init_api']);
+        add_filter('woocommerce_payment_gateways', [$this, 'payment_gateways']);
 
         add_action('admin_enqueue_scripts', [$this, 'enqueue_backend_resources']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_resources']);
@@ -62,28 +110,12 @@ class WC_Easycredit_Plugin
         add_action('admin_post_wc_easycredit_verify_credentials', [$this, 'verify_credentials']);
         add_filter('plugin_action_links_' . plugin_basename($this->file), [$this, 'plugin_links']);
 
-        add_action('template_redirect', [$this->get_gateway(), 'payment_review_before']);
-        add_shortcode($this->get_review_shortcode(), [$this->get_gateway(), 'payment_review']);
+        add_action('template_redirect', [$this, 'payment_review_before']);
+        add_shortcode($this->get_review_shortcode(), [$this, 'payment_review']);
 
         add_action('init', [$this, 'add_rewrite_rules']);
         add_action('admin_init', [$this, 'check_rewrite_rules']);
         add_action('template_redirect', [$this, 'handle_controller']);
-    }
-
-    public function init_api()
-    {
-        new WC_Easycredit_RestApi(
-            $this,
-            new WC_Easycredit_Order_Management($this)
-        );
-    }
-
-    public function get_gateway()
-    {
-        if (!isset($this->gateway)) {
-            $this->gateway = new WC_Easycredit_Gateway();
-        }
-        return $this->gateway;
     }
 
     public function maybe_run()
@@ -163,6 +195,18 @@ class WC_Easycredit_Plugin
         }
     }
 
+    public function payment_gateways($gateways)
+    {
+        foreach ($this->payment_gateways as $payment_gateway) {
+            $gateways[] = $payment_gateway;
+        }
+        return $gateways;
+    }
+
+    public function get_option($option, $default_value = false) {
+        return get_option('easycredit_'.$option, $default_value);
+    }
+
     public function handle_controller()
     {
         global $wp_query;
@@ -175,18 +219,23 @@ class WC_Easycredit_Plugin
         }
     }
 
+    public function get_transient($name)
+    {
+        return ($this->get_option('debug')) ? false : get_transient($name);
+    }
+
     public function expressAction()
     {
         try {
             try {
-                $this->gateway->get_storage()
+                $this->integration->storage()
                     ->set('express', true);
 
-                $quote = $this->gateway->get_quote_builder()->build(
-                    $this->gateway->get_tmp_order()
+                $quote = $this->integration->quote_builder()->build(
+                    $this->integration->get_tmp_order()
                 );
 
-                $checkout = $this->gateway->get_checkout();
+                $checkout = $this->integration->checkout();
                 $checkout->start($quote);
 
                 wp_redirect($checkout->getRedirectUrl());
@@ -202,11 +251,30 @@ class WC_Easycredit_Plugin
                 throw $e;
             }
         } catch (\Exception $e) {
-            $this->gateway->get_storage()
+            $this->integration->storage()
                 ->set('express', false);
 
-            $this->get_gateway()->handleError($e->getMessage());
+            $this->handleError($e->getMessage());
         }
+    }
+
+    /*
+     * add notice, redirect to cart / cancel order and clear easycredit storage 
+     **/
+    public function handleError($message)
+    {
+        $this->integration->logger()->error($message);
+        wc_add_notice(__($message, 'wc-easycredit'), 'error');
+        $this->integration->checkout()->clear();
+
+        $url = wc_get_page_permalink('cart');
+
+        $order = $this->get_current_order();
+        if ($order) {
+            $url = $order->get_cancel_order_url_raw();
+        }
+        wp_safe_redirect($url);
+        exit;
     }
 
     public function activate_single_site()
@@ -223,6 +291,54 @@ class WC_Easycredit_Plugin
             );
         }
         delete_transient('woocommerce_cache_excluded_uris');
+    }
+
+    public function payment_review_before()
+    {
+        if ((int)get_option('woocommerce_easycredit_checkout_review_page_id') === (int)get_queried_object_id()) {
+            try {
+                $this->integration->checkout()->loadTransaction();
+            } catch (\Exception $e) {
+                return $this->handleError($e->getMessage());
+            }
+        }
+    }
+
+    public function payment_review()
+    {
+        if (is_admin()) {
+            return;
+        }
+
+        $transaction = $this->integration->checkout()->loadTransaction();
+
+        if ($this->integration->storage()->get('express')) {
+            $this->expressCheckout->create_order($transaction);
+        }
+
+        $order = $this->get_current_order();
+        if (!$order) {
+            return;
+        }
+
+        ob_start();
+        $this->load_template('review-order', [
+            'gateway' => $this,
+            'order' => $order,
+        ]);
+        $content = ob_get_contents();
+        ob_end_clean();
+        return $content;
+    }
+
+    public function get_current_order()
+    {
+        $order_id = $this->integration->storage()->get('order_id');
+        if (!$order_id) {
+            return false;
+        }
+
+        return wc_get_order($order_id);
     }
 
     public function get_review_page_data()
@@ -359,8 +475,7 @@ class WC_Easycredit_Plugin
             'msg' => __('Credentials valid!', 'wc-easycredit'),
         ];
 
-        $payment = new WC_Easycredit_Gateway();
-        $error = $payment->check_credentials($_REQUEST['api_key'], $_REQUEST['api_token'], $_REQUEST['api_signature']);
+        $error = $this->check_credentials($_REQUEST['api_key'], $_REQUEST['api_token'], $_REQUEST['api_signature']);
         if ($error) {
             $status = [
                 'status' => false,
@@ -369,6 +484,42 @@ class WC_Easycredit_Plugin
         }
 
         wp_send_json($status);
+    }
+
+    public function check_credentials($apiKey, $apiToken, $apiSignature = null)
+    {
+        if (!empty($apiKey) && !empty($apiToken)) {
+            try {
+                try {
+                    $this->integration->get_checkout()->verifyCredentials($apiKey, $apiToken, $apiSignature);
+                } catch (ApiV3\Integration\ApiCredentialsInvalidException $e) {
+                    $settingsUri = admin_url('admin.php?page=wc-settings&tab=checkout&section=easycredit');
+                    return implode(' ', [
+                        __('easyCredit-Ratenkauf credentials are not valid.', 'wc-easycredit'),
+                        sprintf(__('Please go to <a href="%s">plugin settings</a> and correct API Key and API Token.', 'wc-easycredit'), $settingsUri),
+                    ]);
+                } catch (ApiV3\Integration\ApiCredentialsNotActiveException $e) {
+                    return __('Your credentials are valid, but your account has not been activated yet.', 'wc-easycredit');
+                } catch (ApiV3\ApiException $e) {
+                    if ($e->getResponseObject() instanceof ApiV3\Model\ConstraintViolation) {
+                        $messages = [];
+                        foreach ($e->getResponseObject()->getViolations() as $violation) {
+                            $messages[] = implode(': ', [$violation->getField(), $violation->getMessage()]);
+                        }
+                        return implode(' ', [
+                            __('easyCredit-Ratenkauf credentials are not valid.', 'wc-easycredit'),
+                            sprintf(__('An error occured while checking your credentials: %s', 'wc-easycredit'), implode(', ', $messages)),
+                        ]);
+                    }
+                    throw $e;
+                }
+            } catch (\Exception $e) {
+                error_log($e->getMessage());
+                return sprintf(__('An error occured while checking your credentials: %s', 'wc-easycredit'), $e->getMessage());
+            }
+        } else {
+            return __('Please enter your credentials to use easyCredit-Ratenkauf payment plugin in the <a href="%s">plugin settings</a>.', 'wc-easycredit');
+        }
     }
 
     public function plugin_links($links)
@@ -383,7 +534,7 @@ class WC_Easycredit_Plugin
     {
         global $wpdb;
 
-        foreach (new DirectoryIterator(__DIR__.'/../migrations') as $fileInfo) {
+        foreach (new \DirectoryIterator(__DIR__.'/../migrations') as $fileInfo) {
             if ($fileInfo->getExtension() !== 'php') {
                 continue;
             }
@@ -411,5 +562,9 @@ class WC_Easycredit_Plugin
             require_once $fileInfo->getPathname();
             set_transient($slug, true);
         }
+    }
+
+    public function is_easycredit_method ($method) {
+        return strncmp($method, $this->id, strlen($this->id)) === 0;
     }
 }

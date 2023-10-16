@@ -5,35 +5,34 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+namespace Netzkollektiv\EasyCredit\Admin;
 
 use Teambank\RatenkaufByEasyCreditApiV3\ApiException;
 use Teambank\RatenkaufByEasyCreditApiV3\Model\CaptureRequest;
 use Teambank\RatenkaufByEasyCreditApiV3\Model\RefundRequest;
+use Netzkollektiv\EasyCredit\Plugin;
 
-class WC_Easycredit_RestApi
+
+class RestApi
 {
     protected $plugin;
-    protected $plugin_url;
-    protected $gateway;
-    protected $order_management;
 
-    public function __construct($plugin, $order_management)
-    {
+    protected $integration;
+    
+    public function __construct(
+        Plugin $plugin, 
+        $integration 
+    ) {
         $this->plugin = $plugin;
-        $this->plugin_url = $plugin->plugin_url;
-        $this->gateway = $this->plugin->get_gateway();
+        $this->integration = $integration;
 
-        $this->order_management = $order_management;
-
-        if (is_user_logged_in() && (
-            current_user_can('shop_manager')
-            || current_user_can('administrator')
-        )) {
-            $this->register_routes();
-        }
+        add_action('rest_api_init', function() {
+            if (is_user_logged_in() && (current_user_can('shop_manager') ||
+                current_user_can('administrator')
+            )) {
+                $this->register_routes();
+            }
+        });
     }
     
     public function register_routes()
@@ -63,11 +62,11 @@ class WC_Easycredit_RestApi
         ]);
     }
 
-    public function get_transactions(WP_REST_Request $request)
+    public function get_transactions(\WP_REST_Request $request)
     {
         $transactionIds = $request->get_param('ids');
 
-        $response = $this->gateway->get_merchant_client()
+        $response = $this->integration->get_merchant_client()
             ->apiMerchantV3TransactionGet(null, null, null, 100, null, null, null, null, [
                 'tId' => $transactionIds,
             ]);
@@ -75,23 +74,23 @@ class WC_Easycredit_RestApi
         return $this->respondWithJson($response);
     }
 
-    public function get_transaction(WP_REST_Request $request)
+    public function get_transaction(\WP_REST_Request $request)
     {
         $transactionId = $request->get_param('id');
 
-        $response = $this->gateway->get_merchant_client()
+        $response = $this->integration->get_merchant_client()
             ->apiMerchantV3TransactionTransactionIdGet($transactionId);
 
         return $this->respondWithJson($response);
     }
 
-    public function capture(WP_REST_Request $request)
+    public function capture(\WP_REST_Request $request)
     {
         try {
             $transactionId = $request->get_param('id');
             $requestData = json_decode($request->get_body());
 
-            $response = $this->gateway->get_merchant_client()
+            $response = $this->integration->get_merchant_client()
                 ->apiMerchantV3TransactionTransactionIdCapturePost(
                     $transactionId,
                     new CaptureRequest([
@@ -109,13 +108,13 @@ class WC_Easycredit_RestApi
         }
     }
 
-    public function refund(WP_REST_Request $request)
+    public function refund(\WP_REST_Request $request)
     {
         try {
             $transactionId = $request->get_param('id');
             $requestData = json_decode($request->get_body());
 
-            $response = $this->gateway->get_merchant_client()
+            $response = $this->integration->get_merchant_client()
                 ->apiMerchantV3TransactionTransactionIdRefundPost(
                     $transactionId,
                     new RefundRequest([
