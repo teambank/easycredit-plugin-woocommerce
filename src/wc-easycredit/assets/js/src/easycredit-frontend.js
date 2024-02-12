@@ -58,7 +58,7 @@ jQuery(function($){
                 form.append('<input type="hidden" name="terms" value="On" />')
                 form.append('<input type="hidden" name="legal" value="On" />')
                 if (e.detail && e.detail.numberOfInstallments) {
-                    form.append('<input type="hidden" name="easycredit[number-of-installments]" value="'+ e.detail.numberOfInstallments +'" />')
+                    form.append('<input type="hidden" name="easycredit[financingTerm]" value="'+ e.detail.numberOfInstallments +'" />')
                 }
                 form.submit();
 
@@ -146,7 +146,7 @@ jQuery(function($){
                     window.location.href = $(this).data('url');
                     return;
                 }
-                alert('Der easyCredit-Ratenkauf konnte nicht gestartet werden.');
+                alert('Der easyCredit Zahlungsprozess konnte nicht gestartet werden.');
             });
             $('form.variations_form').on('show_variation', function(event, data, purchasable) {
                 (!purchasable) ? $(selector).hide() : $(selector).show();

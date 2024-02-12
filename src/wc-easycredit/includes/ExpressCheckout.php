@@ -67,7 +67,7 @@ class ExpressCheckout
         }
     }
 
-    protected function create_express_checkout_order($transaction)
+    public function create_order($transaction)
     {
         $updateAddress = function ($address, $type = 'billing') {
             $fields = [
@@ -123,7 +123,7 @@ class ExpressCheckout
 
         $product = new \WC_Product($post->ID);
 
-        if ($product->is_in_stock() && $product->get_price() > 199 && $product->get_price() <= 10000) {
+        if ($product->is_in_stock()) {
             echo '<easycredit-express-button 
                 webshop-id="' . $this->plugin->get_option('api_key') . '"
                 amount="' . $product->get_price() . '"

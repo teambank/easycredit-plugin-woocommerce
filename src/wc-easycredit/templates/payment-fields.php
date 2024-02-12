@@ -3,6 +3,7 @@
 /** @var string $easyCreditWebshopId */
 /** @var string $easyCreditError */
 /** @var string $easyCreditAmount */
+/** @var string $easyCreditPaymentType */
 
 $id = esc_attr($easyCredit->id); ?>
 <easycredit-checkout
@@ -11,4 +12,5 @@ $id = esc_attr($easyCredit->id); ?>
     amount="<?php echo $easyCreditAmount; ?>"
     is-active="true"
     payment-plan=""
+    method="<?php echo $easyCreditPaymentType; ?>"
 />

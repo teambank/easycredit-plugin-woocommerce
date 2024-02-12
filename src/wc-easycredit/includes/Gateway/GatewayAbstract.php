@@ -6,13 +6,18 @@ use Teambank\RatenkaufByEasyCreditApiV3 as ApiV3;
 use Netzkollektiv\EasyCredit\Config\FieldProvider;
 use Netzkollektiv\EasyCredit\Integration;
 use Netzkollektiv\EasyCredit\Plugin;
+use Netzkollektiv\EasyCredit\Helper\TemporaryOrder;
 
 abstract class GatewayAbstract extends \WC_Payment_Gateway
 {
-    public static $initialized = false;
+    public static $initialized = [
+        'easycredit-ratenkauf' => false,
+        'easycredit-rechnung' => false
+    ];
 
-    protected $fieldProvider;
     protected $integration;
+    protected $fieldProvider;
+    protected $temporaryOrderHelper;
 
     public $plugin;
     public $id;
@@ -30,13 +35,15 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
     public function __construct(
         Plugin $plugin,
         Integration $integration,
-        FieldProvider $fieldProvider
+        FieldProvider $fieldProvider,
+        TemporaryOrder $temporaryOrderHelper
     ) {
         $this->_construct();
 
         $this->plugin = $plugin;
         $this->integration = $integration;
         $this->fieldProvider = $fieldProvider;
+        $this->temporaryOrderHelper = $temporaryOrderHelper;
 
         $this->has_fields = true;
         $this->init_form_fields();
@@ -49,7 +56,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         $this->instructions = $this->get_option('instructions');
         $this->debug = $this->get_option('debug', false);
 
-        if (self::$initialized) {
+        if (self::$initialized[$this->id]) {
             return; // initialize payment gateway only once, e.g. WPML Woocommerce tries to initialize again which results in duplicate/wrong behavior
         }
 
@@ -66,10 +73,6 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
                 'woocommerce_before_pay_action',
                 [$this, 'proccess_payment_order_details']
             );
-            add_action(
-                'woocommerce_easycredit_order_item_totals',
-                [$this, 'order_item_totals']
-            );
         }
 
         if (is_admin()) {
@@ -81,54 +84,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
 
         add_action('woocommerce_email_before_order_table', [$this, 'email_instructions'], 10, 3);
 
-        self::$initialized = true;
-    }
-
-    public function admin_options()
-    {
-        ob_start();
-        parent::admin_options();
-        $parent_options = ob_get_contents();
-        ob_end_clean();
-
-        $shipping_methods = '';
-        foreach (WC()->shipping()->load_shipping_methods() as $method) {
-            $selected = ($this->get_option('clickandcollect_shipping_method') == $method->id) ? 'selected="selected"' : '';
-            $shipping_methods .= '<option value="' . $method->id . '" ' . $selected . '>' . $method->get_method_title() . '</option>';
-        }
-
-        $parent_options = preg_replace(
-            '!(id="woocommerce_easycredit_clickandcollect_shipping_method".*?>)(.+?)(</select>)!s',
-            '$1$2' . $shipping_methods . '$3',
-            (string)$parent_options
-        );
-
-        $marketing_settings = [
-            'express_checkout', 'widget', 'modal', 'card', 'flashbox', 'bar', 'clickandcollect'
-        ];
-        foreach ($marketing_settings as $marketing_setting) {
-            preg_match(
-                '!(<h3 class="wc-settings-sub-title " id="woocommerce_easycredit_marketing_components_' . $marketing_setting . '".*?>)(.+?)\K(<table class="form-table">)(.+?)(</table>)!s',
-                (string)$parent_options,
-                $html_extracted_matches
-            );
-            $parent_options = preg_replace(
-                '!(<h3 class="wc-settings-sub-title " id="woocommerce_easycredit_marketing_components_' . $marketing_setting . '".*?>)(.+?)(<table class="form-table">)(.+?)(</table>)!s',
-                '',
-                (string)$parent_options
-            );
-            $parent_options = preg_replace(
-                '!(class="easycredit-marketing__content__settings settings-' . $marketing_setting . '".*?>)(.+?)(</div>)!s',
-                '$1' . $html_extracted_matches[0] . '$3',
-                (string)$parent_options
-            );
-        }
-?>
-        <div class="easycredit-wrapper">
-            <?php include(dirname(__FILE__) . '/../templates/template-intro.php'); ?>
-            <?php echo $parent_options; ?>
-        </div>
-<?php
+        self::$initialized[$this->id] = true;
     }
 
     public function validate_fields()
@@ -137,7 +93,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         if (isset($wp->query_vars['order-pay'])) {
             $order = wc_get_order($wp->query_vars['order-pay']);
         } else {
-            $order = $this->get_tmp_order();
+            $order = $this->temporaryOrderHelper->get_order();
         }
 
         try {
@@ -166,7 +122,9 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         $backtrace = debug_backtrace();
         if ($backtrace[1]['function'] == 'include') {
             $this->plugin->load_template('payment-method-title', [
-                'title' => parent::get_title(),
+                'test_id' => $this->id,
+                'label' => parent::get_title(),
+                'slogan' => $this->get_option('subtitle'),
             ]);
             return '';
         }
@@ -225,7 +183,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
 
     public function maybe_order_confirm()
     {
-        if (!isset($_POST['woo-' . $this->id . '-confirm'])) {
+        if (!isset($_POST['woo-' . $this->plugin->id . '-confirm'])) {
             return;
         }
 
@@ -270,10 +228,11 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
             }
 
             $storage = $this->integration->storage();
-            
-            $order->add_meta_data($this->id . '-interest-amount', $storage->get('interest_amount'), true);
-            $order->add_meta_data($this->id . '-transaction-id',$storage->get('transaction_id'), true);
-            $order->add_meta_data($this->id . '-token', $storage->get('token'), true);
+
+            $order->add_meta_data(Plugin::META_KEY_TOKEN, $storage->get('token'), true);
+            $order->add_meta_data(Plugin::META_KEY_INTEREST_AMOUNT, $storage->get('interest_amount'), true);
+            $order->add_meta_data(Plugin::META_KEY_SEC_TOKEN, $storage->get('sec_token'), true);
+            $order->add_meta_data(Plugin::META_KEY_TRANSACTION_ID,$storage->get('transaction_id'), true);
 
             $order->save();
 
@@ -298,7 +257,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
                 } catch (ApiV3\Integration\ApiCredentialsInvalidException $e) {
                     $settingsUri = admin_url('admin.php?page=wc-settings&tab=checkout&section=easycredit');
                     return implode(' ', [
-                        __('easyCredit-Ratenkauf credentials are not valid.', 'wc-easycredit'),
+                        __('easyCredit payment credentials are not valid.', 'wc-easycredit'),
                         sprintf(__('Please go to <a href="%s">plugin settings</a> and correct API Key and API Token.', 'wc-easycredit'), $settingsUri),
                     ]);
                 } catch (ApiV3\Integration\ApiCredentialsNotActiveException $e) {
@@ -310,7 +269,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
                             $messages[] = $violation->getMessageDE() ? $violation->getMessageDE() :  $violation->getMessage();
                         }
                         return implode(' ', [
-                            __('easyCredit-Ratenkauf credentials are not valid.', 'wc-easycredit'),
+                            __('easyCredit pamyent credentials are not valid.', 'wc-easycredit'),
                             sprintf(__('An error occured while checking your credentials: %s', 'wc-easycredit'), implode(', ', $messages)),
                         ]);
                     }
@@ -321,45 +280,8 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
                 return sprintf(__('An error occured while checking your credentials: %s', 'wc-easycredit'), $e->getMessage());
             }
         } else {
-            return __('Please enter your credentials to use easyCredit-Ratenkauf payment plugin in the <a href="%s">plugin settings</a>.', 'wc-easycredit');
+            return __('Please enter your credentials in the <a href="%s">plugin settings</a> to use the easyCredit payment plugin.', 'wc-easycredit');
         }
-    }
-
-    public function abort_create_order($order)
-    {
-        $this->tmp_order = $order;
-        throw new \Exception(__CLASS__ . '_tmp_order');
-    }
-
-    public function prevent_remove_items()
-    {
-        return false;
-    }
-
-    public function get_tmp_order()
-    {
-        add_action('woocommerce_checkout_create_order', [$this, 'abort_create_order']);
-        add_filter('woocommerce_order_has_status', [$this, 'prevent_remove_items']);
-
-        $wc_checkout = \WC_Checkout::instance();
-        $postData = [];
-        if (isset($_POST['post_data'])) {
-            parse_str($_POST['post_data'], $postData);
-        } else {
-            $postData = $_POST;
-        }
-        $postData['payment_method'] = 'easycredit';
-
-        $wc_checkout->create_order($postData);
-
-        remove_filter('woocommerce_order_has_status', [$this, 'prevent_remove_items']);
-        remove_action('woocommerce_checkout_create_order', [$this, 'abort_create_order'], 10);
-
-        $order = $this->tmp_order;
-        if ($order && isset($postData['ship_to_different_address'])) {
-            $order->add_meta_data('ship_to_different_address', $postData['ship_to_different_address']);
-        }
-        return $order;
     }
 
     public function payment_fields()
@@ -371,7 +293,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         if (isset($wp->query_vars['order-pay'])) {
             $order = wc_get_order($wp->query_vars['order-pay']);
         } else {
-            $order = $this->get_tmp_order();
+            $order = $this->temporaryOrderHelper->get_order();
         }
 
         if (is_null($order)) {
@@ -399,6 +321,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
             'easyCreditWebshopId' => $this->get_option('api_key'),
             'easyCreditAmount' => isset($quote) ? $quote->getOrderDetails()->getOrderValue() : 0,
             'easyCreditError' => $error,
+            'easyCreditPaymentType' => static::PAYMENT_TYPE,
         ]);
     }
 
@@ -409,24 +332,6 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         $this->form_fields = $fields;
     }
 
-    public function generate_marketingintro_html()
-    {
-        ob_start();
-        include(dirname(__FILE__) . '/../templates/template-marketing.php');
-        $contents = ob_get_clean();
-
-        return $contents;
-    }
-
-    public function generate_clickandcollectintro_html()
-    {
-        ob_start();
-        include(dirname(__FILE__) . '/../templates/template-click-and-collect.php');
-        $contents = ob_get_clean();
-
-        return $contents;
-    }
-
     public function get_option($key, $empty_value = null)
     {
         $option = parent::get_option($key, $empty_value);
@@ -435,6 +340,10 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
             return $this->get_field_default(
                 $this->get_form_fields()[$key]
             );
+        }
+
+        if ('' === $option) {
+            $option = $this->plugin->get_option($key, $empty_value = null);
         }
         return $option;
     }
@@ -457,19 +366,18 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         }
     }
 
-    public function get_confirm_url()
-    {
-        $query_args = [
-            'woo-' . $this->id . '-return' => true,
-        ];
-        return add_query_arg($query_args, $this->plugin->get_review_page_uri());
-    }
-
     public function process_payment($order_id)
     {
         $order = wc_get_order($order_id);
 
         try {
+            $postData = $_POST['easycredit'];
+            if (isset($postData['financingTerm'])) {
+                $this->integration
+                    ->storage()
+                    ->set('financingTerm', intval($postData['financingTerm']));
+            }
+
             $quote = $this->integration->quote_builder()->build($order);
 
             $checkout = $this->integration->checkout();
@@ -511,26 +419,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         ];
     }
 
-    public function order_item_totals($order)
-    {
-        $interest = $this->integration->storage()->get('interest_amount');
 
-        $_totals = [];
-        foreach ($order->get_order_item_totals() as $key => $total) {
-            if ($key == 'payment_method') {
-                continue;
-            }
-            if ($key == 'order_total') {
-                $_totals['interest'] = [
-                    'label' => __('Interest:', 'wc-easycredit'),
-                    'value' => wc_price($interest, ['currency', $order->get_currency()]),
-                ];
-                $total['value'] = $this->get_total_including_interest($order);
-            }
-            $_totals[$key] = $total;
-        }
-        return $_totals;
-    }
 
     public function proccess_payment_order_details($order)
     {
@@ -540,17 +429,5 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
                 $order->add_meta_data($key, $_POST[$key], true);
             }
         }
-    }
-
-    protected function get_total_including_interest($order)
-    {
-        $interest = $this->integration->storage()->get('interest_amount');
-
-        $total = $order->get_total();
-        $order->set_total($total + $interest);
-        $_total = $order->get_formatted_order_total();
-        $order->set_total($total);
-
-        return $_total;
     }
 }

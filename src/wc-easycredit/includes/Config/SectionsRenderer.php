@@ -37,7 +37,7 @@ class SectionsRenderer {
 
         $paymentMethodSections = [];
         foreach ($this->paymentGateways as $paymentGateway) {
-            $paymentMethodSections[$paymentGateway->id] = $paymentGateway->get_title();
+            $paymentMethodSections[$paymentGateway->id] = $paymentGateway->get_method_title();
         }
 
         return array_merge([

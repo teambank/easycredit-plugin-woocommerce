@@ -17,7 +17,7 @@
                 <div class="easycredit-marketing__grid">
                     <div class="easycredit-marketing__content">
                         <p>
-                            <?php _e('We provide you with a range of marketing components that you can easily activate in your online shop. In this way, you achieve an optimal presentation of financing via easyCredit-Ratenkauf, for higher sales and satisfied customers.', 'wc-easycredit'); ?>
+                            <?php _e('We provide you with a range of marketing components that you can easily activate in your online shop. In this way, you achieve an optimal presentation of payment via easyCredit, for higher sales and satisfied customers.', 'wc-easycredit'); ?>
                         </p>
 
                         <h3><?php _e('Useful links', 'wc-easycredit'); ?></h3>

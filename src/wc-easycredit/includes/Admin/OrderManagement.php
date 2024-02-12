@@ -54,7 +54,6 @@ class OrderManagement
             if ($this->plugin->get_option('mark_' . $state) == 'yes') {
                 $status = $this->plugin->get_option('mark_' . $state . '_status');
                 $status = str_replace('wc-', '', $status);
-
                 add_action('woocommerce_order_status_' . $status, [$this, 'mark_' . $state], 10, 2);
             }
         }
@@ -62,7 +61,7 @@ class OrderManagement
 
     public function get_field()
     {
-        return $this->gateway->id . '-' . $this->_field;
+        return $this->plugin->id . '-' . $this->_field;
     }
 
     public function get_endpoint_vars()
@@ -138,7 +137,7 @@ class OrderManagement
         }
         ?>
             <easycredit-merchant-manager 
-                tx-id="<?php echo $order->get_meta($this->gateway->id . '-transaction-id'); ?>" 
+                tx-id="<?php echo $order->get_meta(Plugin::META_KEY_TRANSACTION_ID); ?>" 
                 date="<?php echo $order->get_date_created()->format('Y-m-d'); ?>"    
             />
         <?php
@@ -146,19 +145,19 @@ class OrderManagement
 
     public function get_order_status_icon($order)
     {
-        if ($order->get_payment_method() !== $this->plugin->id) {
+        if (!$this->plugin->is_easycredit_method($order->get_payment_method())) {
             return;
         }
 
         return '<easycredit-merchant-status-widget  
-            tx-id="' . $order->get_meta($this->gateway->id . '-transaction-id') . '" 
+            tx-id="' . $order->get_meta(Plugin::META_KEY_TRANSACTION_ID) . '" 
             date="' . $order->get_date_created()->format('Y-m-d') . '" 
         ></easycredit-merchant-status-widget>';
     }
 
     public function mark_shipped($order_id, $order)
     {
-        if ($this->gateway->id !== $order->get_payment_method()) {
+        if (!$this->plugin->is_easycredit_method($order->get_payment_method())) {
             return;
         }
 
@@ -169,15 +168,15 @@ class OrderManagement
                     throw new \Exception(__('The transaction id of this transaction is not available. This usually happens if the webhook which confirms the transaction is not working properly.', 'wc-easycredit'));
                 }
 
-                $this->gateway->get_merchant_client()
+                $this->integration->merchant_client()
                     ->apiMerchantV3TransactionTransactionIdCapturePost(
                         $txId,
                         new CaptureRequest([])
                     );
-                $order->add_order_note(__('Shipment automatically set in easyCredit-Ratenkauf', 'wc-easycredit'));
+                $order->add_order_note(__('Shipment automatically set in easyCredit payment', 'wc-easycredit'));
             } catch (ApiException $e) {
                 if ($e->getResponseObject() instanceof ConstraintViolation) {
-                    $error = 'easyCredit-Ratenkauf: ';
+                    $error = 'easyCredit: ';
                     foreach ($e->getResponseObject()->getViolations() as $violation) {
                         $error .= $violation->getMessage();
                     }
@@ -192,10 +191,10 @@ class OrderManagement
 
     public function mark_refunded($order_id, $order)
     {
-        if ($this->gateway->id !== $order->get_payment_method()) {
+        if (!$this->plugin->is_easycredit_method($order->get_payment_method())) {
             return;
         }
-
+        
         try {
             try {
                 $txId = $order->get_transaction_id();
@@ -203,17 +202,17 @@ class OrderManagement
                     throw new \Exception(__('The transaction id of this transaction is not available. This usually happens if the webhook which confirms the transaction is not working properly.', 'wc-easycredit'));
                 }
 
-                $this->gateway->get_merchant_client()
+                $this->integration->merchant_client()
                     ->apiMerchantV3TransactionTransactionIdRefundPost(
                         $txId,
                         new RefundRequest([
                             'value' => $order->get_total(),
                         ])
                     );
-                $order->add_order_note(__('Refund automatically set in easyCredit-Ratenkauf', 'wc-easycredit'));
+                $order->add_order_note(__('Refund automatically set in easyCredit payment', 'wc-easycredit'));
             } catch (ApiException $e) {
                 if ($e->getResponseObject() instanceof ConstraintViolation) {
-                    $error = 'easyCredit-Ratenkauf: ';
+                    $error = 'easyCredit: ';
                     foreach ($e->getResponseObject()->getViolations() as $violation) {
                         $error .= $violation->getMessage();
                     }

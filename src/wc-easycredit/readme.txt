@@ -1,6 +1,6 @@
-=== easyCredit-Ratenkauf for wooCommerce ===
-Contributors: ratenkaufbyeasycredit, netzkollektiv
-Tags: payment, woocommerce, ratenkauf, pay by installments, easycredit
+=== easyCredit Rechnung & Ratenkauf for wooCommerce ===
+Contributors: easycredit, ratenkaufbyeasycredit, netzkollektiv, easycredit-ratenkauf, easycredit-rechnungskauf
+Tags: payment, woocommerce, ratenkauf, pay by installments, easycredit, pay later
 Requires at least: 4.4
 Tested up to: 6.5
 Requires PHP: 7.0

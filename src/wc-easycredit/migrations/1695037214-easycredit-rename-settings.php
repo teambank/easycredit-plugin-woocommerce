@@ -8,3 +8,7 @@ $wpdb->query("UPDATE ".$wpdb->prefix."posts Set
     post_content = REPLACE(post_content, '[woocommerce_ratenkaufbyeasycredit_checkout_review]', '[woocommerce_easycredit_checkout_review]')
     WHERE post_content LIKE '%[woocommerce_ratenkaufbyeasycredit_checkout_review]%' AND post_status = 'publish';
 ");
+$wpdb->query("UPDATE " . $wpdb->prefix . "postmeta Set 
+    meta_key = REPLACE(meta_key, 'ratenkaufbyeasycredit-', 'easycredit-')
+    WHERE meta_key LIKE 'ratenkaufbyeasycredit-%';
+");

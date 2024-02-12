@@ -3,6 +3,8 @@ namespace Netzkollektiv\EasyCredit\Gateway;
 
 class Rechnung extends GatewayAbstract
 {
+    const PAYMENT_TYPE = 'BILL_PAYMENT';
+
     public function _construct()
     {
         $this->id = 'easycredit-rechnung';

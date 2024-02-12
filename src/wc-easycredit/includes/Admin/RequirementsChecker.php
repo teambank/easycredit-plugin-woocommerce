@@ -26,7 +26,7 @@ class RequirementsChecker
     public function auto_check_requirements()
     {
         if (!filter_var(ini_get('allow_url_fopen'), \FILTER_VALIDATE_BOOLEAN)) {
-            echo $this->_display_settings_error(__('To use easyCredit-Ratenkauf the php.ini setting "allow_url_fopen" must be enabled.', 'wc-easycredit'));
+            echo $this->_display_settings_error(__('To use easyCredit payment the php.ini setting "allow_url_fopen" must be enabled.', 'wc-easycredit'));
         }
     }
 
@@ -63,7 +63,7 @@ class RequirementsChecker
         }
 
         echo $this->_display_settings_error(
-            __('The "easyCredit-Ratenkauf" review page does not exist. Probably it was deleted by mistake. The page is necessary to confirm "easyCredit-Ratenkauf" payments after being returned from the payment terminal. To restore the page, please restore it from the trash under "Pages", or deactivate and activate the plugin in the <a href="%s">plugin administration</a>.', 'wc-easycredit'),
+            __('The easyCredit payment review page does not exist. Probably it was deleted by mistake. The page is necessary to confirm easyCredit payments after being returned from the payment terminal. To restore the page, please restore it from the trash under "Pages", or deactivate and activate the plugin in the <a href="%s">plugin administration</a>.', 'wc-easycredit'),
             is_multisite() ? admin_url('network/plugins.php?s=easycredit') : admin_url('plugins.php?s=easycredit')
         );
         return;

@@ -66,7 +66,7 @@ class RestApi
     {
         $transactionIds = $request->get_param('ids');
 
-        $response = $this->integration->get_merchant_client()
+        $response = $this->integration->merchant_client()
             ->apiMerchantV3TransactionGet(null, null, null, 100, null, null, null, null, [
                 'tId' => $transactionIds,
             ]);
@@ -78,7 +78,7 @@ class RestApi
     {
         $transactionId = $request->get_param('id');
 
-        $response = $this->integration->get_merchant_client()
+        $response = $this->integration->merchant_client()
             ->apiMerchantV3TransactionTransactionIdGet($transactionId);
 
         return $this->respondWithJson($response);
@@ -90,7 +90,7 @@ class RestApi
             $transactionId = $request->get_param('id');
             $requestData = json_decode($request->get_body());
 
-            $response = $this->integration->get_merchant_client()
+            $response = $this->integration->merchant_client()
                 ->apiMerchantV3TransactionTransactionIdCapturePost(
                     $transactionId,
                     new CaptureRequest([
@@ -114,7 +114,7 @@ class RestApi
             $transactionId = $request->get_param('id');
             $requestData = json_decode($request->get_body());
 
-            $response = $this->integration->get_merchant_client()
+            $response = $this->integration->merchant_client()
                 ->apiMerchantV3TransactionTransactionIdRefundPost(
                     $transactionId,
                     new RefundRequest([

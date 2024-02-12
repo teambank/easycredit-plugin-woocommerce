@@ -87,7 +87,7 @@ class Integration
     public function quote_builder()
     {
         return new \Netzkollektiv\EasyCredit\Api\QuoteBuilder(
-            $this,
+            $this->plugin,
             $this->storage()
         );
     }

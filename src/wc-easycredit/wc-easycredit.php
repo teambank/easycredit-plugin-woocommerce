@@ -1,8 +1,9 @@
 <?php
+
 /**
- * Plugin Name:     easyCredit-Ratenkauf for WooCommerce
+ * Plugin Name:     easyCredit for WooCommerce
  * Plugin URI:      https://www.easycredit-ratenkauf.de/
- * Description:     easyCredit-Ratenkauf - use the easiest installment purchase of Germany for your WooCommerce store now
+ * Description:     easyCredit - use the easiest pay later and installment purchase of Germany for your WooCommerce store now
  * Author:          NETZKOLLEKTIV
  * Author URI:      https://netzkollektiv.com
  * License:         GPL2
