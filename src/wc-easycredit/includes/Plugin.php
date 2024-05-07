@@ -13,7 +13,6 @@ use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableControlle
 class Plugin
 {
     const META_KEY_TRANSACTION_ID = 'easycredit-transaction-id';
-    const META_KEY_SEC_TOKEN = 'easycredit-sec-token';
     const META_KEY_INTEREST_AMOUNT = 'easycredit-interest-amount';
     const META_KEY_TOKEN = 'easycredit-token';
 
