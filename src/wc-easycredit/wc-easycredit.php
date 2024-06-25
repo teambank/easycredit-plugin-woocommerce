@@ -73,8 +73,8 @@ if (array_filter(
         if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
             \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
         }
-        if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
-            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
+        if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, true);
         }
     });
 
@@ -83,16 +83,24 @@ if (array_filter(
     function woocommerce_gateway_easycredit_woocommerce_block_support()
     {
         if (class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType')) {
-            require_once dirname(__FILE__) . '/includes/class-wc-gateway-ratenkaufbyeasycredit-payment-method.php';
+            require_once dirname(__FILE__) . '/includes/Methods/Ratenkauf.php';
+            require_once dirname(__FILE__) . '/includes/Methods/Rechnung.php';
 
             add_action('woocommerce_blocks_payment_method_type_registration', function (Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry) {
-                    $container = Automattic\WooCommerce\Blocks\Package::container();
-                    $container->register(WC_Gateway_Ratenkaufbyeasycredit_Payment_Method::class, function () {
-                        return new WC_Gateway_Ratenkaufbyeasycredit_Payment_Method(__FILE__);
-                    });
-                    $payment_method_registry->register(
-                        $container->get(WC_Gateway_Ratenkaufbyeasycredit_Payment_Method::class)
-                    );
+                $container = Automattic\WooCommerce\Blocks\Package::container();
+                $container->register(Netzkollektiv\EasyCredit\Methods\Ratenkauf::class, function () {
+                    return new Netzkollektiv\EasyCredit\Methods\Ratenkauf(__FILE__);
+                });
+                $payment_method_registry->register(
+                    $container->get(Netzkollektiv\EasyCredit\Methods\Ratenkauf::class)
+                );
+
+                $container->register(Netzkollektiv\EasyCredit\Methods\Rechnung::class, function () {
+                    return new Netzkollektiv\EasyCredit\Methods\Rechnung(__FILE__);
+                });
+                $payment_method_registry->register(
+                    $container->get(Netzkollektiv\EasyCredit\Methods\Rechnung::class)
+                );
             }, 5);
         }
     }

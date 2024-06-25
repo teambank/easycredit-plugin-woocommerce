@@ -45,7 +45,7 @@ class Plugin
     {
         $this->id = WC_EASYCREDIT_ID;
         $this->file = $file;
-        
+
         $this->plugin_path = trailingslashit(plugin_dir_path($this->file));
         $this->plugin_url = trailingslashit(plugin_dir_url($this->file));
     }
@@ -62,8 +62,8 @@ class Plugin
         $this->temporaryOrderHelper = new Helper\TemporaryOrder();
 
         $this->paymentGateways = [];
-        foreach (['Ratenkauf','Rechnung'] as $method) {
-            $class = 'Netzkollektiv\\EasyCredit\\Gateway\\'.$method;
+        foreach (['Ratenkauf', 'Rechnung'] as $method) {
+            $class = 'Netzkollektiv\\EasyCredit\\Gateway\\' . $method;
             $this->paymentGateways[$method] = new $class(
                 $plugin,
                 $integration,
@@ -177,7 +177,7 @@ class Plugin
             $this->activate_single_site();
         }
     }
- 
+
     public function deactivate()
     {
         // nothing to do here currently
@@ -211,10 +211,11 @@ class Plugin
         }
     }
 
-    public function get_method_by_payment_type($paymentType) {
+    public function get_method_by_payment_type($paymentType)
+    {
         return current(array_filter($this->paymentGateways, function ($gateway) use ($paymentType) {
-            return $paymentType === $gateway::PAYMENT_TYPE;
-        }));        
+            return $paymentType === $gateway->PAYMENT_TYPE;
+        }));
     }
 
     public function payment_gateways($gateways)
@@ -225,7 +226,8 @@ class Plugin
         return $gateways;
     }
 
-    public function get_option($option_key, $default_value = false) {
+    public function get_option($option_key, $default_value = false)
+    {
         $options = get_option('woocommerce_easycredit_settings', $default_value);
         if (isset($options[$option_key])) {
             return $options[$option_key];
@@ -424,14 +426,15 @@ class Plugin
         if ($order->get_payment_method() != $this->id) {
             return;
         }
+
         echo "
             <p>Die Versandadresse kann bei easyCredit-Ratenkauf nicht nachträglich verändert werden.</p>
             <script>
-            jQuery('#order_data .order_data_column_container .order_data_column h3:contains(\"". esc_html__('Shipping', 'woocommerce') ."\") a.edit_address').hide();
+            jQuery('#order_data .order_data_column_container .order_data_column h3:contains(\"" . esc_html__('Shipping', 'woocommerce') . "\") a.edit_address').hide();
             </script>
         ";
     }
-    
+
     public function verify_credentials()
     {
         $status = [
@@ -498,7 +501,7 @@ class Plugin
     {
         global $wpdb;
 
-        foreach (new \DirectoryIterator(__DIR__.'/../migrations') as $fileInfo) {
+        foreach (new \DirectoryIterator(__DIR__ . '/../migrations') as $fileInfo) {
             if ($fileInfo->getExtension() !== 'php') {
                 continue;
             }
@@ -515,12 +518,13 @@ class Plugin
         }
     }
 
-    protected function migrate($fileInfo) {
-        $migrationId = $fileInfo->getBasename('.' .$fileInfo->getExtension());
-        if (!preg_match('/^\d+?-(.+?)$/',$migrationId, $matches)) {
+    protected function migrate($fileInfo)
+    {
+        $migrationId = $fileInfo->getBasename('.' . $fileInfo->getExtension());
+        if (!preg_match('/^\d+?-(.+?)$/', $migrationId, $matches)) {
             return;
         }
-        list ($time, $slug) = $matches;
+        list($time, $slug) = $matches;
 
         if (!get_transient($slug)) {
             require_once $fileInfo->getPathname();
@@ -528,7 +532,8 @@ class Plugin
         }
     }
 
-    public function is_easycredit_method ($method) {
+    public function is_easycredit_method($method)
+    {
         return strncmp($method, $this->id, strlen($this->id)) === 0;
     }
 }

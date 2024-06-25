@@ -1,4 +1,5 @@
 <?php
+
 namespace Netzkollektiv\EasyCredit\Gateway;
 
 use Teambank\RatenkaufByEasyCreditApiV3 as ApiV3;
@@ -10,9 +11,11 @@ use Netzkollektiv\EasyCredit\Helper\TemporaryOrder;
 
 abstract class GatewayAbstract extends \WC_Payment_Gateway
 {
+    public $PAYMENT_TYPE = null;
+
     public static $initialized = [
-        'easycredit-ratenkauf' => false,
-        'easycredit-rechnung' => false
+        'easycredit_ratenkauf' => false,
+        'easycredit_rechnung' => false
     ];
 
     protected $integration;
@@ -122,7 +125,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         $backtrace = debug_backtrace();
         if ($backtrace[1]['function'] == 'include') {
             $this->plugin->load_template('payment-method-title', [
-                'test_id' => $this->id,
+                'paymentType' => str_replace('_PAYMENT', '', $this->PAYMENT_TYPE),
                 'label' => parent::get_title(),
                 'slogan' => $this->get_option('subtitle'),
             ]);
@@ -231,7 +234,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
 
             $order->add_meta_data(Plugin::META_KEY_TOKEN, $storage->get('token'), true);
             $order->add_meta_data(Plugin::META_KEY_INTEREST_AMOUNT, $storage->get('interest_amount'), true);
-            $order->add_meta_data(Plugin::META_KEY_TRANSACTION_ID,$storage->get('transaction_id'), true);
+            $order->add_meta_data(Plugin::META_KEY_TRANSACTION_ID, $storage->get('transaction_id'), true);
 
             $order->save();
 
@@ -320,7 +323,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
             'easyCreditWebshopId' => $this->get_option('api_key'),
             'easyCreditAmount' => isset($quote) ? $quote->getOrderDetails()->getOrderValue() : 0,
             'easyCreditError' => $error,
-            'easyCreditPaymentType' => static::PAYMENT_TYPE,
+            'easyCreditPaymentType' => $this->PAYMENT_TYPE,
         ]);
     }
 

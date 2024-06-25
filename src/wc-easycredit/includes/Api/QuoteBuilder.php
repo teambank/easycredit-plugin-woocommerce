@@ -45,11 +45,12 @@ class QuoteBuilder
         return $this->quote->get_order_key();
     }
 
-    public function getPaymentType() {
-        if ($this->quote->get_payment_method() === 'easycredit-ratenkauf') {
+    public function getPaymentType()
+    {
+        if ($this->quote->get_payment_method() === 'easycredit_ratenkauf') {
             return 'INSTALLMENT_PAYMENT';
         }
-        if ($this->quote->get_payment_method() === 'easycredit-rechnung') {
+        if ($this->quote->get_payment_method() === 'easycredit_rechnung') {
             return 'BILL_PAYMENT';
         }
     }
@@ -118,7 +119,8 @@ class QuoteBuilder
             ->build($address);
     }
 
-    public function getCustomer() {
+    public function getCustomer()
+    {
         return $this->customerBuilder->build(
             $this->quote,
             $this->customer

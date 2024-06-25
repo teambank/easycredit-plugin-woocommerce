@@ -1,10 +1,11 @@
 import {
 	registerPaymentMethod,
 	registerExpressPaymentMethod,
-} from '@woocommerce/blocks-registry';
+} from "@woocommerce/blocks-registry";
 
-import paymentMethod from './payment-method';
-import expressPaymentMethod from './express-payment-method';
+import { getMethodConfiguration } from "./payment-method";
+import expressPaymentMethod from "./express-payment-method";
 
-registerPaymentMethod( paymentMethod );
-registerExpressPaymentMethod( expressPaymentMethod );
+registerPaymentMethod(getMethodConfiguration("easycredit_rechnung"));
+registerPaymentMethod(getMethodConfiguration("easycredit_ratenkauf"));
+registerExpressPaymentMethod(expressPaymentMethod);

@@ -26,12 +26,9 @@ if (!defined('ABSPATH')) {
 					);
 					?>
 				</h2>
-				<easycredit-checkout-label
-					label="<?php echo wp_kses_post( $order->get_payment_method_title() ) ?>" 
-					slogan="Jetzt kaufen. In 30 Tagen bezahlen."
-				>
+				<easycredit-checkout-label label="<?php echo wp_kses_post($order->get_payment_method_title()) ?>" slogan="Jetzt kaufen. In 30 Tagen bezahlen.">
 				</easycredit-checkout-label>
-				<?php if ($order->get_payment_method() === 'easycredit-ratenkauf'): ?>
+				<?php if ($order->get_payment_method() === 'easycredit_ratenkauf') : ?>
 					<easycredit-checkout payment-plan="<?php echo htmlspecialchars($summary); ?>">
 					</easycredit-checkout>
 				<?php endif; ?>
@@ -70,15 +67,15 @@ if (!defined('ABSPATH')) {
 
 	<tfoot>
 		<?php
-    	$totals = apply_filters(
-        	'woocommerce_easycredit_order_item_totals',
-        	$order
-    	);
+		$totals = apply_filters(
+			'woocommerce_easycredit_order_item_totals',
+			$order
+		);
 		foreach ($totals as $key => $total) : ?>
-            <tr>
-                <th scope="row"><?php echo $total['label']; ?></th>
-                <td><?php echo $total['value']; ?></td>
-            </tr>
+			<tr>
+				<th scope="row"><?php echo $total['label']; ?></th>
+				<td><?php echo $total['value']; ?></td>
+			</tr>
 		<?php endforeach; ?>
 		<?php if ($order->get_customer_note()) : ?>
 			<tr>

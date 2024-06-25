@@ -1,42 +1,56 @@
-import { useRef, useEffect } from '@wordpress/element';
-import { decodeEntities } from '@wordpress/html-entities';
-import { getSetting } from '@woocommerce/settings';
+import { useRef, useEffect } from "@wordpress/element";
+import { decodeEntities } from "@wordpress/html-entities";
+import { getSetting } from "@woocommerce/settings";
 
-const config = getSetting( 'ratenkaufbyeasycredit_data' );
+const getMethods = () => {
+	return Object.fromEntries(
+		Object.entries(getSetting("paymentMethodData")).filter(([key, val]) =>
+			key.match(/^easycredit_/),
+		),
+	);
+};
 
-const ExpressButton = ( props ) => {
-	const ecCheckoutButton = useRef( null );
+const methods = getMethods();
+const config = methods.easycredit_ratenkauf;
+
+const ExpressButton = (props) => {
+	const ecCheckoutButton = useRef(null);
 
 	/*
 	 * submit checkout if easycredit-checkout triggers submit event
 	 */
-	useEffect( () => {
-		if ( ! ecCheckoutButton.current ) {
+	useEffect(() => {
+		if (!ecCheckoutButton.current) {
 			return;
 		}
-		ecCheckoutButton.current.addEventListener( 'submit', () => {
+		ecCheckoutButton.current.addEventListener("submit", () => {
 			window.location.href = config.expressUrl;
-		} );
-	}, [ ecCheckoutButton ] );
+		});
+	}, [ecCheckoutButton]);
 
 	const amount = props.billing.cartTotal.value / 100;
+
 	return (
 		<easycredit-express-button
-			ref={ ecCheckoutButton }
-			webshop-id={ decodeEntities( config.apiKey ) }
-			amount={ amount }
+			ref={ecCheckoutButton}
+			webshop-id={decodeEntities(config.apiKey)}
+			amount={amount}
+			payment-types={getConfigProperties("paymentType").join(",")}
 		></easycredit-express-button>
 	);
 };
 
+const getConfigProperties = (propertyName) => {
+	return Object.entries(methods).map((method) => method[1][propertyName]);
+};
+
 const methodConfiguration = {
-	name: 'ratenkaufbyeasycredit_express',
+	name: "easycredit_ratenkauf",
 	content: <ExpressButton />,
 	edit: <ExpressButton />,
 	canMakePayment: () => {
-		return config.enabled;
+		return getConfigProperties("enabled").some(Boolean);
 	},
-	paymentMethodId: config.id,
 };
 
 export default methodConfiguration;
