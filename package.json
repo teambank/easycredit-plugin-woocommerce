@@ -14,10 +14,13 @@
     "deploy": "export $(cat .env | xargs) && bin/deploy-to-wordpress.sh --svn",
     "release": "bin/release.sh",
     "phpstan": "export $(cat .env | xargs) && cd $PLUGIN_DIR && vendor/bin/phpstan analyse .",
-    "fix-cs": "export $(cat .env | xargs) && cd $PLUGIN_DIR && vendor/bin/ecs check --fix --config=../../ecs.php"
+    "fix-cs": "export $(cat .env | xargs) && cd $PLUGIN_DIR && vendor/bin/ecs check --fix --config=../../ecs.php",
+    "wp-env": "wp-env" 
   },
   "dependencies": {
-    "@playwright/test": "^1.43",
-    "grunt-contrib-sass": "^2.0.0"
+    "@playwright/test": "^1.43"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9"
   }
 }

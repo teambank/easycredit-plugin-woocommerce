@@ -101,28 +101,8 @@ jobs:
 
           wp core install --url=localhost --title=Example --admin_user=admin --admin_password=password --admin_email=info@example.com
           wp plugin install woocommerce --version=${{ matrix.woocommerce-version }} --activate
-          wp theme install storefront --activate
 
-          wp language plugin install woocommerce de_DE
-
-          #wp option pluck woocommerce_onboarding_profile 'skipped'
-          wp option update woocommerce_show_marketplace_suggestions 'no'
-          wp option update woocommerce_allow_tracking 'no'
-          wp option update woocommerce_task_list_complete 'yes'
-          wp option update woocommerce_task_list_welcome_modal_dismissed 'yes'
-          wp option update woocommerce_default_country 'DE:DE-BY'
-          wp option update woocommerce_currency 'EUR'
-          wp rewrite structure '/index.php/%postname%/'
-
-          wp wc product create --name=Test --slug=Test --type=simple --status=1 --sku=test --regular_price=201 --status=publish --user=admin
-
-          PID=`wp wc product create --name=Variable --slug=Variable --type=variable --status=1 --sku=variable --regular_price=201 --status=publish --user=admin --attributes='[
-            { "name": "Size", "options" : ["small", "medium", "large"], "visible": true, "variation": true }
-          ]' --porcelain`
-          wp wc product_variation create $PID --attributes='[{"name":"Size","option":"small"}]' --regular_price=201 --user=admin
-          wp wc product_variation create $PID --attributes='[{"name":"Size","option":"medium"}]' --regular_price=21 --user=admin
-          wp wc product_variation create $PID --attributes='[{"name":"Size","option":"large"}]' --regular_price=21 --user=admin
-
+          $GITHUB_WORKSPACE/scripts/setup-instance.sh
       - name:  Install easyCredit Plugin
         run: |
           cd $GITHUB_WORKSPACE
@@ -184,4 +164,3 @@ jobs:
           name: playwright-report
           path: test-results/
           retention-days: 7
-
