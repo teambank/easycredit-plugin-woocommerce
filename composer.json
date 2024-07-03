@@ -26,6 +26,9 @@
     "symplify/easy-coding-standard": "^11.2"
   },
   "config": {
-    "vendor-dir": "src/wc-easycredit/vendor"
+    "vendor-dir": "src/wc-easycredit/vendor",
+    "allow-plugins": {
+      "phpstan/extension-installer": true
+    }
   }
 }

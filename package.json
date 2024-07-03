@@ -15,10 +15,10 @@
     "release": "bin/release.sh",
     "phpstan": "export $(cat .env | xargs) && cd $PLUGIN_DIR && vendor/bin/phpstan analyse .",
     "fix-cs": "export $(cat .env | xargs) && cd $PLUGIN_DIR && vendor/bin/ecs check --fix --config=../../ecs.php",
-    "wp-env": "wp-env" 
+    "wp-env": "wp-env"
   },
   "dependencies": {
-    "@playwright/test": "^1.43"
+    "@playwright/test": "^1.45"
   },
   "devDependencies": {
     "@types/node": "^20.14.9"

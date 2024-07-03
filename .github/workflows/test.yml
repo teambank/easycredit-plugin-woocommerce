@@ -13,28 +13,28 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - php-version: 7.4
+          - php-version: "7.4"
             wordpress-version: "5.6.10"
             woocommerce-version: "5.6.2"
-          - php-version: 8.0
+          - php-version: "8.0"
             wordpress-version: "5.9.5"
             woocommerce-version: "6.9.4"
-          - php-version: 8.1
+          - php-version: "8.1"
             wordpress-version: "6.1"
             woocommerce-version: "7.4.1"
-          - php-version: 8.2
+          - php-version: "8.2"
             wordpress-version: "6.2"
             woocommerce-version: "7.8.2"
-          - php-version: 8.2
+          - php-version: "8.2"
             wordpress-version: "6.3"
             woocommerce-version: "7.9.0"
-          - php-version: 8.2
+          - php-version: "8.2"
             wordpress-version: "6.3"
             woocommerce-version: "8.0.3"
-          - php-version: 8.2
+          - php-version: "8.2"
             wordpress-version: "6.3"
             woocommerce-version: "8.1.0"
-          - php-version: 8.2
+          - php-version: "8.2"
             wordpress-version: "6.4"
             woocommerce-version: "8.4.0"
           - php-version: 8.3
@@ -45,18 +45,6 @@ jobs:
             woocommerce-version: "9.1.0"
 
     name: woo v${{ matrix.woocommerce-version }}, wp v${{ matrix.wordpress-version }} @ php v${{ matrix.php-version }}
-
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_USER: wordpress
-          MYSQL_PASSWORD: wordpress
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE: wordpress
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     env:
       WORDPRESS_DIR: /opt/wordpress
@@ -75,6 +63,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Install wp-env
+        shell: bash
+        run: npm -g i @wordpress/env
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -92,41 +83,26 @@ jobs:
           node -v
       - name: Install Wordpress & wooCommerce
         run: | 
-          curl -L "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar" > /usr/local/bin/wp && chmod +x /usr/local/bin/wp
-          mkdir -p $WORDPRESS_DIR && cd $WORDPRESS_DIR
+          node -e 'console.log(JSON.stringify({"core": "WordPress/WordPress#${{ matrix.wordpress-version }}", "phpVersion": "${{ matrix.php-version }}", "lifecycleScripts":{}}, null, 2));' > .wp-env.override.json
+          wp-env start
 
-          wp core download --version=${{ matrix.wordpress-version }} --locale=de_DE
-          wp config create --dbhost=$WORDPRESS_DB_HOST --dbname=$WORDPRESS_DB_NAME --dbuser=$WORDPRESS_DB_USER --dbpass=$WORDPRESS_DB_PASSWORD --locale=de_DE \
-           --extra-php="define('WP_DEBUG',true); define('WP_DEBUG_LOG',true); define('WP_DEBUG_DISPLAY',false);"
-
-          wp core install --url=localhost --title=Example --admin_user=admin --admin_password=password --admin_email=info@example.com
-          wp plugin install woocommerce --version=${{ matrix.woocommerce-version }} --activate
-
-          $GITHUB_WORKSPACE/scripts/setup-instance.sh
-      - name:  Install easyCredit Plugin
-        run: |
-          cd $GITHUB_WORKSPACE
           composer require \
             php-stubs/wordpress-stubs:v${{ matrix.wordpress-version }} \
             php-stubs/woocommerce-stubs:v${{ matrix.woocommerce-version }} 
 
           composer install -n
 
-          mkdir -p $WORDPRESS_DIR/wp-content/plugins
+          # run setup script standalone, was not reliably executed as lifecycle script
+          VERSION=${{ matrix.woocommerce-version }} node ./scripts/setup-woocommerce.js
 
-          ln -s $GITHUB_WORKSPACE/src/wc-easycredit $PLUGIN_DIR
-          cd $WORDPRESS_DIR
-
-          wp plugin activate wc-easycredit
-
-          echo '{"enabled":"yes","display_settings":"","title":"","instructions":"","api_details":"","api_key":"${{ secrets.EASYCREDITAPIKEY }}","api_token":"${{ secrets.EASYCREDITAPIPASSWORD }}","api_signature":"${{ secrets.EASYCREDITAPISIGNATURE }}","api_verify_credentials":"","debug":"yes","marketing_intro":"","marketing_components_express_checkout":"","express_checkout_detail_enabled":"yes","express_checkout_cart_enabled":"yes","marketing_components_widget":"","widget_enabled":"yes","widget_selector":".product .summary .price","cart_widget_enabled":"yes","cart_widget_selector":".wc-proceed-to-checkout","marketing_components_modal":"","modal_enabled":"no","modal_delay":"10","modal_snooze_for":"10","modal_src":"","marketing_components_card":"","card_enabled":"no","card_search_enabled":"no","card_position":"1","card_src":"","marketing_components_flashbox":"","flashbox_enabled":"no","flashbox_src":"","marketing_components_bar":"","bar_enabled":"no","transactions":"","mark_shipped":"no","mark_shipped_status":"wc-completed","mark_refunded":"no","mark_refunded_status":"wc-refunded","clickandcollect_intro":"","marketing_components_clickandcollect":"","clickandcollect_shipping_method":""}' | wp option set woocommerce_easycredit_settings --format=json
+          echo '{"enabled":"yes","display_settings":"","title":"","instructions":"","api_details":"","api_key":"${{ secrets.EASYCREDITAPIKEY }}","api_token":"${{ secrets.EASYCREDITAPIPASSWORD }}","api_signature":"${{ secrets.EASYCREDITAPISIGNATURE }}","api_verify_credentials":"","debug":"yes","marketing_intro":"","marketing_components_express_checkout":"","express_checkout_detail_enabled":"yes","express_checkout_cart_enabled":"yes","marketing_components_widget":"","widget_enabled":"yes","widget_selector":".product .summary .price","cart_widget_enabled":"yes","cart_widget_selector":".wc-proceed-to-checkout","marketing_components_modal":"","modal_enabled":"no","modal_delay":"10","modal_snooze_for":"10","modal_src":"","marketing_components_card":"","card_enabled":"no","card_search_enabled":"no","card_position":"1","card_src":"","marketing_components_flashbox":"","flashbox_enabled":"no","flashbox_src":"","marketing_components_bar":"","bar_enabled":"no","transactions":"","mark_shipped":"no","mark_shipped_status":"wc-completed","mark_refunded":"no","mark_refunded_status":"wc-refunded","clickandcollect_intro":"","marketing_components_clickandcollect":"","clickandcollect_shipping_method":""}' | wp-env run cli wp option set woocommerce_easycredit_settings --format=json
       - name: Static Analyze
         if: false
         run: | 
           cd $PLUGIN_DIR
           php vendor/bin/phpstan analyze .
       - name: Cache Node Modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: node-modules-${{ hashFiles('yarn.lock') }}
@@ -134,24 +110,25 @@ jobs:
         run: |
           npm install --global yarn
           yarn install --frozen-lockfile
-      - name: Store Playwright's Version
-        run: |
-          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
-          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
-          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
-      - name: Cache Playwright Browsers for Playwright's Version
-        id: cache-playwright-browsers
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
+#      - name: Store Playwright's Version
+#        run: |
+#          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
+#          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
+#          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
+#      - name: Cache Playwright Browsers for Playwright's Version
+#        id: cache-playwright-browsers
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.cache/ms-playwright
+#          key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
       - name: Setup Playwright
-        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
+#        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
         run: yarn playwright install --with-deps chromium
       - name: Playwright E2E Tests
         run: |
-          cd $PLUGIN_DIR
-          VERSION=${{ matrix.woocommerce-version }} yarn playwright test -c tests/
+          cd $GITHUB_WORKSPACE
+
+          VERSION=${{ matrix.woocommerce-version }} BASE_URL=http://localhost:8888 yarn playwright test -c tests/
       - name: Save Logs for Debugging
         if: always()
         run: |

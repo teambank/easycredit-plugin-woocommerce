@@ -16,16 +16,16 @@ class ExpressCheckout
 
     protected $integration;
 
-    protected $payment;
+    protected $paymentGateways;
 
     public function __construct(
         Plugin $plugin,
-        Integration $integration, 
-        Gateway\Ratenkauf $payment
+        Integration $integration,
+        array $paymentGateways
     ) {
         $this->plugin = $plugin;
         $this->integration = $integration;
-        $this->payment = $payment;
+        $this->paymentGateways = $paymentGateways;
 
         add_action('init', [$this, 'run']);
         add_action('wp', [$this, 'init_buttons']);
@@ -41,17 +41,13 @@ class ExpressCheckout
 
     public function init_buttons()
     {
-        if ($this->should_be_displayed_at_product()) {
-            add_action('woocommerce_single_product_summary', [$this, 'add_button_at_product'], 30);
-        }
-        if ($this->should_be_displayed_in_cart()) {
-            add_action('woocommerce_proceed_to_checkout', [$this, 'add_button_in_cart']);
-        }
+        add_action('woocommerce_single_product_summary', [$this, 'add_button_at_product'], 30);
+        add_action('woocommerce_proceed_to_checkout', [$this, 'add_button_in_cart']);
     }
 
     public function is_express_action()
     {
-        return isset($_REQUEST['easycredit-express']);
+        return isset($_REQUEST['easycredit']['express']);
     }
 
     public function clear_cart($product_id)
@@ -62,8 +58,9 @@ class ExpressCheckout
 
     public function handle_express_redirect($url)
     {
-        if (wp_redirect(esc_url_raw(get_home_url(null, '/easycredit/express')))) {
-          exit;
+        $params = ['easycredit' => $_REQUEST['easycredit']];
+        if (wp_redirect(esc_url_raw(get_home_url(null, '/easycredit/express') . '/?' . http_build_query($params)))) {
+            exit;
         }
     }
 
@@ -102,7 +99,9 @@ class ExpressCheckout
         $order = new \WC_Order();
         $order->set_created_via('easycredit-express-checkout');
         $order->add_order_note(__('Created via express checkout', 'wc-easycredit'));
-        $order->set_payment_method($this->payment->id);
+        $order->set_payment_method(
+            $this->plugin->get_method_by_payment_type($transaction->getTransaction()->getPaymentType())
+        );
 
         if (class_exists(OrderController::class)) {
             $orderController = new OrderController();
@@ -119,6 +118,11 @@ class ExpressCheckout
 
     public function add_button_at_product()
     {
+        $paymentTypes = $this->payment_types_to_be_displayed_at_product();
+        if (count($paymentTypes) === 0) {
+            return;
+        }
+
         $post = get_post();
 
         $product = new \WC_Product($post->ID);
@@ -126,45 +130,64 @@ class ExpressCheckout
         if ($product->is_in_stock()) {
             echo '<easycredit-express-button 
                 webshop-id="' . $this->plugin->get_option('api_key') . '"
+<<<<<<< HEAD
                 amount="' . $product->get_price() . '"
+=======
+                amount="' . $amount . '"
+                payment-types="' . implode(',', $paymentTypes) . '"
+>>>>>>> 0368235 (rework environment, tests & work on plugin)
             ></easycredit-express-button>';
         }
     }
 
     public function add_button_in_cart()
     {
+        $paymentTypes = $this->payment_types_to_be_displayed_in_cart();
+        if (count($paymentTypes) === 0) {
+            return;
+        }
+
         echo '<easycredit-express-button 
             webshop-id="' . $this->plugin->get_option('api_key') . '"
             amount="' . WC()->cart->get_total('raw') . '"
             full-width
-            data-url="'.get_site_url(null, 'easycredit/express').'"
+            data-url="' . get_site_url(null, 'easycredit/express') . '"
+            payment-types="' . implode(',', $paymentTypes) . '"
         ></easycredit-express-button>';
     }
 
-    protected function should_be_displayed_at_product()
+    protected function payment_types_to_be_displayed_at_product()
     {
         $post = get_post();
 
-        if (!isset($post->ID) ||
+        if (
+            !isset($post->ID) ||
             $post->post_type != 'product' ||
             !is_product() ||
-            $this->payment->get_option('express_checkout_detail_enabled') != 'yes' ||
-            trim($this->plugin->get_option('api_key')) == ''
+            trim((string)$this->plugin->get_option('api_key')) == ''
         ) {
-            return false;
+            return [];
         }
-        return true;
+        return $this->get_enabled_payment_types('express_checkout_detail_enabled');
     }
 
-    protected function should_be_displayed_in_cart()
+    protected function payment_types_to_be_displayed_in_cart()
     {
-        if ($this->payment->get_option('express_checkout_cart_enabled') != 'yes' ||
+        if (
             trim($this->plugin->get_option('api_key')) == '' ||
             WC()->cart->get_total('raw') === 0 ||
             !is_cart()
         ) {
             return false;
         }
-        return true;
+        return $this->get_enabled_payment_types('express_checkout_cart_enabled');
+    }
+
+    protected function get_enabled_payment_types($configKey)
+    {
+        return array_filter(array_map(function ($method) use ($configKey) {
+            return $method->get_option($configKey) === 'yes' &&
+                $method->get_option('enabled') === 'yes' ? $method->PAYMENT_TYPE : null;
+        }, $this->paymentGateways));
     }
 }

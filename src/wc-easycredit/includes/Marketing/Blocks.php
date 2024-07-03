@@ -36,7 +36,7 @@ class Blocks
 
     public function register_block()
     {
-        register_block_type(dirname(__FILE__) . '/../modules/marketing/block.json', [
+        register_block_type(dirname(__FILE__) . '/../../modules/marketing/block.json', [
             'title'           => __('Marketing Card', 'woocommerce-gateway-ratenkaufbyeasycredit'),
             'description'     => __('The card component advertises easyCredit-Ratenkauf. The default image shown in the card can be overwritten. This allows you to use an image that matches your product offering.', 'woocommerce-gateway-ratenkaufbyeasycredit')
         ]);

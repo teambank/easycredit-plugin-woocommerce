@@ -11,7 +11,14 @@ class TemporaryOrder
 {
     private $tmp_order;
 
-    public function get_order()
+    private $plugin;
+
+    public function __construct($plugin)
+    {
+        $this->plugin = $plugin;
+    }
+
+    public function get_order($paymentType = null)
     {
         add_action('woocommerce_checkout_create_order', [$this, 'abort_create_order']);
         add_filter('woocommerce_order_has_status', [$this, 'prevent_remove_items']);
@@ -22,7 +29,10 @@ class TemporaryOrder
         } else {
             $postData = $_POST;
         }
-        $postData['payment_method'] = 'easycredit';
+        if (isset($_REQUEST['easycredit']['paymentType'])) {
+            $paymentType = $_REQUEST['easycredit']['paymentType'];
+        }
+        $postData['payment_method'] = $this->plugin->get_method_by_payment_type($paymentType)->id;
 
         $wc_checkout = \WC_Checkout::instance();
         $wc_checkout->create_order($postData);

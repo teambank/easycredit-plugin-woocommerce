@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name:     easyCredit for WooCommerce
  * Plugin URI:      https://www.easycredit-ratenkauf.de/
@@ -10,7 +9,7 @@
  * License URI:     https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:     wc-easycredit
  * Domain Path:     /languages
- * Version:         2.1.9
+ * Version:         3.0.0
  * Requires at least: 4.4
  * Tested up to: 6.5
  * WC requires at least: 3.0.0
@@ -88,6 +87,7 @@ if (array_filter(
 
             add_action('woocommerce_blocks_payment_method_type_registration', function (Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry) {
                 $container = Automattic\WooCommerce\Blocks\Package::container();
+
                 $container->register(Netzkollektiv\EasyCredit\Methods\Ratenkauf::class, function () {
                     return new Netzkollektiv\EasyCredit\Methods\Ratenkauf(__FILE__);
                 });

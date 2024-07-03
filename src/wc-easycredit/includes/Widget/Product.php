@@ -9,30 +9,34 @@ namespace Netzkollektiv\EasyCredit\Widget;
 
 class Product extends WidgetAbstract
 {
+    protected string $configKey = 'widget_enabled';
+
     public function add_meta_tags($array)
     {
         $post = get_post();
 
         $product = new \WC_Product($post->ID);
         if ($product->get_id()) {
-            echo '<meta name="easycredit-widget-selector" content="' . $this->payment->get_option('widget_selector') . '">';
-            echo '<meta name="easycredit-widget-price" content="' . $product->get_price() . '">';
-            echo '<meta name="easycredit-api-key" content="' . $this->plugin->get_option('api_key') . '">';
+            parent::add_meta_tags($array);
+            echo '<meta name="easycredit-widget-selector" content="' . $this->plugin->get_option('widget_selector') . '">';
+            echo '<meta name="easycredit-amount" content="' . $product->get_price() . '">';
         }
     }
 
     protected function should_be_displayed()
     {
+        /* @var \WP_Post $post */
         $post = get_post();
 
         if (!isset($post->ID)) {
             return false;
         }
 
-        if ($post->post_type != 'product'
+        if (
+            $post->post_type != 'product'
             || !$post->ID
             || !is_product()
-            || $this->payment->get_option('widget_enabled') != 'yes'
+            || count($this->get_enabled_payment_types()) === 0
         ) {
             return false;
         }

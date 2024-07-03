@@ -1,4 +1,5 @@
 <?php
+
 namespace Netzkollektiv\EasyCredit\Admin;
 
 use Teambank\RatenkaufByEasyCreditApiV3\ApiException;
@@ -26,12 +27,11 @@ class OrderManagement
         $this->integration = $integration;
 
         /* Wordpress Approach: HPOS disabled or older version */
-        add_action('manage_shop_order_posts_custom_column', function($column, $order) {
+        add_action('manage_shop_order_posts_custom_column', function ($column, $order) {
             if ($column !== 'order_status') {
                 return;
             }
             $this->add_order_column_content($column, $order);
-
         }, 20, 2);
 
         /* HPOS Approach */
@@ -48,7 +48,7 @@ class OrderManagement
 
         add_action('woocommerce_admin_order_data_after_shipping_address', [$this, 'add_status_after_shipping_address'], 10, 1);
         add_action('admin_enqueue_scripts', [$this, 'require_transaction_manager']);
-        add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
+        add_action('add_meta_boxes', [$this, 'add_meta_boxes'], 10, 2);
 
         foreach (['shipped', 'refunded'] as $state) {
             if ($this->plugin->get_option('mark_' . $state) == 'yes') {
@@ -105,9 +105,9 @@ class OrderManagement
         }
     }
 
-    public function add_meta_boxes($post_type)
+    public function add_meta_boxes($post_type, $post)
     {
-        $screen = class_exists('\Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController') && 
+        $screen = class_exists('\Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController') &&
             wc_get_container()->get(CustomOrdersTableController::class)->custom_orders_table_usage_is_enabled()
             ? wc_get_page_screen_id('shop-order')
             : 'shop_order';
@@ -115,7 +115,10 @@ class OrderManagement
         if ($screen === 'shop_order' && $post_type !== 'shop_order') {
             return;
         }
-        if (!$this->plugin->is_easycredit_method($this->get_order()->get_payment_method())) {
+        if (
+            !$this->get_order($post) ||
+            !$this->plugin->is_easycredit_method($this->get_order($post)->get_payment_method())
+        ) {
             return false;
         }
 
@@ -131,16 +134,10 @@ class OrderManagement
 
     public function add_order_management_meta_box($post = null)
     {
-        $order = $this->get_order($post->ID);
-        if ($order->get_payment_method() != $this->plugin->id) {
-            return;
-        }
-        ?>
-            <easycredit-merchant-manager 
-                tx-id="<?php echo $order->get_meta(Plugin::META_KEY_TRANSACTION_ID); ?>" 
-                date="<?php echo $order->get_date_created()->format('Y-m-d'); ?>"    
-            />
-        <?php
+        $order = $this->get_order($post);
+?>
+        <easycredit-merchant-manager tx-id="<?php echo $order->get_meta(Plugin::META_KEY_TRANSACTION_ID); ?>" date="<?php echo $order->get_date_created()->format('Y-m-d'); ?>" />
+<?php
     }
 
     public function get_order_status_icon($order)
@@ -194,7 +191,7 @@ class OrderManagement
         if (!$this->plugin->is_easycredit_method($order->get_payment_method())) {
             return;
         }
-        
+
         try {
             try {
                 $txId = $order->get_transaction_id();

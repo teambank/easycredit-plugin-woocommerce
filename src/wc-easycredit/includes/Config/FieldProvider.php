@@ -143,6 +143,23 @@ class FieldProvider
                 'default' => '.product .summary .price',
             ],
 
+            'listing_widget_enabled' => [
+                'title' => __('Show widget in product listing', 'wc-easycredit'),
+                'type' => 'checkbox',
+                'description' => __('Specifies if easycredit_ratenkauf will be advertised in product listing view', 'wc-easycredit'),
+                'desc_tip' => true,
+                'default' => 'yes',
+            ],
+
+            'listing_widget_selector' => [
+                'title' => __('CSS Selector to include widget in product listing page', 'wc-easycredit'),
+                'type' => 'text',
+                'description' => __('If the widget is not shown in the right place, please enter a selector which matches your theme.', 'wc-easycredit'),
+                'desc_tip' => true,
+                'default' => 'ul.products li.product .easycredit-placeholder easycredit-widget[display-type=minimal]',
+            ],
+
+
             'cart_widget_enabled' => [
                 'title' => __('Show widget in Cart', 'wc-easycredit'),
                 'type' => 'checkbox',

@@ -3,14 +3,14 @@
 namespace Netzkollektiv\EasyCredit\Methods;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
-use Automattic\WooCommerce\Blocks\Payments\PaymentResult;
-use Automattic\WooCommerce\Blocks\Payments\PaymentContext;
 
 defined('ABSPATH') || exit;
 
 class AbstractMethod extends AbstractPaymentMethodType
 {
     protected $plugin_file = null;
+
+    protected $method_settings = null;
 
     public function __construct($plugin_file)
     {
@@ -20,11 +20,15 @@ class AbstractMethod extends AbstractPaymentMethodType
     public function initialize()
     {
         $this->settings = get_option('woocommerce_easycredit_settings', []);
+        $this->method_settings = get_option('woocommerce_' . $this->name . '_settings', []);
     }
 
     public function is_active()
     {
-        return $this->settings['enabled'] ?? false;
+        if (isset($this->method_settings['enabled'])) {
+            return $this->method_settings['enabled'] === 'yes';
+        }
+        return true;
     }
 
     public function get_payment_method_script_handles()
@@ -32,11 +36,6 @@ class AbstractMethod extends AbstractPaymentMethodType
         $this->register_script_handles();
 
         return ['wc-easycredit-blocks'];
-    }
-
-    public function get_payment_method_script_handles_for_admin()
-    {
-        return $this->get_payment_method_script_handles();
     }
 
     private function register_script_handles()
@@ -65,10 +64,10 @@ class AbstractMethod extends AbstractPaymentMethodType
     {
         return [
             'id'          => $this->name,
-            'title'       => $this->settings['title'] ?? '',
-            'description' => $this->settings['description'] ?? '',
+            'title'       => $this->method_settings['title'] ?? '',
+            'description' => $this->method_settings['description'] ?? '',
             'supports'    => ['products'],
-            'enabled'     => $this->is_active() === 'yes',
+            'enabled'     => $this->is_active(),
             'apiKey'      => $this->settings['api_key'],
             'expressUrl'  => get_site_url(null, 'easycredit/express')
         ];

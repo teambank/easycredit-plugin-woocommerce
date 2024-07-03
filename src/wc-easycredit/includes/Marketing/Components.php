@@ -21,7 +21,7 @@ class Components
     protected $payment;
 
     public function __construct(
-        Plugin $plugin, 
+        Plugin $plugin,
         Gateway\Ratenkauf $payment
     ) {
         $this->plugin = $plugin;
@@ -45,15 +45,15 @@ class Components
 
     public function add_component_tags_footer($array)
     {
-        if ( $this->payment->get_option('modal_enabled') == 'yes' ) {
+        if ($this->payment->get_option('modal_enabled') == 'yes') {
             echo '<easycredit-box-modal src="' . $this->payment->get_option('modal_src') . '" is-open="false" delay="' . $this->payment->get_option('modal_delay') * 1000 . '" snooze-for="' . $this->payment->get_option('modal_snooze_for') . '"></easycredit-box-modal>';
         }
 
-        if ( $this->payment->get_option('flashbox_enabled') == 'yes' ) {
+        if ($this->payment->get_option('flashbox_enabled') == 'yes') {
             echo '<easycredit-box-flash is-open="false" src="' . $this->payment->get_option('flashbox_src') . '"></easycredit-box-flash>';
         }
 
-        if ( $this->payment->get_option('bar_enabled') == 'yes' ) {
+        if ($this->payment->get_option('bar_enabled') == 'yes') {
             echo '<easycredit-box-top></easycredit-box-top>';
         }
     }
@@ -68,11 +68,11 @@ class Components
             return;
         }
 
-        if ( $this->payment->get_option('card_enabled') == 'yes' ) {
+        if ($this->payment->get_option('card_enabled') == 'yes') {
             echo '<easycredit-box-listing class="easycredit-box-listing-adjusted" src="' . $this->payment->get_option('card_src') . '" position="' . $this->payment->get_option('card_position') . '"></easycredit-box-listing>';
         }
 
-        do_action( 'add_component_tags_shop_loop' );
+        do_action('add_component_tags_shop_loop');
     }
 
     public function add_component_tags_loop_start($array)
@@ -84,14 +84,14 @@ class Components
             return;
         }
 
-        if ( $this->payment->get_option('card_search_enabled') == 'yes' ) {
+        if ($this->payment->get_option('card_search_enabled') == 'yes') {
             echo '<easycredit-box-listing class="easycredit-box-listing-adjusted" src="' . $this->payment->get_option('card_src') . '" position="' . $this->payment->get_option('card_position') . '"></easycredit-box-listing>';
         }
     }
 
     public function add_body_class($classes)
     {
-        if ( $this->payment->get_option('bar_enabled') == 'yes' ) {
+        if ($this->payment->get_option('bar_enabled') == 'yes') {
             $classes[] = 'easycredit-box-top';
         }
 
@@ -102,13 +102,13 @@ class Components
     {
         wp_enqueue_script(
             'wc_easycredit_js',
-            $this->plugin_url . 'modules/frontend/build/index.js',
+            $this->plugin->plugin_url . 'modules/frontend/build/index.js',
             ['easycredit-components-module'],
             '1.0'
         );
         wp_enqueue_style(
             'wc_easycredit_css',
-            $this->plugin_url . 'modules/frontend/build/styles.css'
+            $this->plugin->plugin_url . 'modules/frontend/build/styles.css'
         );
     }
 

@@ -47,12 +47,7 @@ class QuoteBuilder
 
     public function getPaymentType()
     {
-        if ($this->quote->get_payment_method() === 'easycredit_ratenkauf') {
-            return 'INSTALLMENT_PAYMENT';
-        }
-        if ($this->quote->get_payment_method() === 'easycredit_rechnung') {
-            return 'BILL_PAYMENT';
-        }
+        return $this->plugin->get_payment_type_by_method($this->quote->get_payment_method()) . '_PAYMENT';
     }
 
     public function getShippingMethod()

@@ -1,7 +1,7 @@
 {
 	"name": "@wc-easycredit/frontend",
 	"version": "1.0.0",
-	"main": "./build/index.js",
+	"main": "./build/index.ts",
 	"author": "NETZKOLLEKTIV <corporate@netzkollektiv.com>",
 	"license": "MIT",
 	"devDependencies": {

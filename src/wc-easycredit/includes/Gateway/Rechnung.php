@@ -4,7 +4,7 @@ namespace Netzkollektiv\EasyCredit\Gateway;
 
 class Rechnung extends GatewayAbstract
 {
-    public $PAYMENT_TYPE = 'BILL_PAYMENT';
+    public $PAYMENT_TYPE = 'BILL';
 
     public function _construct()
     {

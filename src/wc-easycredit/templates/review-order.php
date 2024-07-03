@@ -26,7 +26,7 @@ if (!defined('ABSPATH')) {
 					);
 					?>
 				</h2>
-				<easycredit-checkout-label label="<?php echo wp_kses_post($order->get_payment_method_title()) ?>" slogan="Jetzt kaufen. In 30 Tagen bezahlen.">
+				<easycredit-checkout-label payment-type="<?php echo $paymentType; ?>">
 				</easycredit-checkout-label>
 				<?php if ($order->get_payment_method() === 'easycredit_ratenkauf') : ?>
 					<easycredit-checkout payment-plan="<?php echo htmlspecialchars($summary); ?>">

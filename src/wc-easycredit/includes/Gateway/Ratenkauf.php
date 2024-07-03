@@ -4,7 +4,7 @@ namespace Netzkollektiv\EasyCredit\Gateway;
 
 class Ratenkauf extends GatewayAbstract
 {
-    public $PAYMENT_TYPE = 'INSTALLMENT_PAYMENT';
+    public $PAYMENT_TYPE = 'INSTALLMENT';
 
     public function _construct()
     {

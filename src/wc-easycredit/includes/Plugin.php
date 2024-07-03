@@ -25,8 +25,8 @@ class Plugin
     public $plugin_url;
 
     private $rewrite_rules = [
-        'easycredit/(cancel)/?' => 'index.php?easycredit[action]=$matches[1]',
-        'easycredit/(express)/?' => 'index.php?easycredit[action]=$matches[1]'
+        'easycredit/(cancel)/?' => 'index.php?easycredit_action=$matches[1]',
+        'easycredit/(express)/?' => 'index.php?easycredit_action=$matches[1]'
     ];
 
     private $integration;
@@ -59,7 +59,9 @@ class Plugin
         );
         $fieldProvider = new Config\FieldProvider();
 
-        $this->temporaryOrderHelper = new Helper\TemporaryOrder();
+        $this->temporaryOrderHelper = new Helper\TemporaryOrder(
+            $this
+        );
 
         $this->paymentGateways = [];
         foreach (['Ratenkauf', 'Rechnung'] as $method) {
@@ -87,16 +89,20 @@ class Plugin
         if (!is_admin()) {
             new Widget\Product(
                 $plugin,
-                $this->paymentGateways['Ratenkauf']
+                $this->paymentGateways
+            );
+            new Widget\ProductListing(
+                $plugin,
+                $this->paymentGateways
             );
             new Widget\Cart(
                 $plugin,
-                $this->paymentGateways['Ratenkauf']
+                $this->paymentGateways
             );
             $this->express_checkout = new ExpressCheckout(
                 $plugin,
                 $integration,
-                $this->paymentGateways['Ratenkauf']
+                $this->paymentGateways
             );
             new Marketing\Components(
                 $plugin,
@@ -190,7 +196,7 @@ class Plugin
 
     public function add_rewrite_rules()
     {
-        add_rewrite_tag('%easycredit%', '([^/]+)');
+        add_rewrite_tag('%easycredit_action%', '([^/]+)');
         foreach ($this->rewrite_rules as $regex => $query) {
             add_rewrite_rule($regex, $query, 'top');
         }
@@ -214,8 +220,18 @@ class Plugin
     public function get_method_by_payment_type($paymentType)
     {
         return current(array_filter($this->paymentGateways, function ($gateway) use ($paymentType) {
-            return $paymentType === $gateway->PAYMENT_TYPE;
+            return str_replace('_PAYMENT', '', $paymentType) === str_replace('_PAYMENT', '', $gateway->PAYMENT_TYPE);
         }));
+    }
+
+    public function get_payment_type_by_method($method)
+    {
+        $method = current(array_filter($this->paymentGateways, function ($gateway) use ($method) {
+            return $method === $gateway->id;
+        }));
+        if ($method) {
+            return $method->PAYMENT_TYPE;
+        }
     }
 
     public function payment_gateways($gateways)
@@ -239,10 +255,10 @@ class Plugin
     {
         global $wp_query;
 
-        $params = $wp_query->get('easycredit');
-        if (!empty($params['action'])) {
-            if (method_exists($this, $params['action'] . 'Action')) {
-                $this->{$params['action'] . 'Action'}($params);
+        $action = $wp_query->get('easycredit_action');
+        if (!empty($action)) {
+            if (method_exists($this, $action . 'Action')) {
+                $this->{$action . 'Action'}();
             }
         }
     }

@@ -8,7 +8,8 @@
 namespace Netzkollektiv\EasyCredit\Pages;
 
 
-class ReviewPage {
+class ReviewPage
+{
 
     const SHORT_CODE = 'woocommerce_easycredit_checkout_review';
 
@@ -75,13 +76,14 @@ class ReviewPage {
         if (!$order) {
             return;
         }
-        
+
         $order->set_payment_method(
             $this->plugin->get_method_by_payment_type($transaction->getTransaction()->getPaymentType())
         );
 
         ob_start();
         $this->plugin->load_template('review-order', [
+            'paymentType' => $this->plugin->get_payment_type_by_method($order->get_payment_method()),
             'summary' => $this->integration->storage()->get('summary'),
             'confirm_url' => $this->get_confirm_url(),
             'order' => $order

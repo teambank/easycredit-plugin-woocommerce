@@ -45,7 +45,7 @@ const getConfigProperties = (propertyName) => {
 };
 
 const methodConfiguration = {
-	name: "easycredit_ratenkauf",
+	name: "easycredit",
 	content: <ExpressButton />,
 	edit: <ExpressButton />,
 	canMakePayment: () => {

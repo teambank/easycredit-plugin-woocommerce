@@ -21,7 +21,6 @@ class General extends WC_Settings_API
                 [$this, 'process_admin_options']
             );
         }
-
     }
 
     function init_form_fields()
@@ -101,11 +100,13 @@ class General extends WC_Settings_API
                 '',
                 (string)$parent_options
             );
-            $parent_options = preg_replace(
-                '!(class="easycredit-marketing__content__settings settings-' . $marketing_setting . '".*?>)(.+?)(</div>)!s',
-                '$1' . $html_extracted_matches[0] . '$3',
-                (string)$parent_options
-            );
+            if (isset($html_extracted_matches[0])) {
+                $parent_options = preg_replace(
+                    '!(class="easycredit-marketing__content__settings settings-' . $marketing_setting . '".*?>)(.+?)(</div>)!s',
+                    '$1' . $html_extracted_matches[0] . '$3',
+                    (string)$parent_options
+                );
+            }
         }
 ?>
         <div class="easycredit-wrapper">
