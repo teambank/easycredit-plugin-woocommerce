@@ -13,13 +13,16 @@ export const getMethodConfiguration = (name) => {
 		const privacyApproved = useRef(false);
 
 		const emulateSubmitCheckout = () => {
-			document
-				.querySelector(
+			let button;
+			do {
+				button = document.querySelector(
 					".wc-block-components-checkout-place-order-button",
-				)
-				.dispatchEvent(
-					new window.MouseEvent("click", { bubbles: true }),
 				);
+			} while (button.disabled);
+
+			button.dispatchEvent(
+				new window.MouseEvent("click", { bubbles: true }),
+			);
 		};
 
 		/*
@@ -47,7 +50,10 @@ export const getMethodConfiguration = (name) => {
 				if (!ecCheckout.current) {
 					return true;
 				}
-				if (privacyApproved.current) {
+				if (
+					privacyApproved.current ||
+					name !== "easycredit_ratenkauf"
+				) {
 					return true;
 				}
 

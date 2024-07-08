@@ -31,3 +31,11 @@ export const scaleDown = async ({ page }, testInfo): Promise<void> => {
 		document.body.style.transform = "scale(0.75)";
 	});
 };
+
+export const minutes = (min: number) => {
+	return min * 60 * 1000;
+};
+
+export const seconds = (sec: number) => {
+	return sec * 1000;
+};

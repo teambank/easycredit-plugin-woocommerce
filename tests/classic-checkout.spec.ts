@@ -22,119 +22,140 @@ const fillCheckout = async (page) => {
 		.fill("ralf.ratenkauf@teambank.de");
 }
 
-test("standardCheckoutInstallments", async ({ page }) => {
+test.describe("Go through classic checkout (INSTALLMENT)", () => {
+	test("standardCheckoutInstallments", async ({ page }) => {
+		await goToProduct(page);
 
-	await goToProduct(page);
+		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.goto("index.php/checkout/");
 
-	await page.getByRole("button", { name: "In den Warenkorb" }).click();
-	await page.goto("index.php/checkout/");
+		await fillCheckout(page);
 
-    await fillCheckout(page)
+		/* Confirm Page */
+		await page
+			.locator('easycredit-checkout-label[payment-type="INSTALLMENT"]')
+			.click();
+		await page
+			.locator("easycredit-checkout")
+			.getByRole("button", { name: "Weiter zum Ratenkauf" })
+			.click();
+		await page.locator('span:text("Akzeptieren"):visible').click();
 
-	/* Confirm Page */
-	await page.locator('easycredit-checkout-label[payment-type="INSTALLMENT"]').click();
-	await page
-		.locator("easycredit-checkout")
-		.getByRole("button", { name: "Weiter zum Ratenkauf" })
-		.click();
-	await page.locator('span:text("Akzeptieren"):visible').click();
-
-	await goThroughPaymentPage({ page: page, paymentType: PaymentTypes.INSTALLMENT });
-	await confirmOrder({
-		page: page,
-		paymentType: PaymentTypes.INSTALLMENT,
+		await goThroughPaymentPage({
+			page: page,
+			paymentType: PaymentTypes.INSTALLMENT,
+		});
+		await confirmOrder({
+			page: page,
+			paymentType: PaymentTypes.INSTALLMENT,
+		});
 	});
 });
 
-test("standardCheckoutBill", async ({ page }) => {
-	await goToProduct(page);
+test.describe("Go through classic checkout (BILL)", () => {
+	test("standardCheckoutBill", async ({ page }) => {
+		await goToProduct(page);
 
-	await page.getByRole("button", { name: "In den Warenkorb" }).click();
-	await page.goto("index.php/checkout/");
+		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.goto("index.php/checkout/");
 
-	await fillCheckout(page);
+		await fillCheckout(page);
 
-	/* Confirm Page */
-	await page
-		.locator('easycredit-checkout-label[payment-type="BILL"]')
-		.click();
-	await page
-		.locator("easycredit-checkout")
-		.getByRole("button", { name: "Weiter zum Rechnungskauf" })
-		.click();
+		/* Confirm Page */
+		await page
+			.locator('easycredit-checkout-label[payment-type="BILL"]')
+			.click();
+		await page
+			.locator("easycredit-checkout")
+			.getByRole("button", { name: "Weiter zum Rechnungskauf" })
+			.click();
 
-	await goThroughPaymentPage({page: page, paymentType: PaymentTypes.BILL });
-	await confirmOrder({
-		page: page,
-		paymentType: PaymentTypes.BILL,
+		await goThroughPaymentPage({
+			page: page,
+			paymentType: PaymentTypes.BILL,
+		});
+		await confirmOrder({
+			page: page,
+			paymentType: PaymentTypes.BILL,
+		});
 	});
 });
 
-test("expressCheckoutInstallments", async ({ page }) => {
-	await goToProduct(page);
+test.describe("Go through express checkout (INSTALLMENT)", () => {
+	test("expressCheckoutInstallments", async ({ page }) => {
+		await goToProduct(page);
 
-	await page
-		.locator("a")
-		.filter({ hasText: "Jetzt direkt in Raten zahlen" })
-		.click();
-	await page.getByText("Akzeptieren", { exact: true }).click();
+		await page
+			.locator("a")
+			.filter({ hasText: "Jetzt direkt in Raten zahlen" })
+			.click();
+		await page.getByText("Akzeptieren", { exact: true }).click();
 
-	await goThroughPaymentPage({
-		page: page,
-		paymentType: PaymentTypes.INSTALLMENT,
-		express: true
-	});
-	await confirmOrder({
-		page: page,
-		paymentType: PaymentTypes.INSTALLMENT,
-	});
-});
-
-test("expressCheckoutBill", async ({ page }) => {
-	await goToProduct(page);
-
-	await page
-		.locator("a")
-		.filter({ hasText: "In 30 Tagen zahlen" })
-		.click();
-	await page.getByText("Akzeptieren", { exact: true }).click();
-
-	await goThroughPaymentPage({
-		page: page,
-		paymentType: PaymentTypes.BILL,
-		express: true
-	});	
-	await confirmOrder({
-		page: page,
-		paymentType: PaymentTypes.BILL
+		await goThroughPaymentPage({
+			page: page,
+			paymentType: PaymentTypes.INSTALLMENT,
+			express: true,
+		});
+		await confirmOrder({
+			page: page,
+			paymentType: PaymentTypes.INSTALLMENT,
+		});
 	});
 });
 
-test("expressCheckoutWithVariableProductInstallment", async ({ page }) => {
-	await goToProduct(page, "variable");
+test.describe("Go through express checkout (BILL)", () => {
+	test("expressCheckoutBill", async ({ page }) => {
+		await goToProduct(page);
 
-	await page.getByLabel("Size").selectOption("");
-	await expect(page.locator("easycredit-express-button")).not.toBeVisible();
+		await page
+			.locator("a")
+			.filter({ hasText: "In 30 Tagen zahlen" })
+			.click();
+		await page.getByText("Akzeptieren", { exact: true }).click();
 
-	await page.getByLabel("Size").selectOption("medium");
-	await expect(page.locator("easycredit-express-button")).not.toBeVisible();
-
-	await page.getByLabel("Size").selectOption("small");
-	await expect(page.locator("easycredit-express-button")).toBeVisible();
-
-	await page
-		.locator("a")
-		.filter({ hasText: "Jetzt direkt in Raten zahlen" })
-		.click();
-	await page.getByText("Akzeptieren", { exact: true }).click();
-
-	await goThroughPaymentPage({
-		page: page,
-		paymentType: PaymentTypes.INSTALLMENT,
-		express: true
+		await goThroughPaymentPage({
+			page: page,
+			paymentType: PaymentTypes.BILL,
+			express: true,
+		});
+		await confirmOrder({
+			page: page,
+			paymentType: PaymentTypes.BILL,
+		});
 	});
-	await confirmOrder({
-		page: page,
-		paymentType: PaymentTypes.INSTALLMENT,
+});
+
+test.describe("Go through express checkout with variable product (INSTALLMENT)", () => {
+	test("expressCheckoutWithVariableProductInstallment", async ({ page }) => {
+		await goToProduct(page, "variable");
+
+		await page.getByLabel("Size").selectOption("");
+		await expect(
+			page.locator("easycredit-express-button")
+		).not.toBeVisible();
+
+		await page.getByLabel("Size").selectOption("medium");
+		await expect(
+			page.locator("easycredit-express-button")
+		).not.toBeVisible();
+
+		await page.getByLabel("Size").selectOption("small");
+		await expect(page.locator("easycredit-express-button")).toBeVisible();
+
+		await page
+			.locator("a")
+			.filter({ hasText: "Jetzt direkt in Raten zahlen" })
+			.click();
+		await page.getByText("Akzeptieren", { exact: true }).click();
+
+		await goThroughPaymentPage({
+			page: page,
+			paymentType: PaymentTypes.INSTALLMENT,
+			express: true,
+		});
+		await confirmOrder({
+			page: page,
+			paymentType: PaymentTypes.INSTALLMENT,
+		});
 	});
 });

@@ -27,48 +27,51 @@ test("settingsCheck", async ({ page }) => {
 		.click();
 });
 
-test('checkOrderListingPage', async ({ page }) => {
-	await goToOrderList(page);
+test.describe("Check order listing page for merchant widget", () => {
+	test("checkOrderListingPage", async ({ page }) => {
+		await goToOrderList(page);
 
-	await delay(1000);
+		await delay(1000);
 
-	await test.step("check for merchant status widget in listing view", async () => {
-		expect(
-			page
-				.locator(
-					"table .easycredit_status_icon easycredit-merchant-status-widget.hydrated"
-				)
-				.first()
-		).toBeVisible();
+		await test.step("check for merchant status widget in listing view", async () => {
+			expect(
+				page
+					.locator(
+						"table .easycredit_status_icon easycredit-merchant-status-widget.hydrated"
+					)
+					.first()
+			).toBeVisible();
+		});
 	});
 });
 
-test("checkOrderDetailPage", async ({ page }) => {
-	await goToOrderList(page)
+test.describe("Check order detail page for merchant widget, manager & prevent shipping address change", () => {
+	test("checkOrderDetailPage", async ({ page }) => {
+		await goToOrderList(page);
 
-	// go to first order
-    await page.locator("table .order-view").first().click();
+		// go to first order
+		await page.locator("table .order-view").first().click();
 
-	await delay(1000)
- 
-	await test.step("check for merchant status widget in detail view", async () => {
-		expect(
-			page.locator("#order_data easycredit-merchant-status-widget.hydrated")
-		).toBeVisible();
-	})
+		await delay(1000);
 
-	await test.step("check for merchant manager in detail view", async () => {
-		expect(
-			page.locator(
-				"#order_data easycredit...-status-widget.hydrated"
-			)
-		).toBeVisible();
+		await test.step("check for merchant status widget in detail view", async () => {
+			expect(
+				page.locator(
+					"#order_data easycredit-merchant-status-widget.hydrated"
+				)
+			).toBeVisible();
+		});
+
+		await test.step("check for merchant manager in detail view", async () => {
+			expect(
+				page.locator("#order_data easycredit...-status-widget.hydrated")
+			).toBeVisible();
+		});
+
+		await test.step("check if prevent shipping address note is present", async () => {
+			expect(page.locator(".order_data_column_container")).toContainText(
+				"nicht nachträglich verändert werden"
+			);
+		});
 	});
-
-
-	await test.step("check if prevent shipping address note is present", async () => {
-	    expect(page.locator(".order_data_column_container")).toContainText(
-			"nicht nachträglich verändert werden"
-		)
-	})
 });

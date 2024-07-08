@@ -10,6 +10,15 @@ const getMethods = () => {
 	);
 };
 
+const buildAdditionalParams = (detail) => {
+	let additional = {};
+	detail.express = "1";
+	for (let [key, value] of Object.entries(detail)) {
+		additional["easycredit[" + key + "]"] = value;
+	}
+	return additional;
+};
+
 const methods = getMethods();
 const config = methods.easycredit_ratenkauf;
 
@@ -23,8 +32,10 @@ const ExpressButton = (props) => {
 		if (!ecCheckoutButton.current) {
 			return;
 		}
-		ecCheckoutButton.current.addEventListener("submit", () => {
-			window.location.href = config.expressUrl;
+		ecCheckoutButton.current.addEventListener("submit", (e) => {
+			const additional = buildAdditionalParams(e.detail);
+			const params = new URLSearchParams(additional).toString();
+			window.location.href = config.expressUrl + "?" + params;
 		});
 	}, [ecCheckoutButton]);
 

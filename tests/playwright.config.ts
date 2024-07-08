@@ -4,10 +4,7 @@ import {
 	defineConfig,
 	devices,
 } from "@playwright/test";
-
-const minutes = (min: number) => {
-	return  min * 60 * 1000
-}
+import { seconds } from './utils'
 
 const isBlocksCheckout  = (): boolean => {
   if (!process.env.VERSION) {
@@ -27,8 +24,7 @@ if (isBlocksCheckout()) {
 			use: {
 				...devices[device],
 			},
-			testMatch: 'checkout\.spec\.ts',
-			retries: 1,
+			testMatch: 'checkout\.spec\.ts'
 		});
 	});
 } else {
@@ -40,8 +36,7 @@ if (isBlocksCheckout()) {
 			use: {
 				...devices[device],
 			},
-			testMatch: 'classic-checkout\.spec\.ts',
-			retries: 1,
+			testMatch: 'classic-checkout\.spec\.ts'
 		});
 	});
 }
@@ -56,8 +51,7 @@ if (isBlocksCheckout()) {
 			storageState: "playwright/.auth/user.json",
 		},
 		dependencies: ["backend-auth", name as string],
-		testMatch: 'backend\.spec\.ts',
-		retries: 1,
+		testMatch: 'backend\.spec\.ts'
 	});
 });
 
@@ -68,11 +62,12 @@ let config: PlaywrightTestConfig = {
 		trace: "retain-on-failure",
 		locale: "de-DE",
 	},
-	timeout: minutes(1),
+//	retries: 0,
+	timeout: seconds(30),
 	projects: projects,
 	reporter: [
 		["list", { printSteps: true }],
-		["html", { outputDir: "../test-results/" + process.env.VERSION + "/" }],
+		["html", { outputFolder: "../test-results/html/" + process.env.VERSION + "/" }],
 		["github"],
 	],
 };
