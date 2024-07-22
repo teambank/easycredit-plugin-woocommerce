@@ -159,6 +159,7 @@ class QuoteBuilder
         $transaction =  new Transaction([
             'financingTerm' => $this->getDuration(),
             'paymentType' => $this->getPaymentType(),
+            'paymentSwitchPossible' => count($this->plugin->get_enabled_payment_methods()) > 1, // Switch between installment & bill payment should be possible if both methods are enabled
             'orderDetails' => new \Teambank\RatenkaufByEasyCreditApiV3\Model\OrderDetails([
                 'orderValue' => $this->getGrandTotal(),
                 'orderId' => $this->getId(),

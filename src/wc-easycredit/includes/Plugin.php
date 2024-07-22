@@ -234,6 +234,13 @@ class Plugin
         }
     }
 
+    public function get_enabled_payment_methods()
+    {
+        return array_filter($this->paymentGateways, function ($gateway) {
+            return $gateway->get_option('enabled') === 'yes';
+        });
+    }
+
     public function payment_gateways($gateways)
     {
         foreach ($this->paymentGateways as $payment_gateway) {
