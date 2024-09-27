@@ -1,9 +1,0 @@
-.wp-admin mark.order-status { margin: auto 0.2em 0.2em auto; }
-.wp-admin easycredit-merchant-status-widget { display:inline-block; margin-top: 0.25em; }
-
-.wp-admin.post-type-shop_order td.column-order_status {
-    display: flex
-  }
-  .wp-admin.post-type-shop_order td.column-order_status .easycredit-merchant-status-widget {
-    margin-left: 5px;
-  }

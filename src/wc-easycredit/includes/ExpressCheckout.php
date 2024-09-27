@@ -41,7 +41,7 @@ class ExpressCheckout
 
     public function init_buttons()
     {
-        add_action('woocommerce_single_product_summary', [$this, 'add_button_at_product'], 30);
+        add_action('woocommerce_after_add_to_cart_button', [$this, 'add_button_at_product'], 30);
         add_action('woocommerce_proceed_to_checkout', [$this, 'add_button_in_cart']);
     }
 
@@ -130,12 +130,8 @@ class ExpressCheckout
         if ($product->is_in_stock()) {
             echo '<easycredit-express-button 
                 webshop-id="' . $this->plugin->get_option('api_key') . '"
-<<<<<<< HEAD
                 amount="' . $product->get_price() . '"
-=======
-                amount="' . $amount . '"
                 payment-types="' . implode(',', $paymentTypes) . '"
->>>>>>> 0368235 (rework environment, tests & work on plugin)
             ></easycredit-express-button>';
         }
     }

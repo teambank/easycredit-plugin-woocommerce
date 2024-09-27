@@ -157,7 +157,7 @@ class QuoteBuilder
         $this->customer = new \WC_Customer($order->get_user_id());
 
         $transaction =  new Transaction([
-            'financingTerm' => $this->getDuration(),
+            'financingTerm' => $this->getFinancingTerm(),
             'paymentType' => $this->getPaymentType(),
             'paymentSwitchPossible' => count($this->plugin->get_enabled_payment_methods()) > 1, // Switch between installment & bill payment should be possible if both methods are enabled
             'orderDetails' => new \Teambank\EasyCreditApiV3\Model\OrderDetails([
