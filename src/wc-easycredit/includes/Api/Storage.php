@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Netzkollektiv\EasyCredit\Api;
 
-class Storage implements \Teambank\RatenkaufByEasyCreditApiV3\Integration\StorageInterface
+class Storage implements \Teambank\EasyCreditApiV3\Integration\StorageInterface
 {
     protected $key = 'wc_easycredit';
 

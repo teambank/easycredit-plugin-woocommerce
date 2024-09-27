@@ -7,10 +7,10 @@
 
 namespace Netzkollektiv\EasyCredit\Api;
 
-use Teambank\RatenkaufByEasyCreditApiV3\Integration\Util\PrefixConverter;
-use Teambank\RatenkaufByEasyCreditApiV3\Model\InvoiceAddress;
-use Teambank\RatenkaufByEasyCreditApiV3\Model\ShippingAddress;
-use Teambank\RatenkaufByEasyCreditApiV3\Model\Transaction;
+use Teambank\EasyCreditApiV3\Integration\Util\PrefixConverter;
+use Teambank\EasyCreditApiV3\Model\InvoiceAddress;
+use Teambank\EasyCreditApiV3\Model\ShippingAddress;
+use Teambank\EasyCreditApiV3\Model\Transaction;
 
 use Netzkollektiv\EasyCredit\Plugin;
 use Netzkollektiv\EasyCredit\Pages\ReviewPage;
@@ -160,7 +160,7 @@ class QuoteBuilder
             'financingTerm' => $this->getDuration(),
             'paymentType' => $this->getPaymentType(),
             'paymentSwitchPossible' => count($this->plugin->get_enabled_payment_methods()) > 1, // Switch between installment & bill payment should be possible if both methods are enabled
-            'orderDetails' => new \Teambank\RatenkaufByEasyCreditApiV3\Model\OrderDetails([
+            'orderDetails' => new \Teambank\EasyCreditApiV3\Model\OrderDetails([
                 'orderValue' => $this->getGrandTotal(),
                 'orderId' => $this->getId(),
                 'numberOfProductsInShoppingCart' => \count($this->getItems()),
@@ -170,7 +170,7 @@ class QuoteBuilder
             ]),
             'shopsystem' => $this->getSystem(),
             'customer' => $this->getCustomer(),
-            'customerRelationship' => new \Teambank\RatenkaufByEasyCreditApiV3\Model\CustomerRelationship([
+            'customerRelationship' => new \Teambank\EasyCreditApiV3\Model\CustomerRelationship([
                 'customerSince' => ($this->customer->get_date_created() instanceof \WC_DateTime) ? $this->customer->get_date_created()->format('Y-m-d') : null,
                 'orderDoneWithLogin' => $this->isLoggedIn(),
                 'numberOfOrders' => $this->getOrderCount(),
@@ -216,7 +216,7 @@ class QuoteBuilder
 
     protected function getRedirectLinks()
     {
-        return new \Teambank\RatenkaufByEasyCreditApiV3\Model\RedirectLinks([
+        return new \Teambank\EasyCreditApiV3\Model\RedirectLinks([
             'urlSuccess' => \get_permalink(\get_option(ReviewPage::PAGE_ID)),
             'urlCancellation' => $this->getCancelUrl($this->quote),
             'urlDenial' => $this->getCancelUrl($this->quote)

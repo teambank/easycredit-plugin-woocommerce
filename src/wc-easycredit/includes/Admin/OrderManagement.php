@@ -2,10 +2,10 @@
 
 namespace Netzkollektiv\EasyCredit\Admin;
 
-use Teambank\RatenkaufByEasyCreditApiV3\ApiException;
-use Teambank\RatenkaufByEasyCreditApiV3\Model\CaptureRequest;
-use Teambank\RatenkaufByEasyCreditApiV3\Model\ConstraintViolation;
-use Teambank\RatenkaufByEasyCreditApiV3\Model\RefundRequest;
+use Teambank\EasyCreditApiV3\ApiException;
+use Teambank\EasyCreditApiV3\Model\CaptureRequest;
+use Teambank\EasyCreditApiV3\Model\ConstraintViolation;
+use Teambank\EasyCreditApiV3\Model\RefundRequest;
 use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 
 use Netzkollektiv\EasyCredit\Plugin;

@@ -2,7 +2,7 @@
 
 namespace Netzkollektiv\EasyCredit\Gateway;
 
-use Teambank\RatenkaufByEasyCreditApiV3 as ApiV3;
+use Teambank\EasyCreditApiV3 as ApiV3;
 
 use Netzkollektiv\EasyCredit\Config\FieldProvider;
 use Netzkollektiv\EasyCredit\Integration;

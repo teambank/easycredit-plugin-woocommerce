@@ -13,7 +13,7 @@
   ],
   "type": "wordpress-plugin",
   "require": {
-    "netzkollektiv/ratenkaufbyeasycredit-api-v3-php": "dev-invoice",
+    "netzkollektiv/easycredit-api-v3-php": "^2.0",
     "guzzlehttp/psr7": "1.8.2"
   },
   "require-dev": {

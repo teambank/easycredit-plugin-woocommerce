@@ -7,7 +7,7 @@
 
 namespace Netzkollektiv\EasyCredit;
 
-use Teambank\RatenkaufByEasyCreditApiV3 as ApiV3;
+use Teambank\EasyCreditApiV3 as ApiV3;
 
 class Integration
 {

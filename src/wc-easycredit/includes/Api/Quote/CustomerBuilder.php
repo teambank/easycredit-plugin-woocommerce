@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Netzkollektiv\EasyCredit\Api\Quote;
 
-use Teambank\RatenkaufByEasyCreditApiV3\Integration\Util\PrefixConverter;
+use Teambank\EasyCreditApiV3\Integration\Util\PrefixConverter;
 
 class CustomerBuilder
 {
@@ -82,13 +82,13 @@ class CustomerBuilder
         $this->quote = $quote;
         $this->customer = $customer;
 
-        return new \Teambank\RatenkaufByEasyCreditApiV3\Model\Customer(\array_filter([
+        return new \Teambank\EasyCreditApiV3\Model\Customer(\array_filter([
             'gender' => $this->getPrefix(),
             'firstName' => $this->getFirstName(),
             'lastName' => $this->getLastName(),
             'birthDate' => $this->getDob(),
             'companyName' => $this->getCompany(),
-            'contact' => ($this->getEmail()) ? new \Teambank\RatenkaufByEasyCreditApiV3\Model\Contact([
+            'contact' => ($this->getEmail()) ? new \Teambank\EasyCreditApiV3\Model\Contact([
                 'email' => $this->getEmail(),
             ]) : null,
         ]));

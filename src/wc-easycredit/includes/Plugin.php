@@ -7,7 +7,7 @@
 
 namespace Netzkollektiv\EasyCredit;
 
-use Teambank\RatenkaufByEasyCreditApiV3 as ApiV3;
+use Teambank\EasyCreditApiV3 as ApiV3;
 use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 
 class Plugin
@@ -129,7 +129,6 @@ class Plugin
 
         add_action('admin_enqueue_scripts', [$this, 'enqueue_backend_resources']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_resources']);
-        
         add_action('woocommerce_admin_order_data_after_shipping_address', [$this, 'prevent_shipping_address_change'], 1, 10);
 
         add_action('admin_post_wc_easycredit_verify_credentials', [$this, 'verify_credentials']);
