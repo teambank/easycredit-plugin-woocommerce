@@ -127,11 +127,11 @@ jQuery( function ( $ ) {
 	};
 
 	watchForSelector(
-		'form[name=checkout] easycredit-checkout',
+		'form[name=checkout] easycredit-checkout, form#order_review easycredit-checkout',
 		handleShippingPaymentConfirm
 	);
 	onHydrated(
-		'form[name=checkout] easycredit-checkout',
+		'form[name=checkout] easycredit-checkout, form#order_review easycredit-checkout',
 		handleShippingPaymentConfirm
 	);
 
