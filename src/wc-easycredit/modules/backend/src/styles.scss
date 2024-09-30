@@ -17,6 +17,7 @@ $color-ec-gray: #E5EAEE;
 
 /* Variables - eC */
 $font-size-base: 14px;
+$font-size-sm: $font-size-base * 0.85;
 $font-size-md: $font-size-base * 1.075;
 $font-size-lg: $font-size-base * 1.15;
 $font-size-h2: $font-size-base * 2;
@@ -24,16 +25,22 @@ $font-size-h3: $font-size-base * 1.15;
 $line-height: 1.55;
 $line-height-heading: 1.2;
 
-$grid-column-gap: 48px;
-
 $space: 30px;
 
 $box-shadow: 0 4px 20px 0 rgba(0,0,0,.25);
+$box-shadow-card: 0 1px 1px rgba(0, 0, 0, 0.08), 0 2px 1px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1);
 
 $border-radius: 30px;
 $border-radius-sm: 15px;
 
 $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
+
+:root {
+    --grid-column-gap: 48px;
+    --grid-column-gap-m: 36px;
+    --grid-template-columns: 3fr 2fr;
+    --grid-template-columns-50-50: 1fr 1fr;
+}
 
 .easycredit-marketing {
     margin-top: $space;
@@ -42,6 +49,7 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
 
     background-color: $color-white;
     border-radius: $border-radius-sm;
+    box-shadow: $box-shadow-card;
 
     font-size: $font-size-base;
     line-height: $line-height;
@@ -74,7 +82,7 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
     a {
         color: $color-ec-secondary;
 
-        &[target="_blank"] {
+        &[target="_blank"]:not(.btn.btn-primary):not(.btn.btn-secondary) {
             &:after {
                 content: '';
                 display: inline-block;
@@ -90,6 +98,8 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
     /* Buttons */
     .btn {
         display: inline-block;
+        margin-bottom: 5px;
+        margin-right: 10px;
         padding: 10px 20px;
         background-color: $color-ec-secondary;
         border: 0;
@@ -104,34 +114,65 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
         &.btn-primary {
             background-color: $color-ec-primary;
         }
+        &.btn-link {
+            background-color: transparent;
+            padding-left: 0;
+            padding-right: 0;
+            color: $color-ec-secondary !important;
+        }
 
-        &:hover,
-        &:active,
-        &:focus,
-        &:visited {
-            background-color: $color-ec-secondary !important;
-            color: $color-white !important;
+        &:not(.btn-link) {
+            &:hover,
+            &:active,
+            &:focus,
+            &:visited {
+                background-color: darken($color-ec-secondary, 5%) !important;
+                color: $color-white !important;
 
-            &.btn-primary {
-                background-color: $color-ec-primary !important;
+                &.btn-primary {
+                    background-color: darken($color-ec-primary, 5%) !important;
+                }
+            }
+            &:active,
+            &:focus {
+                box-shadow: 0 0 0 0.2rem rgba($color-ec-secondary, .4) !important;
+
+                &.btn-primary {
+                    box-shadow: 0 0 0 0.2rem rgba($color-ec-primary, .4) !important;
+                }
+            }
+
+            &:disabled,
+            &.disabled {
+                cursor: default;
+                pointer-events: none;
+                background-color: rgba($color-ec-secondary, .5) !important;
+                color: $color-white;
+
+                &.btn-primary {
+                    background-color: rgba($color-ec-primary, .5) !important;
+                }
             }
         }
-        &:hover {
-        &.btn-primary {
-            background-color: darken($color-ec-primary,5%) !important;
+    }
+    .btn + .btn {
+        &:last-child {
+            margin-right: 0;
         }
-        }
-        &:active,
-        &:focus {
-            box-shadow: 0 0 0 0.2rem rgba($color-ec-primary, .4) !important;
-        }
+    }
 
-        &:disabled, &.disabled {
-            cursor: default;
-            pointer-events: none;
-            background-color: rgba($color-ec-primary, .5) !important;
-            color: $color-white;
-        }
+    /* Badges */
+    .badge {
+        margin-right: 7.5px;
+        padding: 1px 5px 2px;
+        background-color: $color-ec-darkblue;
+        border-radius: 10px;
+        font-size: $font-size-sm;
+        font-weight: 600;
+        color: #fff;
+    }
+    .badge + h2 {
+        margin-top: 5px;
     }
 
     /* Form table (WC) */
@@ -257,8 +298,22 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
 
     &__grid {
         display: grid;
-        grid-template-columns: 3fr 2fr;
-        grid-column-gap: $grid-column-gap;
+        grid-template-columns: var(--grid-template-columns);
+        grid-column-gap: var(--grid-column-gap);
+
+        &:has(.intro-2024) {
+            @media (max-width: 991px) {
+                display: block;
+            }
+        }
+
+        &.grid-50-50 {
+            grid-template-columns: var(--grid-template-columns-50-50);
+        }
+
+        &:has(.easycredit-marketing__image + .easycredit-marketing__content) {
+            grid-column-gap: var(--grid-column-gap-m);
+        }
 
         @media (max-width: $breakpoint-xs-max) {
             display: block;
@@ -293,6 +348,20 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
             }
         }
 
+        &.fill {
+            position: relative;
+            background-color: $color-ec-gray;
+
+            img {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center;
+                border-radius: 15px;
+            }
+        }
+
         img {
             display: block;
             width: 100%;
@@ -300,6 +369,13 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
             background-color: transparent;
             border-radius: 7px;
             box-shadow: 0 4px 20px 0 rgba(0,0,0,.25);
+        }
+
+        &.aspect-2-3 {
+            aspect-ratio: 2/3;
+        }
+        &.aspect-36-2 {
+            aspect-ratio: 3.6/2;
         }
 
         @media (max-width: $breakpoint-xs-max) {
@@ -399,6 +475,33 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
             }
         }
     }
+    &.intro-2024 {
+        --grid-column-gap: 24px;
+
+        h2 {
+            margin-bottom: 15px;
+
+            font-size: $font-size-h2;
+            line-height: $line-height-heading;
+            font-weight: 600;
+            color: $color-ec-darkblue;
+        }
+
+        p {
+            margin-bottom: 25px;
+        }
+
+        ul {
+            li {
+                margin-bottom: 8px;
+
+                a {
+                    font-weight: 600;
+                    text-decoration: none;
+                }
+            }
+        }
+    }
     &.clickandcollect {
         margin-bottom: 1em;
 
@@ -417,6 +520,18 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
     }
 }
 
+.easycredit-marketing__grid {
+    &:has(.easycredit-marketing) {
+        --grid-column-gap: 24px;
+        --grid-template-columns: 3.5fr 2fr;
+    }
+}
+#ecbill {
+    .easycredit-marketing {
+        margin-top: 0;
+    }
+}
+
 .block-editor {
     .block-editor-block-icon {
         .dashicons-ec-card {
@@ -424,4 +539,41 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
             background-size: contain;
         }
     }
+}
+
+/* Legacy styles.css */
+#woocommerce_easycredit_api_verify_credentials {
+    width:auto;
+    padding: 0 10px 1px;
+}
+
+.wp-admin mark.order-status {
+  margin: auto 0.2em 0.45em auto;
+}
+
+.wp-admin .easycredit-tx-status-widget {
+  margin-top: -0.25em;
+}
+
+.easycredit-intro {
+  padding: 15px 0;
+  background: #fff;
+}
+
+.easycredit-intro easycredit-logo {
+  display: inline-block;
+  padding: 15px;
+  width: 170px;
+}
+
+.easycredit-intro div {
+  display: inline-block;
+}
+
+.wp-admin.post-type-shop_order td.column-order_status {
+  display: flex
+}
+
+.wp-admin.post-type-shop_order td.column-order_status .easycredit-merchant-status-widget {
+  margin-left: 5px;
 }

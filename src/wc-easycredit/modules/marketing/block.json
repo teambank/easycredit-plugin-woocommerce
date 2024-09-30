@@ -7,7 +7,6 @@
 	"category": "easycredit-ratenkauf",
 	"icon": "ec-card",
 	"editorScript": "file:./build/index.js",
-	"editorStyle": "file:./build/styles.css",
 	"supports": {
 		"align": true
 	},

@@ -29,10 +29,11 @@ class TemporaryOrder
         } else {
             $postData = $_POST;
         }
+        
         if (isset($_REQUEST['easycredit']['paymentType'])) {
             $paymentType = $_REQUEST['easycredit']['paymentType'];
+            $postData['payment_method'] = $this->plugin->get_method_by_payment_type($paymentType)->id;
         }
-        $postData['payment_method'] = $this->plugin->get_method_by_payment_type($paymentType)->id;
 
         $wc_checkout = \WC_Checkout::instance();
         $wc_checkout->create_order($postData);

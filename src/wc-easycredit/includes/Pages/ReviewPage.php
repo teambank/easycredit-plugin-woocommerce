@@ -62,7 +62,7 @@ class ReviewPage
 
     public function payment_review()
     {
-        if (is_admin()) {
+        if (is_admin() || defined('REST_REQUEST')) {
             return;
         }
 

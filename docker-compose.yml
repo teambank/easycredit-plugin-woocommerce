@@ -1,5 +1,3 @@
-version: "2"
-
 services:
 
   wordpress:
@@ -8,11 +6,6 @@ services:
       - db
     env_file:
       - env
-
-  docs:
-    image: nginx
-    volumes:
-      - ./docs/build/html:/usr/share/nginx/html
 
   db:
     image: mysql:5.6

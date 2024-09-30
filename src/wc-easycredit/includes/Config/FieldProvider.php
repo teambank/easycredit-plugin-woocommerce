@@ -105,7 +105,7 @@ class FieldProvider
             ],
 
             'express_checkout_detail_enabled' => [
-                'title' => __('Show expresss checkout button at product detail page', 'wc-easycredit'),
+                'title' => __('Show express checkout button at product detail page', 'wc-easycredit'),
                 'type' => 'checkbox',
                 'description' => __('Let customers initiate easycredit_ratenkauf directly from the product detail page', 'wc-easycredit'),
                 'desc_tip' => true,
@@ -114,7 +114,7 @@ class FieldProvider
             ],
 
             'express_checkout_cart_enabled' => [
-                'title' => __('Show expresss checkout button in cart', 'wc-easycredit'),
+                'title' => __('Show express checkout button in cart', 'wc-easycredit'),
                 'type' => 'checkbox',
                 'description' => __('Let customers initiate easycredit_ratenkauf directly from the cart page', 'wc-easycredit'),
                 'desc_tip' => true,

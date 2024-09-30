@@ -227,6 +227,9 @@ class OrderManagement
         if ($post === null) {
             global $post;
         }
-        return new \WC_Order($post_id);
+        if ($post instanceof \WC_Order) {
+            $post = $post->get_id();
+        }
+        return wc_get_order($post);
     }
 }

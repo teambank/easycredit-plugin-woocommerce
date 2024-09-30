@@ -104,7 +104,6 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
                 ->set('express', false);
 
             $checkout = $this->integration->checkout();
-            $this->get_storage()->set('express', false);
             $checkout->isAvailable($this->integration->quote_builder()->build($order));
         } catch (\Exception $e) {
             $error = $e->getMessage();
@@ -223,15 +222,15 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
                 throw new \Exception(__('Transaction could not be captured', 'wc-easycredit'));
             }
 
+            $storage = $this->integration->storage();
+
             // check transaction status right away
-            $tx = $checkout->loadTransaction($this->integration->storage()->get('token'));
+            $tx = $checkout->loadTransaction($storage->get('token'));
             if ($tx->getStatus() === ApiV3\Model\TransactionInformation::STATUS_AUTHORIZED) {
                 $order->payment_complete(
-                    $this->integration()->storage()->get('transaction_id')
+                    $storage->get('transaction_id')
                 );
             }
-
-            $storage = $this->integration->storage();
 
             $order->add_meta_data(Plugin::META_KEY_TOKEN, $storage->get('token'), true);
             $order->add_meta_data(Plugin::META_KEY_INTEREST_AMOUNT, $storage->get('interest_amount'), true);

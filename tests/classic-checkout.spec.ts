@@ -1,45 +1,24 @@
 import { test, expect } from "@playwright/test";
 import { randomize, takeScreenshot, scaleDown } from "./utils";
-import { goToProduct, goThroughPaymentPage, confirmOrder } from "./common";
+import { goToProduct, fillClassicCheckout, goThroughPaymentPage, confirmOrder, selectAndProceed } from "./common";
 import { PaymentTypes } from "./types";
 
 test.beforeEach(scaleDown);
 test.afterEach(takeScreenshot);
 
-const fillCheckout = async (page) => {
-	await page
-		.getByRole("textbox", { name: "Vorname *" })
-		.fill(randomize("Ralf"));
-	await page.getByRole("textbox", { name: "Nachname *" }).fill("Ratenkauf");
-	await page
-		.getByRole("textbox", { name: "Straße *" })
-		.fill("Beuthener Str. 25");
-	await page.getByRole("textbox", { name: "Postleitzahl *" }).fill("90471");
-	await page.getByRole("textbox", { name: "Ort / Stadt *" }).fill("Nürnberg");
-	await page.getByRole("textbox", { name: "Telefon *" }).fill("012345678");
-	await page
-		.getByLabel("E-Mail-Adresse *")
-		.fill("ralf.ratenkauf@teambank.de");
-}
-
-test.describe("Go through classic checkout (INSTALLMENT)", () => {
+test.describe("Go through classic @installment", () => {
 	test("standardCheckoutInstallments", async ({ page }) => {
 		await goToProduct(page);
 
 		await page.getByRole("button", { name: "In den Warenkorb" }).click();
 		await page.goto("index.php/checkout/");
 
-		await fillCheckout(page);
+		await fillClassicCheckout(page);
 
-		/* Confirm Page */
-		await page
-			.locator('easycredit-checkout-label[payment-type="INSTALLMENT"]')
-			.click();
-		await page
-			.locator("easycredit-checkout")
-			.getByRole("button", { name: "Weiter zum Ratenkauf" })
-			.click();
-		await page.locator('span:text("Akzeptieren"):visible').click();
+		await selectAndProceed({
+			page: page,
+			paymentType: PaymentTypes.INSTALLMENT,
+		});
 
 		await goThroughPaymentPage({
 			page: page,
@@ -52,23 +31,19 @@ test.describe("Go through classic checkout (INSTALLMENT)", () => {
 	});
 });
 
-test.describe("Go through classic checkout (BILL)", () => {
+test.describe("Go through classic @bill", () => {
 	test("standardCheckoutBill", async ({ page }) => {
 		await goToProduct(page);
 
 		await page.getByRole("button", { name: "In den Warenkorb" }).click();
 		await page.goto("index.php/checkout/");
 
-		await fillCheckout(page);
+		await fillClassicCheckout(page);
 
-		/* Confirm Page */
-		await page
-			.locator('easycredit-checkout-label[payment-type="BILL"]')
-			.click();
-		await page
-			.locator("easycredit-checkout")
-			.getByRole("button", { name: "Weiter zum Rechnungskauf" })
-			.click();
+		await selectAndProceed({
+			page: page,
+			paymentType: PaymentTypes.BILL,
+		});
 
 		await goThroughPaymentPage({
 			page: page,
@@ -81,7 +56,7 @@ test.describe("Go through classic checkout (BILL)", () => {
 	});
 });
 
-test.describe("Go through express checkout (INSTALLMENT)", () => {
+test.describe("Go through @express @installment", () => {
 	test("expressCheckoutInstallments", async ({ page }) => {
 		await goToProduct(page);
 
@@ -103,7 +78,7 @@ test.describe("Go through express checkout (INSTALLMENT)", () => {
 	});
 });
 
-test.describe("Go through express checkout (BILL)", () => {
+test.describe("go through @express @bill", () => {
 	test("expressCheckoutBill", async ({ page }) => {
 		await goToProduct(page);
 
@@ -125,7 +100,7 @@ test.describe("Go through express checkout (BILL)", () => {
 	});
 });
 
-test.describe("Go through express checkout with variable product (INSTALLMENT)", () => {
+test.describe("Go through @express @installment with variable product ", () => {
 	test("expressCheckoutWithVariableProductInstallment", async ({ page }) => {
 		await goToProduct(page, "variable");
 
@@ -159,3 +134,46 @@ test.describe("Go through express checkout with variable product (INSTALLMENT)",
 		});
 	});
 });
+/*
+test.describe("company should not be able to pay @bill @installment", () => {
+  test("companyBlocked", async ({ page }) => {
+
+  })
+})
+
+test.describe("amount change should invalidate payment @installment", () => {
+  test("checkoutAmountChange", async ({ page }) => {
+
+  })
+})
+
+test.describe("address change should invalidate payment @installment", () => {
+  test("checkoutAddressChange", async ({ page }) => {
+
+  })
+})
+
+test.describe("address change should invalidate payment @express", () => {
+  test("expressCheckoutAddressChange", async ({ page }) => {
+
+  })
+})
+
+test.describe("amount change should invalidate payment @express", () => {
+  test("expressCheckoutAmountChange", async ({ page }) => {
+
+  })
+})
+
+test.describe("product below amount constraint should not be buyable @bill @installment", () => {
+  test("productBelowAmountConstraints", async ({ page }) => {
+
+  })
+})
+
+test.describe("product above amount constraint should not be buyable @bill @installment", () => {
+  test("productAboveAmountConstraints", async ({ page }) => {
+
+  })
+})
+*/

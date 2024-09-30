@@ -126,11 +126,15 @@ class ExpressCheckout
         $post = get_post();
 
         $product = new \WC_Product($post->ID);
+        $amount = $product->get_price();
+        if ($product->is_type('variable')) {
+            $amount = 1;  // default display has no selection, do not show button implicitly
+        }
 
-        if ($product->is_in_stock()) {
+        if ($product->is_in_stock() || $product->is_type('variable')) {
             echo '<easycredit-express-button 
                 webshop-id="' . $this->plugin->get_option('api_key') . '"
-                amount="' . $product->get_price() . '"
+                amount="' . $amount . '"
                 payment-types="' . implode(',', $paymentTypes) . '"
             ></easycredit-express-button>';
         }

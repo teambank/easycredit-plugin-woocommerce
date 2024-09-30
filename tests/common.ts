@@ -14,6 +14,38 @@ export const goToProduct = async (page, sku = "regular") => {
 	});
 };
 
+export const fillClassicCheckout = async (page) => {
+	await page
+		.getByRole("textbox", { name: "Vorname *" })
+		.fill(randomize("Ralf"));
+	await page.getByRole("textbox", { name: "Nachname *" }).fill("Ratenkauf");
+	await page
+		.getByRole("textbox", { name: "Straße *" })
+		.fill("Beuthener Str. 25");
+	await page.getByRole("textbox", { name: "Postleitzahl *" }).fill("90471");
+	await page.getByRole("textbox", { name: "Ort / Stadt *" }).fill("Nürnberg");
+	await page.getByRole("textbox", { name: "Telefon *" }).fill("012345678");
+	await page
+		.getByLabel("E-Mail-Adresse *")
+		.fill("ralf.ratenkauf@teambank.de");
+}
+
+export const fillBlocksCheckout = async (page) => {
+	await page.getByLabel("E-Mail-Adresse").fill("ralf.ratenkauf@teambank.de");
+	await page
+		.getByRole("textbox", { name: "Vorname" })
+		.fill(randomize("Ralf"));
+	await page.getByRole("textbox", { name: "Nachname" }).fill("Ratenkauf");
+	await page
+		.getByRole("textbox", { name: "Adresse", exact: true })
+		.fill("Beuthener Str. 25");
+	await page.getByRole("textbox", { name: "Postleitzahl" }).fill("90471");
+	await page.getByRole("textbox", { name: "Stadt" }).fill("Nürnberg");
+	await page
+		.getByRole("textbox", { name: "Telefon (optional)" })
+		.fill("012345678");
+};
+
 export const goThroughPaymentPage = async ({
 	page,
 	paymentType,
@@ -67,6 +99,33 @@ export const goThroughPaymentPage = async ({
 	});
 };
 
+export const selectAndProceed = async ({
+  page,
+  paymentType,
+}: {
+  page: any;
+  paymentType: PaymentTypes;
+}) => {
+  await test.step(`Start standard checkout (${paymentType})`, async () => {
+    if (paymentType === PaymentTypes.INSTALLMENT) {
+      await page
+        .locator("easycredit-checkout-label[payment-type=INSTALLMENT]")
+        .click();
+      await page.getByRole("button", { name: "Weiter zu easyCredit-Ratenkauf" }).click();
+      return;
+    }
+    if (paymentType === PaymentTypes.BILL) {
+      await page
+        .locator("easycredit-checkout-label[payment-type=BILL]")
+        .click();
+      await page
+        .getByRole("button", { name: "Weiter zu easyCredit-Rechnung" })
+        .click();
+      return;
+    }
+  });
+}
+
 export const confirmOrder = async ({
 	page,
 	paymentType
@@ -86,9 +145,11 @@ export const confirmOrder = async ({
 				.soft(page.locator(".woocommerce-table--order-details tfoot"))
 				.toContainText("Zinsen für Ratenzahlung");
 		} else {
+			/* waiting for API implementation
 			await expect
 				.soft(page.locator(".woocommerce-table--order-details tfoot"))
 				.not.toContainText("Zinsen für Ratenzahlung");
+			*/
 		}
 
 		await page

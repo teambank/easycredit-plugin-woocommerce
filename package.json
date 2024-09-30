@@ -6,7 +6,7 @@
   "author": "NETZKOLLEKTIV <corporate@netzkollektiv.com>",
   "license": "MIT",
   "scripts": {
-    "postinstall": "(cd src/woocommerce-gateway-ratenkaufbyeasycredit && yarn && yarn build) && composer install",
+    "build": "(cd src/wc-easycredit && yarn && yarn build) && composer install",
     "docs:build:html": "sudo docker run --rm -v ${PWD}/docs:/docs -v /opt/sphinx_rtd_theme/sphinx_rtd_theme:/docs/source/_themes/sphinx_rtd_theme sphinxdoc/sphinx make html",
     "docs:build:pdf": "sudo docker run --rm -v ${PWD}/docs:/docs -v /opt/sphinx_rtd_theme/sphinx_rtd_theme:/docs/source/_themes/sphinx_rtd_theme sphinxdoc/sphinx-latexpdf make latexpdf",
     "docs:deploy": "export $(cat .env | xargs) && rsync -rvz --delete ${PWD}/docs/build/html/ ${DOCS_DEPLOY_DST}",
@@ -21,6 +21,8 @@
     "@playwright/test": "^1.45"
   },
   "devDependencies": {
+    "@types/jquery": "^3.5.31",
     "@types/node": "^20.14.9"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

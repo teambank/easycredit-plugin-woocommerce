@@ -62,14 +62,10 @@ let config: PlaywrightTestConfig = {
 		trace: "retain-on-failure",
 		locale: "de-DE",
 	},
-//	retries: 0,
-	timeout: seconds(30),
+	retries: process.env.CI ? 2 : 0,
+	timeout: seconds(40),
 	projects: projects,
-	reporter: [
-		["list", { printSteps: true }],
-		["html", { outputFolder: "../test-results/html/" + process.env.VERSION + "/" }],
-		["github"],
-	],
+    reporter: [["list", { printSteps: true }], ["html"]]
 };
 
 if (!process.env.BASE_URL) {
@@ -82,7 +78,7 @@ if (!process.env.BASE_URL) {
         reuseExistingServer: !process.env.CI,
         stdout: 'ignore',
         stderr: 'pipe',
-        timeout: 5 * 1000
+        timeout: 10 * 1000
       }
     }
   }

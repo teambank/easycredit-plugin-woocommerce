@@ -1,5 +1,4 @@
-
-# easyCredit-Ratenkauf for wooCommerce - Installment Payment Plugin
+# easyCredit-Rechnung & Ratenkauf Plugin for wooCommerce - Installment & Bill Payment Plugin
 
 [![Quality Tests (e2e, static analysis, code style)](https://github.com/teambank/ratenkaufbyeasycredit-plugin-woocommerce/actions/workflows/test.yml/badge.svg)](https://github.com/teambank/ratenkaufbyeasycredit-plugin-woocommerce/actions/workflows/test.yml)
 
@@ -20,7 +19,7 @@ or register at [easycredit-ratenkauf.de](https://www.easycredit-ratenkauf.de/reg
 
 ### Stable Installation
 
-The [easyCredit-Ratenkauf plugin for wooCommerce](https://de.wordpress.org/plugins/wc-easycredit/) can be installed directly in your Wordpress installation from the Wordpress plugin directory. Please follow the guidelines in our [Documentation](https://netzkollektiv.com/docs/easycredit-ratenkauf-woocommerce/)
+The [easyCredit-Ratenkauf plugin for wooCommerce](https://de.wordpress.org/plugins/wc-easycredit/) can be installed directly in your Wordpress installation from the Wordpress plugin directory. Please follow the guidelines in our [Documentation](https://netzkollektiv.com/docs/easycredit-woocommerce/)
 
 ### Development Installation
 It is not recommended to install this version from Github. 

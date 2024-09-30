@@ -428,7 +428,7 @@ class Plugin
             '1.0'
         );
 
-        wp_localize_script('wc_easycredit_js', 'wc_easycredit_config', [
+        wp_localize_script('wc_ratenkaufbyeasycredit_js', 'wc_ratenkaufbyeasycredit_config', [
             'url' => admin_url('admin-post.php'),
         ]);
 
@@ -445,7 +445,7 @@ class Plugin
     }
 
     public function prevent_shipping_address_change($order) {
-        if ($order->get_payment_method() != $this->id) {
+        if (!$this->is_easycredit_method($order->get_payment_method())) {
             return;
         }
 

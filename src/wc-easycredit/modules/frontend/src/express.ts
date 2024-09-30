@@ -68,12 +68,7 @@ const submitExpressForm = function (e) {
 const handleVariationSwitch = () => {
 	const forms = document.querySelectorAll("form.variations_form");
 	forms.forEach((form) => {
-		form.addEventListener("show_variation", function (event) {
-			if (!(event instanceof CustomEvent)) {
-				return;
-			}
-
-			const variation = event.detail;
+		jQuery(form).on("show_variation", function ( event, variation ) {
 			const button = document.querySelector("easycredit-express-button");
 			if (!(button instanceof HTMLElement)) {
 				return;
