@@ -114,9 +114,14 @@ jobs:
       - name: Save Logs for Debugging
         if: always()
         run: |
-          mkdir -p test-results/${{ matrix.woocommerce-version }}
-          [ -f $WORDPRESS_DIR/wp-content/debug.log ] && cp -r $WORDPRESS_DIR/wp-content/debug.log test-results/${{ matrix.woocommerce-version }}/
-          [ -d $WORDPRESS_DIR/wp-content/uploads/wc-logs ] && cp -r $WORDPRESS_DIR/wp-content/uploads/wc-logs/*.log test-results/${{ matrix.woocommerce-version }}/ 
+          LOG_DIR=playwright-report/logs
+          mkdir $LOG_DIR
+          [ -f $WORDPRESS_DIR/wp-content/debug.log ] && cp -r $WORDPRESS_DIR/wp-content/debug.log $LOG_DIR/
+          [ -d $WORDPRESS_DIR/wp-content/uploads/wc-logs ] && cp -r $WORDPRESS_DIR/wp-content/uploads/wc-logs/*.log $LOG_DIR/
+          for i in $LOG_DIR/*; do
+            f=$(basename $i)
+            echo "<a href=\"$(basename $f)\">$f</a><br />" >> $LOG_DIR/index.html
+          done;
       - name: Deploy Report
         if: always()
         uses: cloudflare/wrangler-action@v3

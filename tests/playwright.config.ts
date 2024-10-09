@@ -43,7 +43,7 @@ if (isBlocksCheckout()) {
 
 /* test backend only desktop */
 ["Desktop Chrome"].forEach((device) => {
-	let name = projects.find((p) => p.name?.match("checkout"))?.name; // checkout requiered, so that we have at least one order in the backend
+	let name = projects.find((p) => p.name?.match("checkout"))?.name; // checkout required, so that we have at least one order in the backend
 	projects.push({
 		name: `backend @ ${device}`,
 		use: {

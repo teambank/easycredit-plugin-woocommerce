@@ -62,7 +62,7 @@ test.describe("Go through @express @installment", () => {
 
 		await page
 			.locator("a")
-			.filter({ hasText: "Jetzt direkt in Raten zahlen" })
+			.filter({ hasText: "Direkt in Raten zahlen" })
 			.click();
 		await page.getByText("Akzeptieren", { exact: true }).click();
 
@@ -119,7 +119,7 @@ test.describe("Go through @express @installment with variable product ", () => {
 
 		await page
 			.locator("a")
-			.filter({ hasText: "Jetzt direkt in Raten zahlen" })
+			.filter({ hasText: "Direkt in Raten zahlen" })
 			.click();
 		await page.getByText("Akzeptieren", { exact: true }).click();
 

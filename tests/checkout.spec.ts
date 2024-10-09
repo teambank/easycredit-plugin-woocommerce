@@ -6,7 +6,7 @@ import { PaymentTypes } from "./types";
 test.beforeEach(scaleDown)
 test.afterEach(takeScreenshot);
 
-test.describe('Go through blocks checkout (INSTALLMENT)', () => {
+test.describe("go through blocks checkout @installment", () => {
 	test('blocksCheckoutInstallments', async ({ page }) => {
 
 	await goToProduct(page)
@@ -38,7 +38,7 @@ test.describe('Go through blocks checkout (INSTALLMENT)', () => {
 	});
 });
 
-test.describe("Go through blocks checkout (BILL)", () => {
+test.describe("go through blocks checkout @bill", () => {
 	test("blocksCheckoutBill", async ({ page }) => {
 		await goToProduct(page);
 
@@ -75,7 +75,7 @@ test.describe("Go through blocks checkout (BILL)", () => {
 	});
 });
 
-test.describe("Go through express blocks checkout (INSTALLMENT)", () => {
+test.describe("go through @express blocks checkout @installment", () => {
 	test("blocksExpressCheckoutInstallments", async ({ page }) => {
 		await goToProduct(page);
 		await page.getByRole("button", { name: "In den Warenkorb" }).click();
@@ -84,7 +84,7 @@ test.describe("Go through express blocks checkout (INSTALLMENT)", () => {
 
 		await page
 			.locator("a")
-			.filter({ hasText: "Jetzt direkt in Raten zahlen" })
+			.filter({ hasText: "Direkt in Raten" })
 			.click();
 		await page.getByText("Akzeptieren", { exact: true }).click();
 
@@ -100,7 +100,7 @@ test.describe("Go through express blocks checkout (INSTALLMENT)", () => {
 	});
 });
 
-test.describe("Go through express blocks checkout (BILL)", () => {
+test.describe("go through @express blocks checkout @bill", () => {
 	test("blocksExpressCheckoutBill", async ({ page }) => {
 		await goToProduct(page);
 		await page.getByRole("button", { name: "In den Warenkorb" }).click();
