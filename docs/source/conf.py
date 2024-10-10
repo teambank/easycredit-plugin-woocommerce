@@ -19,14 +19,14 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u'easyCredit-Ratenkauf für WooCommerce'
-copyright = u'2023, NETZKOLLEKTIV GmbH'
+project = u'easyCredit-Rechnung & Ratenkauf für WooCommerce'
+copyright = u'2024, NETZKOLLEKTIV GmbH'
 author = u'Teambank AG'
 
 # The short X.Y version
 version = u''
 # The full version, including alpha/beta/rc tags
-release = u'2.1.9'
+release = u'3.0.0'
 
 # -- General configuration ---------------------------------------------------
 
@@ -108,7 +108,7 @@ html_css_files = [
 # html_sidebars = {}
 
 html_show_sourcelink = False
-html_logo = '_static/50_ratenkauf_Logo_1240x824_easyCredit.png'
+html_logo = '_static/easycredit-logo.svg'
 html_favicon = '_static/favicon.ico'
 
 # -- Options for HTMLHelp output ---------------------------------------------
@@ -164,7 +164,7 @@ latex_logo = '_static/50_ratenkauf_Logo_1240x824_easyCredit.png'
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'sw-easycredit.tex', u'easyCredit-Ratenkauf für WooCommerce',
+    (master_doc, 'sw-easycredit.tex', u'easyCredit-Rechnung & Ratenkauf für WooCommerce',
      u'Teambank AG', 'manual'),
 ]
 
@@ -174,7 +174,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'sw-easycredit', u'easyCredit-Ratenkauf für WooCommerce',
+    (master_doc, 'sw-easycredit', u'easyCredit-Rechnung & Ratenkauf für WooCommerce',
      [author], 1)
 ]
 
@@ -185,7 +185,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'sw-easycredit', u'easyCredit-Ratenkauf für WooCommerce',
+    (master_doc, 'sw-easycredit', u'easyCredit-Rechnung & Ratenkauf für WooCommerce',
      author, 'sw-easycredit', 'One line description of project.',
      'Miscellaneous'),
 ]

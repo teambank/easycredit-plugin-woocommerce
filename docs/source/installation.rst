@@ -4,7 +4,7 @@
 Installation
 ============
 
-Das Plugin für easyCredit-Ratenkauf kann im Bereich der Plugins entweder über den direkten Download aus dem *Wordpress Plugin-Verzeichnis* oder über den Datei-Upload des bereitgestellten Archives über *Plugin Hochladen* installiert werden.
+Das Plugin für easyCredit kann im Bereich der Plugins entweder über den direkten Download aus dem *Wordpress Plugin-Verzeichnis* oder über den Datei-Upload des bereitgestellten Archives über *Plugin Hochladen* installiert werden.
 Alternativ ist auch die Installation über die Kommandozeile z.B. über WP-CLI möglich.
 
 Wordpress Plugin-Verzeichnis
@@ -31,7 +31,7 @@ Um das Plugin über die Kommandozeile zu installieren, führen Sie die folgenden
 
 .. code-block:: console
 
-    $ wp plugin install https://downloads.wordpress.org/plugin/wc-easycredit.1.6.6.zip
+    $ wp plugin install https://downloads.wordpress.org/plugin/wc-easycredit.x.x.x.zip
     $ wp plugin activate wc-easycredit
 
 Fahren Sie anschließend mit der :ref:`configuration` fort.

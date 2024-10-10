@@ -2,11 +2,11 @@
 Voraussetzungen
 ================
 
-Zu Nutzung von **easyCredit-Ratenkauf für WooCommerce** benötigen Sie:
+Zu Nutzung von **easyCredit-Rechnung & Ratenkauf für WooCommerce** benötigen Sie:
 
 * eine funktionierende **WooCommerce** Installation
-* valide API-Zugangsdaten zu *easyCredit-Ratenkauf*
-* die aktuelle Version des wooCommerce Plugins für easyCredit-Ratenkauf (siehe https://www.easycredit-ratenkauf.de/system/woocommerce/)
+* valide API-Zugangsdaten zu *easyCredit*
+* die aktuelle Version des wooCommerce Plugins für easyCredit (siehe https://www.easycredit-ratenkauf.de/system/woocommerce/)
 
 Versionskompatibilität
 ----------------------
@@ -18,10 +18,10 @@ Das Plugin hat neben WooCommerce keine weiteren Abhängigkeiten. Es wurde für d
 
 PHP 5.6 wird bis maximal v1.7.2 unterstützt. Ab v2.0.0 des Plugins ist mindestens PHP 7.0 erforderlich.
 
-Zugangsdaten für "easyCredit-Ratenkauf"
+Zugangsdaten für "easyCredit"
 ------------------------------------------
 
-Um easyCredit-Ratenkauf nutzen zu können, benötigen Sie gültige API-Zugangsdaten.
+Um easyCredit nutzen zu können, benötigen Sie gültige API-Zugangsdaten.
 
 Die Zugangsdaten bestehen aus einer Webshop-Id und einem API-Kennwort. Sie erhalten eine Produktivkennung und eine Testkennung:
 
@@ -35,7 +35,7 @@ Die Produktivkennung ist erst nach Überprüfung und Freischaltung nutzbar. Die 
 Sie haben noch keine Zugangsdaten?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Um easyCredit-Ratenkauf nutzen zu können, benötigen Sie gültige API-Zugangsdaten.
+Um easyCredit nutzen zu können, benötigen Sie gültige API-Zugangsdaten.
 
 Nehmen Sie einfach Kontakt mit uns auf unter:
 
