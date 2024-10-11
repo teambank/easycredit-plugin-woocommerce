@@ -383,24 +383,20 @@ class Plugin
         load_template($template, false);
     }
 
-    public function add_module_nomodule_attribute($tag, $handle, $src)
+    public function add_module_module_attribute($tag, $handle, $src)
     {
         if ($handle === 'easycredit-components-module') {
             $src = remove_query_arg('ver', $src);
             return '<script type="module" src="' . esc_url($src) . '"></script>';
-        }
-        if ($handle === 'easycredit-components-nomodule') {
-            $src = remove_query_arg('ver', $src);
-            return '<script nomodule src="' . esc_url($src) . '"></script>';
         }
         return $tag;
     }
 
     public function enqueue_easycredit_components()
     {
-        wp_register_script('easycredit-components-module', 'https://invoice.easycredit-ratenkauf-webcomponents.pages.dev/easycredit-components/easycredit-components.esm.js', [], '1.0');
+        wp_register_script('easycredit-components-module', 'https://ratenkauf.easycredit.de/api/resource/webcomponents/v3/easycredit-components/easycredit-components.esm.js', [], '1.0');
         wp_enqueue_script('easycredit-components-module');
-        add_filter('script_loader_tag', [$this, 'add_module_nomodule_attribute'], 10, 3);
+        add_filter('script_loader_tag', [$this, 'add_module_module_attribute'], 10, 3);
     }
 
     public function enqueue_frontend_resources($hook)
@@ -438,11 +434,6 @@ class Plugin
             'wc_easycredit_css',
             $this->plugin_url . 'modules/backend/build/styles.css'
         );
-        wp_enqueue_style(
-            'wc_easycredit_marketing_css',
-            $this->plugin_url . 'modules/marketing/build/styles.css'
-        );
-
         wp_enqueue_media();
 
         // Get method activation status and pass to JS to be used in HTML intro (conditional display)

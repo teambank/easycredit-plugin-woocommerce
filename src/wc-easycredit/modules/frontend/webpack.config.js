@@ -8,10 +8,9 @@ module.exports = {
 	...{
 		entry: {
 			index: path.resolve(process.cwd(), "src", "index.js"),
-			styles: path.resolve(process.cwd(), "src", "styles.css"),
+			styles: path.resolve(process.cwd(), "src", "styles.scss"),
 		},
 	},
-	devtool: "eval-source-map",
 	plugins: [
 		...defaultConfig.plugins,
 		new RemoveEmptyScriptsPlugin({

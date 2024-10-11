@@ -7,7 +7,6 @@
 
 namespace Netzkollektiv\EasyCredit\Api;
 
-use Teambank\EasyCreditApiV3\Integration\Util\PrefixConverter;
 use Teambank\EasyCreditApiV3\Model\InvoiceAddress;
 use Teambank\EasyCreditApiV3\Model\ShippingAddress;
 use Teambank\EasyCreditApiV3\Model\Transaction;
@@ -36,7 +35,7 @@ class QuoteBuilder
 
         $this->systemBuilder = new SystemBuilder();
         $this->addressBuilder = new Quote\AddressBuilder();
-        $this->customerBuilder = new Quote\CustomerBuilder(new PrefixConverter());
+        $this->customerBuilder = new Quote\CustomerBuilder();
         $this->itemBuilder = new Quote\ItemBuilder();
     }
 
@@ -72,7 +71,7 @@ class QuoteBuilder
 
     public function getFinancingTerm(): ?string
     {
-        return $this->storage->get('financingTerm');
+        return (string) intval($this->storage->get('numberOfInstallments'));
     }
 
     public function getGrandTotal()

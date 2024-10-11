@@ -10,6 +10,7 @@
  * Text Domain:     wc-easycredit
  * Domain Path:     /languages
  * Version:         3.0.0
+ * Requires Plugins: woocommerce
  * Requires at least: 4.4
  * Tested up to: 6.5
  * WC requires at least: 3.0.0

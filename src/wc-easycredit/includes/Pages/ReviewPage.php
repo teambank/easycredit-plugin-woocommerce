@@ -15,6 +15,8 @@ class ReviewPage
 
     const PAGE_ID = 'woocommerce_easycredit_checkout_review_page_id';
 
+    const PAGE_SLUG = 'easycredit-checkout-review';
+
     private $plugin;
 
     private $integration;
@@ -42,8 +44,8 @@ class ReviewPage
     {
         return [
             self::PAGE_ID => [
-                'name' => _x('easycredit-checkout-review', 'Page slug', 'woocommerce'),
-                'title' => _x('Review Order', 'Page title', 'woocommerce'),
+                'name' => self::PAGE_SLUG,
+                'title' => _x('Review Order', 'Page title', 'wc-easycredit'),
                 'content' => '[' . self::SHORT_CODE . ']',
             ],
         ];
@@ -102,7 +104,7 @@ class ReviewPage
     private function get_confirm_url()
     {
         $query_args = [
-            'woo-' . WC_EASYCREDIT_ID . '-return' => true,
+            'woo-' . $this->plugin->id . '-return' => true,
         ];
         return add_query_arg($query_args, $this->get_page_uri());
     }

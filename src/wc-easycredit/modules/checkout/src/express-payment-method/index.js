@@ -20,7 +20,7 @@ const buildAdditionalParams = (detail) => {
 };
 
 const methods = getMethods();
-const config = methods.easycredit_ratenkauf;
+const [methodName, config] = Object.entries(methods)[0];
 
 const ExpressButton = (props) => {
 	const ecCheckoutButton = useRef(null);

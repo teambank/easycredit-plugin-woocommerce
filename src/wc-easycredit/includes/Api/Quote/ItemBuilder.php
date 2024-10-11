@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netzkollektiv\EasyCredit\Api\Quote;
 
 use Teambank\EasyCreditApiV3\Model\ShoppingCartInformationItem;
+use Teambank\EasyCreditApiV3\Model\ArticleNumberItem;
 
 class ItemBuilder
 {
@@ -38,7 +39,7 @@ class ItemBuilder
             'price' => $item->get_subtotal(),
             'manufacturer' => '',
             'productCategory' => $this->getCategory(),
-            'articleNumber' => [new \Teambank\EasyCreditApiV3\Model\ArticleNumberItem([
+            'articleNumber' => [new ArticleNumberItem([
                 'numberType' => 'sku',
                 'number' => $item->get_product_id(),
             ])],

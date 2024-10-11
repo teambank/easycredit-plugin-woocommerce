@@ -147,20 +147,14 @@ jQuery(function ($) {
 		elBillPayment = $('#ecbill .bill');
 
 		if (typeof ecMethodsStatus !== 'undefined') {
-			console.log('Methods Status: ', ecMethodsStatus);
-
 			ecMethodsStatus['easycredit_ratenkauf'] === 'no' ? elBillPayment[0].classList.add('easycredit_ratenkauf-not-active') : null;
 			ecMethodsStatus['easycredit_rechnung'] === 'no' ? elBillPayment[0].classList.add('easycredit_rechnung-not-active') : null;
 		} else {
 			console.error('ecMethodsStatus is not defined.');
 		}
 	}
-	const fetchWebshopInfo = () => {
-		apiKey = $('#woocommerce_easycredit_api_key').val();
-		console.log(apiKey);
-
+	const fetchWebshopInfo = (apiKey) => {
 		if (apiKey.length === 0) {
-			console.log('Api Key missing!');
 			return;
 		}
 
@@ -172,22 +166,26 @@ jQuery(function ($) {
 			}
 			return response.json();
 		}).then((data) => {
-			// console.log('Fetched data:', data);
 			return data;
 		}).catch((error) => {
 			console.error('Error fetching webshop info:', error);
 		});
 	}
-	getPaymentMethodStatus();
-	fetchWebshopInfo().then((data) => {
-		console.log('billPaymentActive:', data.billPaymentActive);
-		elBillPayment = $('#ecbill .bill');
 
-		if ( data.billPaymentActive === true ) {
-			$('#easycredit-activate-invoice-button-inactive').remove();
-		} else {
-			$('#easycredit-activate-invoice-button-active').remove();
-			elBillPayment[0].classList.add('easycredit_rechnung-not-allowed');
-		}
-	});
+	if ($('#woocommerce_easycredit_api_key').length > 0) {
+		getPaymentMethodStatus();
+
+		const apiKey = $('#woocommerce_easycredit_api_key').val();
+
+		fetchWebshopInfo(apiKey).then((data) => {
+			elBillPayment = $('#ecbill .bill');
+
+			if ( data.billPaymentActive === true ) {
+				$('#easycredit-activate-invoice-button-inactive').remove();
+			} else {
+				$('#easycredit-activate-invoice-button-active').remove();
+				elBillPayment[0].classList.add('easycredit_rechnung-not-allowed');
+			}
+		});
+	}
 });

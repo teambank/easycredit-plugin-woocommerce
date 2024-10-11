@@ -9,24 +9,14 @@ declare(strict_types=1);
 
 namespace Netzkollektiv\EasyCredit\Api\Quote;
 
-use Teambank\EasyCreditApiV3\Integration\Util\PrefixConverter;
-
 class CustomerBuilder
 {
     protected $quote;
     protected $customer;
-    protected $prefixConverter;
-
-    public function __construct(PrefixConverter $prefixConverter)
-    {
-        $this->prefixConverter = $prefixConverter;
-    }
 
     public function getPrefix(): ?string
     {
-        return $this->prefixConverter->convert(
-            $this->quote->get_meta('easycredit-prefix')
-        );
+        return null;
     }
 
     public function getFirstname()

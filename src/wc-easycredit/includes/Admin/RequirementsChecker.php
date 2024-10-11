@@ -8,6 +8,7 @@
 namespace Netzkollektiv\EasyCredit\Admin;
 
 use Netzkollektiv\EasyCredit\Plugin;
+use Netzkollektiv\EasyCredit\Pages\ReviewPage;
 
 class RequirementsChecker
 {
@@ -57,7 +58,7 @@ class RequirementsChecker
             return;
         }
 
-        $page_path = current($this->plugin->get_review_page_data())['name'];
+        $page_path = ReviewPage::PAGE_SLUG;
         if (get_page_by_path($page_path, OBJECT)) {
             return;
         }

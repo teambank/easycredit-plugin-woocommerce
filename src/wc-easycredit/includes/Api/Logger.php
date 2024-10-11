@@ -29,7 +29,7 @@ class Logger
             return;
         }
         \wc_get_logger()->{$name}($arguments[0], [
-            'source' => WC_EASYCREDIT_ID,
+            'source' => $this->plugin->id,
         ]);
     }
 }

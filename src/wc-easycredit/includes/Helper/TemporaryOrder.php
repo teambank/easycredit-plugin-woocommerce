@@ -13,9 +13,14 @@ class TemporaryOrder
 
     private $plugin;
 
-    public function __construct($plugin)
-    {
+    private $integration;
+
+    public function __construct(
+        $plugin,
+        $integration
+    ) {
         $this->plugin = $plugin;
+        $this->integration = $integration;
     }
 
     public function get_order($paymentType = null)
@@ -30,9 +35,15 @@ class TemporaryOrder
             $postData = $_POST;
         }
         
-        if (isset($_REQUEST['easycredit']['paymentType'])) {
-            $paymentType = $_REQUEST['easycredit']['paymentType'];
+        $params = isset($_REQUEST['easycredit']) ? $_REQUEST['easycredit'] : [];
+        if (isset($params['paymentType'])) {
+            $paymentType = $params['paymentType'];
             $postData['payment_method'] = $this->plugin->get_method_by_payment_type($paymentType)->id;
+        }
+        if (isset($params['numberOfInstallments'])) {
+            $this->integration
+                ->storage()
+                ->set('numberOfInstallments', intval($params['numberOfInstallments']));
         }
 
         $wc_checkout = \WC_Checkout::instance();
