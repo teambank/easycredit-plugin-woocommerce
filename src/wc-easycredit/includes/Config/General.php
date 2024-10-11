@@ -14,7 +14,8 @@ class General extends WC_Settings_API
     ) {
         $this->fieldProvider = $fieldProvider;
 
-        $this->init_form_fields();
+        add_action('init', [$this, 'init_form_fields']);
+
         if (is_admin()) {
             add_action(
                 'woocommerce_update_options_checkout_' . $this->id,
@@ -57,16 +58,7 @@ class General extends WC_Settings_API
         }
         return $option;
     }
-    /*
-    function admin_options()
-    {
-?>
-        <h2><?php _e('easyCredit General Settings', 'woocommerce'); ?></h2>
-        <table class="form-table">
-            <?php $this->generate_settings_html(); ?>
-        </table> <?php
-    }
-*/
+
     public function admin_options()
     {
         ob_start();

@@ -9,8 +9,12 @@ class Rechnung extends GatewayAbstract
     public function _construct()
     {
         $this->id = 'easycredit_rechnung';
+        $this->method_title = 'easyCredit-Rechnung';
 
-        $this->method_title = __('easyCredit Rechnung', 'wc-easycredit');
-        $this->method_description = __('easyCredit Rechnung - Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.');
+        add_action('init', [$this, 'init_translatable_props']);
+    }
+
+    public function init_translatable_props() {
+        $this->method_description = $this->method_title . ' - ' . __('With easyCredit, you can now offer your customers the option of invoice purchase in addition to the classic installment purchase. The payment term is <strong>30 days in the future</strong>.', 'wc-easycredit');
     }
 }

@@ -3,7 +3,7 @@
 jQuery(function ($) {
 	// eslint-disable-next-line camelcase
 	if (typeof wc_easycredit_config === "undefined") {
-		return;
+		// return;
 	}
 
 	const prefix = "wc_easycredit_";
@@ -12,7 +12,6 @@ jQuery(function ($) {
 			wc_easycredit_config.url + "?action=" + prefix + action // eslint-disable-line camelcase
 		);
 	};
-
 	$("#woocommerce_easycredit_api_verify_credentials").click(function () {
 		const button = $(this);
 		button.prop("disabled", true);
@@ -48,7 +47,6 @@ jQuery(function ($) {
 			).insertAfter($(this));
 		});
 	};
-
 	showChosenImages(targets);
 
 	$(".easycredit-marketing .form-table").on(
@@ -143,6 +141,53 @@ jQuery(function ($) {
 			});
 		});
 	};
-
 	initTabs();
+
+	const getPaymentMethodStatus = () => {
+		elBillPayment = $('#ecbill .bill');
+
+		if (typeof ecMethodsStatus !== 'undefined') {
+			console.log('Methods Status: ', ecMethodsStatus);
+
+			ecMethodsStatus['easycredit_ratenkauf'] === 'no' ? elBillPayment[0].classList.add('easycredit_ratenkauf-not-active') : null;
+			ecMethodsStatus['easycredit_rechnung'] === 'no' ? elBillPayment[0].classList.add('easycredit_rechnung-not-active') : null;
+		} else {
+			console.error('ecMethodsStatus is not defined.');
+		}
+	}
+	const fetchWebshopInfo = () => {
+		apiKey = $('#woocommerce_easycredit_api_key').val();
+		console.log(apiKey);
+
+		if (apiKey.length === 0) {
+			console.log('Api Key missing!');
+			return;
+		}
+
+		const url = 'https://ratenkauf.easycredit.de/api/payment/v3/webshop/' + apiKey;
+
+		return fetch(url).then((response) => {
+			if (!response.ok) { 
+				return Promise.reject(response); 
+			}
+			return response.json();
+		}).then((data) => {
+			// console.log('Fetched data:', data);
+			return data;
+		}).catch((error) => {
+			console.error('Error fetching webshop info:', error);
+		});
+	}
+	getPaymentMethodStatus();
+	fetchWebshopInfo().then((data) => {
+		console.log('billPaymentActive:', data.billPaymentActive);
+		elBillPayment = $('#ecbill .bill');
+
+		if ( data.billPaymentActive === true ) {
+			$('#easycredit-activate-invoice-button-inactive').remove();
+		} else {
+			$('#easycredit-activate-invoice-button-active').remove();
+			elBillPayment[0].classList.add('easycredit_rechnung-not-allowed');
+		}
+	});
 });

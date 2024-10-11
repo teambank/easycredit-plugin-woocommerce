@@ -21,7 +21,7 @@ class FieldProvider
     {
         return [
             'enabled' => [
-                'title' => __('Enable/Disable', 'wc-easycredit'),
+                'title' => __('Enable/Disable', 'woocommerce'),
                 'type' => 'checkbox',
                 'label' => __('Enable payment method', 'wc-easycredit'),
                 'default' => 'yes',
@@ -36,7 +36,7 @@ class FieldProvider
             ],
 
             'title' => [
-                'title' => __('Title', 'wc-easycredit'),
+                'title' => __('Title', 'woocommerce'),
                 'type' => 'text',
                 'description' => __('This controls the title for the payment method the customer sees during checkout.', 'wc-easycredit'),
                 'desc_tip' => true,
@@ -77,7 +77,7 @@ class FieldProvider
             'api_signature' => [
                 'title' => __('API Signature (if activated in partner portal, optional)', 'wc-easycredit'),
                 'type' => 'text',
-                'description' => __('The API signature secures the data transfer against data manipulation by third parties. You can activate the API signature in the easycredit_ratenkauf merchant portal. ', 'wc-easycredit'),
+                'description' => __('The API signature secures the data transfer against data manipulation by third parties. You can activate the API signature in the easyCredit merchant portal. ', 'wc-easycredit'),
             ],
 
             'api_verify_credentials' => [
@@ -101,25 +101,22 @@ class FieldProvider
             'marketing_components_express_checkout' => [
                 'title' => __('Express Checkout', 'wc-easycredit'),
                 'type' => 'title',
-                'sections' => ['easycredit_ratenkauf', 'easycredit_rechnung']
             ],
 
             'express_checkout_detail_enabled' => [
                 'title' => __('Show express checkout button at product detail page', 'wc-easycredit'),
                 'type' => 'checkbox',
-                'description' => __('Let customers initiate easycredit_ratenkauf directly from the product detail page', 'wc-easycredit'),
+                'description' => __('Let customers initiate easyCredit payment directly from the product detail page', 'wc-easycredit'),
                 'desc_tip' => true,
                 'default' => 'yes',
-                'sections' => ['easycredit_ratenkauf', 'easycredit_rechnung']
             ],
 
             'express_checkout_cart_enabled' => [
                 'title' => __('Show express checkout button in cart', 'wc-easycredit'),
                 'type' => 'checkbox',
-                'description' => __('Let customers initiate easycredit_ratenkauf directly from the cart page', 'wc-easycredit'),
+                'description' => __('Let customers initiate easyCredit payment directly from the cart page', 'wc-easycredit'),
                 'desc_tip' => true,
                 'default' => 'yes',
-                'sections' => ['easycredit_ratenkauf', 'easycredit_rechnung']
             ],
 
             'marketing_components_widget' => [
@@ -130,7 +127,7 @@ class FieldProvider
             'widget_enabled' => [
                 'title' => __('Show widget next to product price', 'wc-easycredit'),
                 'type' => 'checkbox',
-                'description' => __('Specifies if easycredit_ratenkauf will be advertised in product detail view', 'wc-easycredit'),
+                'description' => __('Specifies if easyCredit payment will be advertised in product detail view', 'wc-easycredit'),
                 'desc_tip' => true,
                 'default' => 'yes',
             ],
@@ -146,7 +143,7 @@ class FieldProvider
             'listing_widget_enabled' => [
                 'title' => __('Show widget in product listing', 'wc-easycredit'),
                 'type' => 'checkbox',
-                'description' => __('Specifies if easycredit_ratenkauf will be advertised in product listing view', 'wc-easycredit'),
+                'description' => __('Specifies if easyCredit payment will be advertised in product listing view', 'wc-easycredit'),
                 'desc_tip' => true,
                 'default' => 'yes',
             ],
@@ -163,7 +160,7 @@ class FieldProvider
             'cart_widget_enabled' => [
                 'title' => __('Show widget in Cart', 'wc-easycredit'),
                 'type' => 'checkbox',
-                'description' => __('Specifies if easycredit_ratenkauf will be advertised in cart view', 'wc-easycredit'),
+                'description' => __('Specifies if easyCredit payment will be advertised in cart view', 'wc-easycredit'),
                 'desc_tip' => true,
                 'default' => 'yes',
             ],
@@ -186,7 +183,6 @@ class FieldProvider
                 'label' => __('Show modal automatically when visiting the online shop for the first time', 'wc-easycredit'),
                 'type' => 'checkbox',
                 'default' => 'no',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'modal_delay' => [
@@ -195,7 +191,6 @@ class FieldProvider
                 'desc_tip' => true,
                 'type' => 'number',
                 'default' => '10',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'modal_snooze_for' => [
@@ -204,20 +199,17 @@ class FieldProvider
                 'desc_tip' => true,
                 'type' => 'number',
                 'default' => '10',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'modal_src' => [
                 'title' => __('Use your own image', 'wc-easycredit'),
                 'type' => 'hidden',
                 'default' => '',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'marketing_components_card' => [
                 'title' => __('Marketing - Card', 'wc-easycredit'),
                 'type' => 'title',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'card_enabled' => [
@@ -225,7 +217,6 @@ class FieldProvider
                 'label' => __('Show card within the product list (category)', 'wc-easycredit'),
                 'type' => 'checkbox',
                 'default' => 'no',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'card_search_enabled' => [
@@ -233,27 +224,23 @@ class FieldProvider
                 'label' => __('Show card within search results', 'wc-easycredit'),
                 'type' => 'checkbox',
                 'default' => 'no',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'card_position' => [
                 'title' => __('Position in product list', 'wc-easycredit'),
                 'type' => 'number',
                 'default' => '1',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'card_src' => [
                 'title' => __('Use your own image', 'wc-easycredit'),
                 'type' => 'hidden',
                 'default' => '',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'marketing_components_flashbox' => [
                 'title' => __('Marketing - Flashbox', 'wc-easycredit'),
                 'type' => 'title',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'flashbox_enabled' => [
@@ -261,20 +248,17 @@ class FieldProvider
                 'label' => __('Show flashbox at the bottom of the screen', 'wc-easycredit'),
                 'type' => 'checkbox',
                 'default' => 'no',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'flashbox_src' => [
                 'title' => __('Use your own image', 'wc-easycredit'),
                 'type' => 'hidden',
                 'default' => '',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'marketing_components_bar' => [
                 'title' => __('Marketing - Bar', 'wc-easycredit'),
                 'type' => 'title',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'bar_enabled' => [
@@ -282,7 +266,6 @@ class FieldProvider
                 'label' => __('Show bar at the top of the screen', 'wc-easycredit'),
                 'type' => 'checkbox',
                 'default' => 'no',
-                'sections' => ['easycredit_ratenkauf']
             ],
 
             'transactions' => [
@@ -319,7 +302,7 @@ class FieldProvider
             ],
 
             'marketing_components_clickandcollect' => [
-                'title' => __('Click & Collect', 'wc-easycredit'),
+                'title' =>__('Click & Collect', 'wc-easycredit'),
                 'type' => 'title',
             ],
 

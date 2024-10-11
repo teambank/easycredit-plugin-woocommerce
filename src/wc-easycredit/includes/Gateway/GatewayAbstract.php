@@ -49,7 +49,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         $this->temporaryOrderHelper = $temporaryOrderHelper;
 
         $this->has_fields = true;
-        $this->init_form_fields();
+        add_action('init', [$this, 'init_form_fields']);
         $this->init_settings();
 
         $title = $this->get_option('title');
@@ -336,7 +336,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         $this->form_fields = $fields;
     }
 
-    public function get_option($key, $empty_value = null)
+    public function get_option($key, $empty_value = '')
     {
         $option = parent::get_option($key, $empty_value);
         if ($key == 'api_verify_credentials') {
@@ -347,7 +347,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         }
 
         if ('' === $option) {
-            $option = $this->plugin->get_option($key, $empty_value = null);
+            $option = $this->plugin->get_option($key, $empty_value);
         }
         return $option;
     }
@@ -376,10 +376,10 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
 
         try {
             $postData = $_POST['easycredit'];
-            if (isset($postData['financingTerm'])) {
+            if (isset($postData['numberOfInstallments'])) {
                 $this->integration
                     ->storage()
-                    ->set('financingTerm', intval($postData['financingTerm']));
+                    ->set('numberOfInstallments', intval($postData['numberOfInstallments']));
             }
 
             $quote = $this->integration->quote_builder()->build($order);

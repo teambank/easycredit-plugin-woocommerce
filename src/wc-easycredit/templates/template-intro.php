@@ -4,22 +4,29 @@
             <div class="easycredit-marketing intro-2024">
                 <div class="easycredit-marketing__grid">
                     <div class="easycredit-marketing__content">
-                        <h2>Der einfachste Rechnungs- und Ratenkauf Deutschlands.</h2>
-                        <p>Wir freuen uns, dass Sie sich für easyCredit entschieden haben, die perfekte Zahlungsmethode für den Handel in Onlineshops.</p>
-                        <a
-                            class="btn btn-secondary"
-                            href="https://netzkollektiv.com/docs/easycredit-ratenkauf-shopware6/index.html"
-                            target="_blank"
-                        >
-                            Dokumentation
-                        </a>
-                        <a
-                            class="btn btn-secondary"
-                            href="https://easycredit-demo.netzkollektiv.com/"
-                            target="_blank"
-                        >
-                            Demoshop
-                        </a>
+                        <h2><?php _e('The simplest invoice and installment purchase in Germany.', 'wc-easycredit') ?></h2>
+                        <!-- Der einfachste Rechnungs- und Ratenkauf Deutschlands. -->
+                        <p><?php _e('We are delighted that you have decided in favour of easyCredit, the perfect payment method for your online shop.', 'wc-easycredit') ?></p>
+                        <!-- Wir freuen uns, dass Sie sich für easyCredit entschieden haben, die perfekte Zahlungsmethode für den Handel in Onlineshops.  -->
+                        <div class="mb-1">
+                            <a
+                                class="btn btn-secondary"
+                                href="https://netzkollektiv.com/docs/easycredit-woocommerce"
+                                target="_blank"
+                            >
+                                <?php _e('Documentation', 'wc-easycredit') ?>
+                                <!-- Dokumentation -->
+                            </a>
+                            <a
+                                class="btn btn-secondary"
+                                href="https://easycredit-demo.netzkollektiv.com/"
+                                target="_blank"
+                            >
+                                <?php _e('Demo shop', 'wc-easycredit') ?>
+                                <!-- Demoshop -->
+                            </a>
+                        </div>
+                        <a href="https://partner.easycredit-ratenkauf.de/registrierung/firmendaten" target="_blank" class="not-decorated"><?php _e('Register as a trader', 'wc-easycredit'); ?></a>
                     </div>
 
                     <div class="easycredit-marketing__image bg fill aspect-2-3">
@@ -34,12 +41,17 @@
         <div class="sw-card__content">
             <div class="easycredit-marketing intro-2024">
                 <div class="easycredit-marketing__content">
-                    <h2>Sie haben Fragen? Wir helfen gerne.</h2>
-                    <p>Wir sind von Montag bis Freitag von 8:00 bis 18:00 Uhr für Sie erreichbar.</p>
+                    <h2><?php _e('Do you have any questions? We are here to help.', 'wc-easycredit') ?></h2>
+                    <!-- Sie haben Fragen? Wir helfen gerne. -->
+                    <p><?php _e('We are here for you from Monday to Friday from 8:00 to 18:00.', 'wc-easycredit') ?></p>
+                    <!-- Wir sind von Montag bis Freitag von 8:00 bis 18:00 Uhr für Sie erreichbar. -->
                     <ul>
-                        <li><a href="https://www.easycredit-ratenkauf.de/kontakt/" target="_blank">Fragen & Antworten</a></li>
-                        <li><a href="tel:091153902726" target="_blank">Rufen Sie uns an: 0911 5390-2726</a></li>
-                        <li><a href="https://www.easycredit-ratenkauf.de/kontakt/#b064f73c4cdfc080a73b69ea0125da53" target="_blank">Kontaktformular</a></li>
+                        <li><a href="https://www.easycredit-ratenkauf.de/kontakt/" target="_blank"><?php _e('Frequently asked questions (FAQ)', 'wc-easycredit') ?></a></li>
+                        <!-- Fragen & Antworten -->
+                        <li><a href="tel:091153902726" target="_blank"><?php _e('Give us a call: +49 (0)911 5390-2726', 'wc-easycredit') ?></a></li>
+                        <!-- Rufen Sie uns an: 0911 5390-2726 -->
+                        <li><a href="https://www.easycredit-ratenkauf.de/kontakt/#b064f73c4cdfc080a73b69ea0125da53" target="_blank"><?php _e('Contact form', 'wc-easycredit') ?></a></li>
+                        <!-- Kontaktformular -->
                     </ul>
                 </div>
             </div>
@@ -49,57 +61,46 @@
 
 <div class="sw-card" id="ecbill">
     <div class="sw-card__content">
-        <div class="easycredit-marketing intro-2024">
+        <div class="easycredit-marketing intro-2024 bill">
             <div class="easycredit-marketing__grid grid-50-50">
                 <div class="easycredit-marketing__image bg fill aspect-36-2">
                     <img src="<?php echo plugin_dir_url(__FILE__); ?>../assets/img/card-easycredit-rechnung-image.png">
                 </div>
 
                 <div class="easycredit-marketing__content">
-                    <span class="badge">Neu</span>
-                    <h2>easyCredit-Rechnung - die ideale Ergänzung zum Ratenkauf</h2>
-                    <p>Sie können Ihren Kunden mit easyCredit neben dem klassischen Ratenkauf nun auch den Kauf auf Rechnung anbieten. Das Zahlungsziel liegt dabei <strong>30 Tage in der Zukunft</strong>.</p>
+                    <span class="badge"><?php _e('New', 'wc-easycredit') ?></span>
+                    <!-- Neu -->
+                    <h2><?php _e('easyCredit-Rechnung - the ideal addition to installment purchase', 'wc-easycredit') ?></h2>
+                    <!-- easyCredit-Rechnung - die ideale Ergänzung zum Ratenkauf -->
+                    <p><?php _e('With easyCredit, you can now offer your customers the option of invoice purchase in addition to the classic installment purchase. The payment term is <strong>30 days in the future</strong>.', 'wc-easycredit') ?></p>
+                    <!-- Sie können Ihren Kunden mit easyCredit neben dem klassischen Ratenkauf nun auch den Kauf auf Rechnung anbieten. Das Zahlungsziel liegt dabei <strong>30 Tage in der Zukunft</strong>. -->
                     <a
                         class="btn btn-secondary"
+                        id="easycredit-activate-invoice-button-active"
                         href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=easycredit_rechnung"
                     >
-                        Jetzt aktivieren
+                        <?php _e('Activate now', 'wc-easycredit') ?>
+                        <!-- Jetzt aktivieren -->
+                    </a>
+                    <a
+                        class="btn btn-secondary"
+                        id="easycredit-activate-invoice-button-inactive"
+                        href="https://partner.easycredit-ratenkauf.de/portal"
+                        target="_blank"
+                    >
+                        <?php _e('Unlock now', 'wc-easycredit') ?>
+                        <!-- Jetzt freischalten lassen -->
                     </a>
                     <a
                         class="btn btn-link"
                         href="https://www.easycredit-ratenkauf.de/produkt/"
                         target="_blank"
                     >
-                        Mehr erfahren
+                        <?php _e('Learn more', 'wc-easycredit') ?>
+                        <!-- Mehr erfahren -->
                     </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!--
-<div class="easycredit-marketing intro">
-    <div class="easycredit-marketing__grid">
-        <div class="easycredit-marketing__content">
-            <h2><?php _e('Start with easyCredit payments', 'wc-easycredit'); ?></h2>
-
-            <p>
-                <?php _e('Offer your customers the option of payment by instalments & invoice payment with easyCredit-Ratenkauf.', 'wc-easycredit'); ?><br>
-                <strong><?php _e('Pay in instalments with ease.', 'wc-easycredit'); ?></strong>
-            </p>
-
-            <ul>
-                <li><a href="https://partner.easycredit-ratenkauf.de/registrierung/firmendaten" target="_blank"><?php _e('Register as a trader', 'wc-easycredit'); ?></a></li>
-                <li><a href="https://netzkollektiv.com/docs/easycredit-ratenkauf-woocommerce/index.html" target="_blank"><?php _e('Documentation', 'wc-easycredit'); ?></a></li>
-                <li><a href="https://easycredit-demo.netzkollektiv.com/" target="_blank"><?php _e('Demo shop with easyCredit payment', 'wc-easycredit'); ?></a></li>
-                <li><a href="https://www.easycredit-ratenkauf.de/kontakt/" target="_blank"><?php _e('Support', 'wc-easycredit'); ?></a></li>
-            </ul>
-        </div>
-
-        <div class="easycredit-marketing__image">
-            <easycredit-logo></easycredit-logo>
-        </div>
-    </div>
-</div>
--->

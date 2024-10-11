@@ -55,6 +55,11 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
     line-height: $line-height;
     font-weight: normal;
 
+    /* Margins */
+    .mb-1 {
+        margin-bottom: 1em;
+    }
+
     /* Headings & Typo */
     h2, h3,
     p, ul, label {
@@ -93,6 +98,11 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
                 background-size: contain;
             }
         }
+
+        &.not-decorated {
+            font-weight: 600;
+            text-decoration: none;
+        }
     }
 
     /* Buttons */
@@ -124,8 +134,7 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
         &:not(.btn-link) {
             &:hover,
             &:active,
-            &:focus,
-            &:visited {
+            &:focus {
                 background-color: darken($color-ec-secondary, 5%) !important;
                 color: $color-white !important;
 
@@ -502,6 +511,15 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
             }
         }
     }
+    &.bill {
+        display: none;
+        margin-top: 0;
+
+        &.easycredit_rechnung-not-allowed,
+        &.easycredit_rechnung-not-active {
+            display: block;
+        }
+    }
     &.clickandcollect {
         margin-bottom: 1em;
 
@@ -524,11 +542,6 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
     &:has(.easycredit-marketing) {
         --grid-column-gap: 24px;
         --grid-template-columns: 3.5fr 2fr;
-    }
-}
-#ecbill {
-    .easycredit-marketing {
-        margin-top: 0;
     }
 }
 

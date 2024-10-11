@@ -60,7 +60,8 @@ class Plugin
         $fieldProvider = new Config\FieldProvider();
 
         $this->temporaryOrderHelper = new Helper\TemporaryOrder(
-            $this
+            $this,
+            $this->integration
         );
 
         $this->paymentGateways = [];
@@ -118,6 +119,7 @@ class Plugin
         }
 
         if (is_admin()) {
+            new Admin\RequirementsChecker($plugin);
             new Admin\OrderManagement(
                 $plugin,
                 $integration
@@ -254,7 +256,7 @@ class Plugin
         if (isset($options[$option_key])) {
             return $options[$option_key];
         }
-        return null;
+        return '';
     }
 
     public function handle_controller()
@@ -428,7 +430,7 @@ class Plugin
             '1.0'
         );
 
-        wp_localize_script('wc_ratenkaufbyeasycredit_js', 'wc_ratenkaufbyeasycredit_config', [
+        wp_localize_script('wc_easycredit_js', 'wc_easycredit_config', [
             'url' => admin_url('admin-post.php'),
         ]);
 
@@ -442,6 +444,13 @@ class Plugin
         );
 
         wp_enqueue_media();
+
+        // Get method activation status and pass to JS to be used in HTML intro (conditional display)
+        $methods_status = [];
+        foreach ($this->paymentGateways as $gateway) {
+            $methods_status[$gateway->id] = $gateway->get_option('enabled');
+        }
+        wp_localize_script( 'wc_easycredit_js', 'ecMethodsStatus', $methods_status);
     }
 
     public function prevent_shipping_address_change($order) {
@@ -450,7 +459,7 @@ class Plugin
         }
 
         echo "
-            <p>Die Versandadresse kann bei easyCredit-Ratenkauf nicht nachträglich verändert werden.</p>
+            <p>". __('The shipping address cannot be subsequently changed with easyCredit.', 'wc-easycredit') . "</p>
             <script>
             jQuery('#order_data .order_data_column_container .order_data_column h3:contains(\"" . esc_html__('Shipping', 'woocommerce') . "\") a.edit_address').hide();
             </script>

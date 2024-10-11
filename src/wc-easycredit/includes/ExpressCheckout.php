@@ -186,7 +186,7 @@ class ExpressCheckout
     protected function get_enabled_payment_types($configKey)
     {
         return array_filter(array_map(function ($method) use ($configKey) {
-            return $method->get_option($configKey) === 'yes' &&
+            return $this->plugin->get_option($configKey) === 'yes' &&
                 $method->get_option('enabled') === 'yes' ? $method->PAYMENT_TYPE : null;
         }, $this->paymentGateways));
     }

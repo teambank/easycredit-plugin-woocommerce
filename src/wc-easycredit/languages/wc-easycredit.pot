@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-12 14:10+0000\n"
+"POT-Creation-Date: 2024-10-11 11:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -14,45 +14,50 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/"
 
-#: includes/admin-fields.php:225
+#: includes/Config/FieldProvider.php:265
 msgid "Activate bar"
 msgstr ""
 
-#: includes/admin-fields.php:176
+#: includes/Config/FieldProvider.php:216
 msgid "Activate card"
 msgstr ""
 
-#: includes/admin-fields.php:183
+#: includes/Config/FieldProvider.php:223
 msgid "Activate card (search)"
 msgstr ""
 
-#: includes/admin-fields.php:207
+#: includes/Config/FieldProvider.php:247
 msgid "Activate flashbox"
 msgstr ""
 
-#: includes/admin-fields.php:142
+#: includes/Config/FieldProvider.php:182
 msgid "Activate modal"
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:401
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:408
+#: templates/template-intro.php:82
+msgid "Activate now"
+msgstr ""
+
+#: includes/Plugin.php:509 includes/Plugin.php:516
+#: includes/Gateway/GatewayAbstract.php:275
+#: includes/Gateway/GatewayAbstract.php:282
 #, php-format
 msgid "An error occured while checking your credentials: %s"
 msgstr ""
 
-#: includes/admin-fields.php:41
+#: includes/Config/FieldProvider.php:64
 msgid "API credentials"
 msgstr ""
 
-#: includes/admin-fields.php:45
+#: includes/Config/FieldProvider.php:68
 msgid "API Key"
 msgstr ""
 
-#: includes/admin-fields.php:55
+#: includes/Config/FieldProvider.php:78
 msgid "API Signature (if activated in partner portal, optional)"
 msgstr ""
 
-#: includes/admin-fields.php:50
+#: includes/Config/FieldProvider.php:73
 msgid "API Token"
 msgstr ""
 
@@ -64,103 +69,125 @@ msgstr ""
 msgid "Card"
 msgstr ""
 
-#: templates/template-click-and-collect.php:6 includes/admin-fields.php:265
+#: templates/template-click-and-collect.php:6
+#: includes/Config/FieldProvider.php:305
 msgid "Click & Collect"
 msgstr ""
 
-#: includes/admin-fields.php:237
+#: includes/Config/FieldProvider.php:277
 msgid "Confirm shipping automatically?"
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:53
+#: templates/template-intro.php:53
+msgid "Contact form"
+msgstr ""
+
+#: includes/Gateway/Ratenkauf.php:19
 msgid "Continue to pay by installments"
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:680
+#: includes/Gateway/GatewayAbstract.php:401
 msgid "Could not initialize easycredit payment"
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:675
+#: includes/Gateway/GatewayAbstract.php:396
 #, php-format
 msgid "Could not initialize easycredit payment: %s"
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:781
+#: includes/ExpressCheckout.php:101
 msgid "Created via express checkout"
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit-plugin.php:442
-msgid "Credentials valid!"
+#: includes/Plugin.php:473
+msgid ""
+"Credentials are valid! Your can now offer easyCredit payment in your store."
 msgstr ""
 
-#: includes/admin-fields.php:113
+#: includes/Config/FieldProvider.php:136
 msgid "CSS Selector to include widget at product page"
 msgstr ""
 
-#: includes/admin-fields.php:129
+#: includes/Config/FieldProvider.php:169
 msgid "CSS Selector to include widget at the cart page"
 msgstr ""
 
-#: includes/admin-fields.php:68
+#: includes/Config/FieldProvider.php:152
+msgid "CSS Selector to include widget in product listing page"
+msgstr ""
+
+#: includes/Config/FieldProvider.php:91
 msgid "Debug Logging"
 msgstr ""
 
-#: includes/admin-fields.php:149
+#: includes/Config/FieldProvider.php:189
 msgid "Delay (in seconds)"
 msgstr ""
 
-#: templates/template-intro.php:14
-msgid "Demo shop with easyCredit-Ratenkauf"
+#: templates/template-intro.php:25
+msgid "Demo shop"
 msgstr ""
 
 #: templates/template-marketing.php:26
 msgid "Demo shop with marketing components"
 msgstr ""
 
-#: includes/admin-fields.php:21
+#: includes/Config/FieldProvider.php:33
 msgid "Display settings"
 msgstr ""
 
-#: templates/template-intro.php:13 templates/template-marketing.php:25
-msgid "Documentation"
+#: templates/template-intro.php:44
+msgid "Do you have any questions? We are here to help."
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:39
-msgid "easyCredit-Ratenkauf"
+#: templates/template-intro.php:17 templates/template-marketing.php:25
+msgid "Documentation"
 msgstr ""
 
 #. Description of the plugin
 msgid ""
-"easyCredit-Ratenkauf - use the easiest installment purchase of Germany for "
-"your WooCommerce store now"
-msgstr ""
-
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:388
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:400
-msgid "easyCredit-Ratenkauf credentials are not valid."
+"easyCredit - use the easiest pay later and installment purchase of Germany "
+"for your WooCommerce store now"
 msgstr ""
 
 #. Name of the plugin
-msgid "easyCredit-Ratenkauf for WooCommerce"
+msgid "easyCredit for WooCommerce"
 msgstr ""
 
-#: includes/admin-fields.php:70
+#: includes/Gateway/GatewayAbstract.php:274
+msgid "easyCredit pamyent credentials are not valid."
+msgstr ""
+
+#: includes/Plugin.php:496 includes/Plugin.php:508
+#: includes/Gateway/GatewayAbstract.php:262
+msgid "easyCredit payment credentials are not valid."
+msgstr ""
+
+#: includes/Gateway/Ratenkauf.php:18
+msgid ""
+"easyCredit-Ratenkauf - Join today to get the simplest way of partial payment "
+"for your POS and E-Commerce. easyCredit-Ratenkauf gives you the opportunity "
+"to offer installments as an additional payment method in your German "
+"WooCommerce store."
+msgstr ""
+
+#: templates/template-intro.php:73
+msgid "easyCredit-Rechnung - the ideal addition to installment purchase"
+msgstr ""
+
+#: includes/Config/FieldProvider.php:93
 msgid "Enable Debug Logging"
 msgstr ""
 
-#: includes/admin-fields.php:16
-msgid "Enable easyCredit-Ratenkauf Payment"
-msgstr ""
-
-#: includes/admin-fields.php:14
-msgid "Enable/Disable"
+#: includes/Config/FieldProvider.php:26
+msgid "Enable payment method"
 msgstr ""
 
 #: templates/template-marketing.php:8
 msgid "Express Button"
 msgstr ""
 
-#: includes/admin-fields.php:79
+#: includes/Config/FieldProvider.php:102
 msgid "Express Checkout"
 msgstr ""
 
@@ -168,14 +195,22 @@ msgstr ""
 msgid "Flashbox"
 msgstr ""
 
-#: includes/admin-fields.php:150
+#: templates/template-intro.php:49
+msgid "Frequently asked questions (FAQ)"
+msgstr ""
+
+#: templates/template-intro.php:51
+msgid "Give us a call: +49 (0)911 5390-2726"
+msgstr ""
+
+#: includes/Config/FieldProvider.php:190
 msgid ""
 "Here you can specify in seconds the delay after which the modal is displayed "
 "to the customer when the page is loaded (for example \"10\" for 10 seconds "
 "delay)."
 msgstr ""
 
-#: includes/admin-fields.php:158
+#: includes/Config/FieldProvider.php:198
 msgid ""
 "Here you can specify in seconds the time after which the modal is displayed "
 "again to the customer (when the page is loaded) after he has actively closed "
@@ -190,13 +225,14 @@ msgstr ""
 msgid "https://www.easycredit-ratenkauf.de/"
 msgstr ""
 
-#: includes/admin-fields.php:115 includes/admin-fields.php:131
+#: includes/Config/FieldProvider.php:138 includes/Config/FieldProvider.php:154
+#: includes/Config/FieldProvider.php:171
 msgid ""
 "If the widget is not shown in the right place, please enter a selector which "
 "matches your theme."
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:717
+#: includes/Pages/ReviewPage.php:123
 msgid "Interest:"
 msgstr ""
 
@@ -207,38 +243,38 @@ msgid ""
 "The responsibility for the correct handover lies with you as the merchant."
 msgstr ""
 
-#: includes/admin-fields.php:94
-msgid "Let customers initiate easyCredit-Ratenkauf directly from the cart page"
+#: templates/template-intro.php:99
+msgid "Learn more"
 msgstr ""
 
-#: includes/admin-fields.php:86
+#: includes/Config/FieldProvider.php:117
+msgid "Let customers initiate easyCredit payment directly from the cart page"
+msgstr ""
+
+#: includes/Config/FieldProvider.php:109
 msgid ""
-"Let customers initiate easyCredit-Ratenkauf directly from the product detail "
+"Let customers initiate easyCredit payment directly from the product detail "
 "page"
 msgstr ""
 
-#: templates/template-marketing.php:4 includes/admin-fields.php:100
+#: templates/template-marketing.php:4 includes/Config/FieldProvider.php:123
 msgid "Marketing"
 msgstr ""
 
-#: includes/admin-fields.php:220
+#: includes/Config/FieldProvider.php:260
 msgid "Marketing - Bar"
 msgstr ""
 
-#: includes/admin-fields.php:171
+#: includes/Config/FieldProvider.php:211
 msgid "Marketing - Card"
 msgstr ""
 
-#: includes/admin-fields.php:202
+#: includes/Config/FieldProvider.php:242
 msgid "Marketing - Flashbox"
 msgstr ""
 
-#: includes/admin-fields.php:137
+#: includes/Config/FieldProvider.php:177
 msgid "Marketing - Modal"
-msgstr ""
-
-#: includes/class-wc-gateway-ratenkaufbyeasycredit-marketing-blocks.php:39
-msgid "Marketing Card"
 msgstr ""
 
 #: templates/template-marketing.php:27
@@ -253,21 +289,19 @@ msgstr ""
 msgid "NETZKOLLEKTIV"
 msgstr ""
 
-#: templates/template-intro.php:7
-msgid ""
-"Offer your customers the option of payment by instalments with easyCredit-"
-"Ratenkauf."
+#: templates/template-intro.php:71
+msgid "New"
 msgstr ""
 
-#: includes/admin-fields.php:232 includes/order-management.php:127
+#: includes/Admin/OrderManagement.php:127 includes/Config/FieldProvider.php:272
 msgid "Order Management"
 msgstr ""
 
-#: includes/admin-fields.php:242
+#: includes/Config/FieldProvider.php:282
 msgid "Order status to confirm shipping"
 msgstr ""
 
-#: includes/admin-fields.php:254
+#: includes/Config/FieldProvider.php:294
 msgid "Order status to refund"
 msgstr ""
 
@@ -275,26 +309,34 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
-#: templates/template-intro.php:8
-msgid "Pay in instalments with ease."
+#: includes/Pages/ReviewPage.php:48
+msgctxt "Page title"
+msgid "Review Order"
 msgstr ""
 
 #: templates/review-order.php:23
 msgid "Payment Method"
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:694
+#: includes/Gateway/GatewayAbstract.php:414
 msgid "Payment Page URI could not be retrieved"
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:411
+#: includes/Gateway/GatewayAbstract.php:285
 #, php-format
 msgid ""
-"Please enter your credentials to use easyCredit-Ratenkauf payment plugin in "
-"the <a href=\"%s\">plugin settings</a>."
+"Please enter your credentials in the <a href=\"%s\">plugin settings</a> to "
+"use the easyCredit payment plugin."
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:389
+#: includes/Plugin.php:519
+#, php-format
+msgid ""
+"Please enter your credentials to use the easyCredit payment plugin in the <a "
+"href=\"%s\">plugin settings</a>."
+msgstr ""
+
+#: includes/Plugin.php:497 includes/Gateway/GatewayAbstract.php:263
 #, php-format
 msgid ""
 "Please go to <a href=\"%s\">plugin settings</a> and correct API Key and API "
@@ -311,28 +353,28 @@ msgid ""
 "following:"
 msgstr ""
 
-#: includes/admin-fields.php:190
+#: includes/Config/FieldProvider.php:230
 msgid "Position in product list"
 msgstr ""
 
-#: includes/admin-fields.php:157
+#: includes/Config/FieldProvider.php:197
 msgid "Reactivate after (in seconds)"
 msgstr ""
 
-#: includes/order-management.php:212
-msgid "Refund automatically set in easyCredit-Ratenkauf"
+#: includes/Admin/OrderManagement.php:209
+msgid "Refund automatically set in easyCredit payment"
 msgstr ""
 
-#: includes/admin-fields.php:249
+#: includes/Config/FieldProvider.php:289
 msgid "Refund automatically?"
 msgstr ""
 
-#: includes/order-management.php:224
+#: includes/Admin/OrderManagement.php:221
 #, php-format
 msgid "Refund update failed with message: %s"
 msgstr ""
 
-#: templates/template-intro.php:12
+#: templates/template-intro.php:29
 msgid "Register as a trader"
 msgstr ""
 
@@ -340,92 +382,87 @@ msgstr ""
 #: templates/template-marketing.php:44 templates/template-marketing.php:61
 #: templates/template-marketing.php:78 templates/template-marketing.php:95
 #: templates/template-marketing.php:112 templates/template-marketing.php:129
+#: includes/Plugin.php:526
 msgid "Settings"
 msgstr ""
 
-#: includes/order-management.php:176
-msgid "Shipment automatically set in easyCredit-Ratenkauf"
+#: includes/Admin/OrderManagement.php:173
+msgid "Shipment automatically set in easyCredit payment"
 msgstr ""
 
-#: includes/order-management.php:188
+#: includes/Admin/OrderManagement.php:185
 #, php-format
 msgid "Shipment update failed with message: %s"
 msgstr ""
 
-#: includes/admin-fields.php:270
+#: includes/Config/FieldProvider.php:310
 msgid "Shipping method"
 msgstr ""
 
-#: includes/admin-fields.php:226
+#: includes/Config/FieldProvider.php:266
 msgid "Show bar at the top of the screen"
 msgstr ""
 
-#: includes/admin-fields.php:184
+#: includes/Config/FieldProvider.php:224
 msgid "Show card within search results"
 msgstr ""
 
-#: includes/admin-fields.php:177
+#: includes/Config/FieldProvider.php:217
 msgid "Show card within the product list (category)"
 msgstr ""
 
-#: includes/admin-fields.php:84
-msgid "Show expresss checkout button at product detail page"
+#: includes/Config/FieldProvider.php:107
+msgid "Show express checkout button at product detail page"
 msgstr ""
 
-#: includes/admin-fields.php:92
-msgid "Show expresss checkout button in cart"
+#: includes/Config/FieldProvider.php:115
+msgid "Show express checkout button in cart"
 msgstr ""
 
-#: includes/admin-fields.php:208
+#: includes/Config/FieldProvider.php:248
 msgid "Show flashbox at the bottom of the screen"
 msgstr ""
 
-#: includes/admin-fields.php:143
+#: includes/Config/FieldProvider.php:183
 msgid ""
 "Show modal automatically when visiting the online shop for the first time"
 msgstr ""
 
-#: includes/admin-fields.php:121
+#: includes/Config/FieldProvider.php:161
 msgid "Show widget in Cart"
 msgstr ""
 
-#: includes/admin-fields.php:105
+#: includes/Config/FieldProvider.php:144
+msgid "Show widget in product listing"
+msgstr ""
+
+#: includes/Config/FieldProvider.php:128
 msgid "Show widget next to product price"
 msgstr ""
 
-#: includes/admin-fields.php:123
-msgid "Specifies if easyCredit-Ratenkauf will be advertised in cart view"
+#: includes/Config/FieldProvider.php:163
+msgid "Specifies if easyCredit payment will be advertised in cart view"
 msgstr ""
 
-#: includes/admin-fields.php:107
+#: includes/Config/FieldProvider.php:130
 msgid ""
-"Specifies if easyCredit-Ratenkauf will be advertised in product detail view"
+"Specifies if easyCredit payment will be advertised in product detail view"
 msgstr ""
 
-#: templates/template-intro.php:4
-msgid "Start with easyCredit-Ratenkauf"
-msgstr ""
-
-#: templates/template-intro.php:15
-msgid "Support"
-msgstr ""
-
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:427
-#, php-format
+#: includes/Config/FieldProvider.php:146
 msgid ""
-"The \"easyCredit-Ratenkauf\" review page does not exist. Probably it was "
-"deleted by mistake. The page is necessary to confirm \"easyCredit-"
-"Ratenkauf\" payments after being returned from the payment terminal. To "
-"restore the page, please restore it from the trash under \"Pages\", or "
-"deactivate and activate the plugin in the <a href=\"%s\">plugin "
-"administration</a>."
+"Specifies if easyCredit payment will be advertised in product listing view"
 msgstr ""
 
-#: includes/admin-fields.php:57
+#: includes/Config/FieldProvider.php:47
+msgid "Subtitle"
+msgstr ""
+
+#: includes/Config/FieldProvider.php:80
 msgid ""
 "The API signature secures the data transfer against data manipulation by "
-"third parties. You can activate the API signature in the easyCredit-"
-"Ratenkauf merchant portal. "
+"third parties. You can activate the API signature in the easyCredit merchant "
+"portal. "
 msgstr ""
 
 #: templates/template-marketing.php:126
@@ -435,19 +472,22 @@ msgid ""
 "customised."
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit-marketing-blocks.php:40
-msgid ""
-"The card component advertises easyCredit-Ratenkauf. The default image shown "
-"in the card can be overwritten. This allows you to use an image that matches "
-"your product offering."
-msgstr ""
-
 #: templates/template-marketing.php:92
 msgid ""
 "The card component can be used to replace a product within the product list "
 "with a banner to advertise the hire purchase. The banner shows a standard "
 "image that can be overwritten. This allows you to use an image that matches "
 "your product offering."
+msgstr ""
+
+#: includes/Admin/RequirementsChecker.php:67
+#, php-format
+msgid ""
+"The easyCredit payment review page does not exist. Probably it was deleted "
+"by mistake. The page is necessary to confirm easyCredit payments after being "
+"returned from the payment terminal. To restore the page, please restore it "
+"from the trash under \"Pages\", or deactivate and activate the plugin in the "
+"<a href=\"%s\">plugin administration</a>."
 msgstr ""
 
 #: templates/template-marketing.php:41
@@ -465,7 +505,16 @@ msgid ""
 "and prevents it from being displayed again."
 msgstr ""
 
-#: includes/order-management.php:168 includes/order-management.php:202
+#: includes/Plugin.php:462
+msgid "The shipping address cannot be subsequently changed with easyCredit."
+msgstr ""
+
+#: templates/template-intro.php:7
+msgid "The simplest invoice and installment purchase in Germany."
+msgstr ""
+
+#: includes/Admin/OrderManagement.php:165
+#: includes/Admin/OrderManagement.php:199
 msgid ""
 "The transaction id of this transaction is not available. This usually "
 "happens if the webhook which confirms the transaction is not working "
@@ -482,7 +531,13 @@ msgid ""
 "maximum possible financing amount."
 msgstr ""
 
-#: includes/admin-fields.php:28
+#: includes/Config/FieldProvider.php:49
+msgid ""
+"This controls the subtitle for the payment method the customer sees during "
+"checkout."
+msgstr ""
+
+#: includes/Config/FieldProvider.php:41
 msgid ""
 "This controls the title for the payment method the customer sees during "
 "checkout."
@@ -496,27 +551,27 @@ msgid ""
 "product offer."
 msgstr ""
 
-#: includes/admin-fields.php:26
-msgid "Title"
-msgstr ""
-
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:354
+#: includes/Admin/RequirementsChecker.php:30
 msgid ""
-"To use easyCredit-Ratenkauf the php.ini setting \"allow_url_fopen\" must be "
+"To use easyCredit payment the php.ini setting \"allow_url_fopen\" must be "
 "enabled."
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:303
+#: includes/Gateway/GatewayAbstract.php:222
 msgid "Transaction could not be captured"
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:262
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:297
+#: includes/Gateway/GatewayAbstract.php:180
+#: includes/Gateway/GatewayAbstract.php:216
 msgid "Transaction not approved"
 msgstr ""
 
-#: includes/admin-fields.php:165 includes/admin-fields.php:196
-#: includes/admin-fields.php:214
+#: templates/template-intro.php:91
+msgid "Unlock now"
+msgstr ""
+
+#: includes/Config/FieldProvider.php:205 includes/Config/FieldProvider.php:236
+#: includes/Config/FieldProvider.php:254
 msgid "Use your own image"
 msgstr ""
 
@@ -524,33 +579,49 @@ msgstr ""
 msgid "Useful links"
 msgstr ""
 
-#: includes/admin-fields.php:63
+#: includes/Config/FieldProvider.php:86
 msgid "Verify Credentials"
+msgstr ""
+
+#: templates/template-intro.php:9
+msgid ""
+"We are delighted that you have decided in favour of easyCredit, the perfect "
+"payment method for your online shop."
+msgstr ""
+
+#: templates/template-intro.php:46
+msgid "We are here for you from Monday to Friday from 8:00 to 18:00."
 msgstr ""
 
 #: templates/template-marketing.php:20
 msgid ""
 "We provide you with a range of marketing components that you can easily "
 "activate in your online shop. In this way, you achieve an optimal "
-"presentation of financing via easyCredit-Ratenkauf, for higher sales and "
-"satisfied customers."
+"presentation of payment via easyCredit, for higher sales and satisfied "
+"customers."
 msgstr ""
 
 #: templates/template-marketing.php:9
 msgid "Widget"
 msgstr ""
 
-#: templates/template-click-and-collect.php:9
+#: templates/template-intro.php:75 includes/Gateway/Rechnung.php:18
 msgid ""
-"You want to use Click&Collect for easyCredit-Ratenkauf? Nothing could be "
-"simpler! To be able to use the feature, you need an additional supplementary "
-"agreement to your factoring contract. To do so, simply contact your key "
-"account manager or ask him via our <a href=\\\"https://www.easycredit-"
-"ratenkauf.de/click-und-collect/\\\" target=\\\"_blank\\\">Click&Collect "
-"form</a>."
+"With easyCredit, you can now offer your customers the option of invoice "
+"purchase in addition to the classic installment purchase. The payment term "
+"is <strong>30 days in the future</strong>."
 msgstr ""
 
-#: includes/class-wc-gateway-ratenkaufbyeasycredit.php:392
+#: templates/template-click-and-collect.php:9
+msgid ""
+"You want to use Click&Collect for easyCredit payment? Nothing could be "
+"simpler! To be able to use the feature, you need an additional supplementary "
+"agreement to your factoring contract. To do so, simply contact your key "
+"account manager or ask him via our <a href=\"https://www.easycredit-"
+"ratenkauf.de/click-und-collect/\" target=\"_blank\">Click&Collect form</a>."
+msgstr ""
+
+#: includes/Plugin.php:500 includes/Gateway/GatewayAbstract.php:266
 msgid ""
 "Your credentials are valid, but your account has not been activated yet."
 msgstr ""
