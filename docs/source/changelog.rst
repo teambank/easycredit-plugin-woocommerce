@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.0.0
+-----
+
+- Integration von easyCredit-Rechnung
+
 2.1.9
 -----
 

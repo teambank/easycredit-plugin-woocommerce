@@ -1,0 +1,592 @@
+/* Breakpoints */
+$breakpoint-xs-max: 782px;
+
+/* Colors - Base */
+$color-white: #fff;
+
+/* Colors - eC */
+$color-ec-primary: #F37122;
+$color-ec-secondary: #0066B3;
+$color-ec-darkblue: #002C5A;
+$color-ec-darkblue5: rgba($color-ec-darkblue, 0.05);
+$color-ec-darkblue10: #E5EAEE;
+$color-ec-darkblue15: #D9DFE6;
+$color-ec-darkblue20: #CCD5DE;
+$color-ec-darkblue50: #8095AC;
+$color-ec-gray: #E5EAEE;
+
+/* Variables - eC */
+$font-size-base: 14px;
+$font-size-sm: $font-size-base * 0.85;
+$font-size-md: $font-size-base * 1.075;
+$font-size-lg: $font-size-base * 1.15;
+$font-size-h2: $font-size-base * 2;
+$font-size-h3: $font-size-base * 1.15;
+$line-height: 1.55;
+$line-height-heading: 1.2;
+
+$space: 30px;
+
+$box-shadow: 0 4px 20px 0 rgba(0,0,0,.25);
+$box-shadow-card: 0 1px 1px rgba(0, 0, 0, 0.08), 0 2px 1px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1);
+
+$border-radius: 30px;
+$border-radius-sm: 15px;
+
+$transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
+
+:root {
+    --grid-column-gap: 48px;
+    --grid-column-gap-m: 36px;
+    --grid-template-columns: 3fr 2fr;
+    --grid-template-columns-50-50: 1fr 1fr;
+}
+
+.easycredit-marketing {
+    margin-top: $space;
+    margin-bottom: $space;
+    padding: 35px 30px;
+
+    background-color: $color-white;
+    border-radius: $border-radius-sm;
+    box-shadow: $box-shadow-card;
+
+    font-size: $font-size-base;
+    line-height: $line-height;
+    font-weight: normal;
+
+    /* Margins */
+    .mb-1 {
+        margin-bottom: 1em;
+    }
+
+    /* Headings & Typo */
+    h2, h3,
+    p, ul, label {
+        margin-top: 0;
+        margin-bottom: 1em;
+        color: $color-ec-darkblue;
+    }
+
+    /* Headings */
+    h2 {
+        font-size: $font-size-h2;
+    }
+    h3 {
+        margin-top: 1.5em;
+        font-size: $font-size-h3;
+    }
+
+    /* Typo */
+    p, ul, label {
+        font-size: $font-size-base;
+        line-height: $line-height;
+    }
+
+    /* Links */
+    a {
+        color: $color-ec-secondary;
+
+        &[target="_blank"]:not(.btn.btn-primary):not(.btn.btn-secondary) {
+            &:after {
+                content: '';
+                display: inline-block;
+                margin-left: 7px;
+                width: 8px;
+                height: 8px;
+                background: transparent url('icon-external-link.svg') center center no-repeat;
+                background-size: contain;
+            }
+        }
+
+        &.not-decorated {
+            font-weight: 600;
+            text-decoration: none;
+        }
+    }
+
+    /* Buttons */
+    .btn {
+        display: inline-block;
+        margin-bottom: 5px;
+        margin-right: 10px;
+        padding: 10px 20px;
+        background-color: $color-ec-secondary;
+        border: 0;
+        border-radius: 20px;
+        transition: all 0.1s $transition-timing;
+        cursor: pointer;
+        font-weight: bold;
+        color: $color-white !important;
+        line-height: 1.4;
+        text-decoration: none;
+
+        &.btn-primary {
+            background-color: $color-ec-primary;
+        }
+        &.btn-link {
+            background-color: transparent;
+            padding-left: 0;
+            padding-right: 0;
+            color: $color-ec-secondary !important;
+        }
+
+        &:not(.btn-link) {
+            &:hover,
+            &:active,
+            &:focus {
+                background-color: darken($color-ec-secondary, 5%) !important;
+                color: $color-white !important;
+
+                &.btn-primary {
+                    background-color: darken($color-ec-primary, 5%) !important;
+                }
+            }
+            &:active,
+            &:focus {
+                box-shadow: 0 0 0 0.2rem rgba($color-ec-secondary, .4) !important;
+
+                &.btn-primary {
+                    box-shadow: 0 0 0 0.2rem rgba($color-ec-primary, .4) !important;
+                }
+            }
+
+            &:disabled,
+            &.disabled {
+                cursor: default;
+                pointer-events: none;
+                background-color: rgba($color-ec-secondary, .5) !important;
+                color: $color-white;
+
+                &.btn-primary {
+                    background-color: rgba($color-ec-primary, .5) !important;
+                }
+            }
+        }
+    }
+    .btn + .btn {
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+
+    /* Badges */
+    .badge {
+        margin-right: 7.5px;
+        padding: 1px 5px 2px;
+        background-color: $color-ec-darkblue;
+        border-radius: 10px;
+        font-size: $font-size-sm;
+        font-weight: 600;
+        color: #fff;
+    }
+    .badge + h2 {
+        margin-top: 5px;
+    }
+
+    /* Form table (WC) */
+    .form-table {
+        th, td {
+            vertical-align: top;
+        }
+
+        label {
+            margin-bottom: 0;
+
+            .woocommerce-help-tip {
+                top: 0 !important;
+                margin-top: 2px !important;
+
+                @media (max-width: $breakpoint-xs-max) {
+                    right: 0 !important;
+                }
+            }
+        }
+    }
+
+    &__tabs {
+        display: flex;
+        margin-top: 20px;
+        margin-bottom: 30px;
+        max-width: 100%;
+        overflow: scroll;
+
+        border-bottom: 1px solid $color-ec-darkblue10;
+    }
+    &__tab {
+        flex: 0 0 auto;
+
+        position: relative;
+        padding: 0 16px 8px;
+
+        white-space: nowrap;
+        font-size: $font-size-base;
+        text-decoration: none !important;
+
+        &:first-child {
+            margin-left: -16px;
+        }
+
+        &:not(.active) {
+            cursor: pointer;
+            color: $color-ec-darkblue;
+        }
+
+        &.active {
+            font-weight: 600;
+            color: $color-ec-darkblue;
+
+            &:after {
+                content: '';
+                display: block;
+
+                position: absolute;
+                left: 50%;
+                bottom: 0;
+                transform: translateX(-50%);
+
+                height: 2px;
+                width: calc(100% - 32px);
+
+                border-bottom: 2px solid $color-ec-darkblue;
+            }
+        }
+    }
+
+    &__tab-content {
+        &:not(.active) {
+            display: none;
+        }
+
+        p + .btn {
+            margin-top: 20px;
+        }
+
+        .ec-img {
+            position: relative;
+
+            img,
+            &:before {
+                width: 100px;
+                height: 100px;
+                object-fit: cover;
+                border: 1px solid #8c8f94;
+                border-radius: 4px;
+            }
+
+            &:before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                z-index: 0;
+                background: transparent url('image-placeholder.svg') center center no-repeat;
+                background-size: cover;
+            }
+
+            img {
+                position: relative;
+                z-index: 1;
+
+                &[src=""] {
+                    visibility: hidden;
+
+                    + .ec-delete-img {
+                        pointer-events: none;
+                        opacity: .5;
+                        color: $color-ec-darkblue50;
+                    }
+                }
+            }
+
+            .ec-delete-img {
+                display: block;
+            }
+        }
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: var(--grid-template-columns);
+        grid-column-gap: var(--grid-column-gap);
+
+        &:has(.intro-2024) {
+            @media (max-width: 991px) {
+                display: block;
+            }
+        }
+
+        &.grid-50-50 {
+            grid-template-columns: var(--grid-template-columns-50-50);
+        }
+
+        &:has(.easycredit-marketing__image + .easycredit-marketing__content) {
+            grid-column-gap: var(--grid-column-gap-m);
+        }
+
+        @media (max-width: $breakpoint-xs-max) {
+            display: block;
+        }
+    }
+    &__tab-content {
+        .easycredit-intro__grid {
+            padding-top: 24px;
+        }
+    }
+
+    &__image {
+        &.bg {
+            position: relative;
+            overflow: hidden;
+
+            background-color: $color-ec-gray;
+            border-radius: 15px;
+
+            &:after {
+                content: '';
+                display: block;
+                width: 100%;
+                padding-bottom: 75%;
+            }
+
+            img {
+                position: absolute;
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+            }
+        }
+
+        &.fill {
+            position: relative;
+            background-color: $color-ec-gray;
+
+            img {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center;
+                border-radius: 15px;
+            }
+        }
+
+        img {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            background-color: transparent;
+            border-radius: 7px;
+            box-shadow: 0 4px 20px 0 rgba(0,0,0,.25);
+        }
+
+        &.aspect-2-3 {
+            aspect-ratio: 2/3;
+        }
+        &.aspect-36-2 {
+            aspect-ratio: 3.6/2;
+        }
+
+        @media (max-width: $breakpoint-xs-max) {
+            margin-top: 2em;
+        }
+    }
+
+    .express,
+    .widget {
+        .easycredit-marketing__image {
+            &.bg {
+                img {
+                    left: 50%;
+                    top: 0;
+                    transform: translateX(-50%);
+                    width: 200px;
+                    height: auto;
+
+                    border-radius: 0 0 30px 30px;
+                }
+            }
+        }
+    }
+    .modal {
+        .easycredit-marketing__image {
+            &.bg {
+                img {
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 80%;
+                    height: auto;
+
+                    border-radius: 5px;
+                }
+            }
+        }
+    }
+    .eccard {
+        .easycredit-marketing__image {
+            &.bg {
+                min-height: 280px;
+
+                img {
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    width: auto;
+                    height: 80%;
+                    max-height: 325px;
+
+                    border-radius: 8px;
+                }
+            }
+        }
+    }
+    .flashbox {
+        .easycredit-marketing__image {
+            &.bg {
+                img {
+                    left: 50%;
+                    bottom: 0;
+                    transform: translateX(-50%);
+                    width: 80%;
+                    height: auto;
+
+                    box-shadow: none;
+                    border-radius: 0;
+                }
+            }
+        }
+    }
+    .ecbar {
+        .easycredit-marketing__image {
+            &.bg {
+                img {
+                    left: 50%;
+                    top: 0;
+                    transform: translateX(-50%);
+                    width: 100%;
+                    height: auto;
+
+                    box-shadow: none;
+                    border-radius: 0;
+                }
+            }
+        }
+    }
+
+    &.intro {
+        .easycredit-marketing__image {
+            img {
+                margin-left: auto;
+                width: 120px;
+                border-radius: 0;
+                box-shadow: none;
+            }
+        }
+    }
+    &.intro-2024 {
+        --grid-column-gap: 24px;
+
+        h2 {
+            margin-bottom: 15px;
+
+            font-size: $font-size-h2;
+            line-height: $line-height-heading;
+            font-weight: 600;
+            color: $color-ec-darkblue;
+        }
+
+        p {
+            margin-bottom: 25px;
+        }
+
+        ul {
+            li {
+                margin-bottom: 8px;
+
+                a {
+                    font-weight: 600;
+                    text-decoration: none;
+                }
+            }
+        }
+    }
+    &.bill {
+        display: none;
+        margin-top: 0;
+
+        &.easycredit_rechnung-not-allowed,
+        &.easycredit_rechnung-not-active {
+            display: block;
+        }
+    }
+    &.clickandcollect {
+        margin-bottom: 1em;
+
+        .easycredit-marketing__image {
+            &.bg {
+                background-color: $color-ec-darkblue;
+
+                img {
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    box-shadow: none;
+                }
+            }
+        }
+    }
+}
+
+.easycredit-marketing__grid {
+    &:has(.easycredit-marketing) {
+        --grid-column-gap: 24px;
+        --grid-template-columns: 3.5fr 2fr;
+    }
+}
+
+.block-editor {
+    .block-editor-block-icon {
+        .dashicons-ec-card {
+            background: transparent url('icon-easycredit-ratenkauf.svg') center center no-repeat;
+            background-size: contain;
+        }
+    }
+}
+
+/* Legacy styles.css */
+#woocommerce_easycredit_api_verify_credentials {
+    width:auto;
+    padding: 0 10px 1px;
+}
+
+.wp-admin mark.order-status {
+  margin: auto 0.2em 0.45em auto;
+}
+
+.wp-admin .easycredit-tx-status-widget {
+  margin-top: -0.25em;
+}
+
+.easycredit-intro {
+  padding: 15px 0;
+  background: #fff;
+}
+
+.easycredit-intro easycredit-logo {
+  display: inline-block;
+  padding: 15px;
+  width: 170px;
+}
+
+.easycredit-intro div {
+  display: inline-block;
+}
+
+.wp-admin.post-type-shop_order td.column-order_status {
+  display: flex
+}
+
+.wp-admin.post-type-shop_order td.column-order_status .easycredit-merchant-status-widget {
+  margin-left: 5px;
+}

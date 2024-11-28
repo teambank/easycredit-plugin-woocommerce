@@ -1,1 +1,0 @@
-<easycredit-checkout-label />

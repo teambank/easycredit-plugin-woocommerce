@@ -1,0 +1,776 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: easyCredit-Ratenkauf for Woocommerce\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-09-14 14:43+0000\n"
+"PO-Revision-Date: 2024-10-11 11:04+0000\n"
+"Last-Translator: \n"
+"Language-Team: Deutsch\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.11; wp-6.6.2"
+
+#: includes/Config/FieldProvider.php:265
+msgid "Activate bar"
+msgstr "Bar aktivieren"
+
+#: includes/Config/FieldProvider.php:216
+msgid "Activate card"
+msgstr "Card aktivieren"
+
+#: includes/Config/FieldProvider.php:223
+msgid "Activate card (search)"
+msgstr "Card aktivieren (Suche)"
+
+#: includes/Config/FieldProvider.php:247
+msgid "Activate flashbox"
+msgstr "Flashbox aktivieren"
+
+#: includes/Config/FieldProvider.php:182
+msgid "Activate modal"
+msgstr "Modal aktivieren"
+
+#: templates/template-intro.php:82
+msgid "Activate now"
+msgstr "Jetzt aktivieren"
+
+#: includes/Plugin.php:509 includes/Plugin.php:516
+#: includes/Gateway/GatewayAbstract.php:275
+#: includes/Gateway/GatewayAbstract.php:282
+#, php-format
+msgid "An error occured while checking your credentials: %s"
+msgstr "Beim Überprüfen der Zugangsdaten ist ein Fehler aufgetreten: %s"
+
+#: includes/Config/FieldProvider.php:64
+msgid "API credentials"
+msgstr "API-Zugangsdaten"
+
+#: includes/Config/FieldProvider.php:68
+msgid "API Key"
+msgstr "Webshop-ID"
+
+#: includes/Config/FieldProvider.php:78
+msgid "API Signature (if activated in partner portal, optional)"
+msgstr "API-Signatur (wenn aktiviert in Partnerportal, optional)"
+
+#: includes/Config/FieldProvider.php:73
+msgid "API Token"
+msgstr "API-Kennwort"
+
+#: templates/template-marketing.php:13
+msgid "Bar"
+msgstr "Bar"
+
+#: templates/template-marketing.php:11
+msgid "Card"
+msgstr "Card"
+
+#: templates/template-click-and-collect.php:6
+#: includes/Config/FieldProvider.php:305
+msgid "Click & Collect"
+msgstr "Click & Collect"
+
+#: includes/Config/FieldProvider.php:277
+msgid "Confirm shipping automatically?"
+msgstr "„Lieferung melden“ automatisch durchführen?"
+
+#: templates/template-intro.php:53
+msgid "Contact form"
+msgstr "Kontaktformular"
+
+#: includes/Gateway/Ratenkauf.php:19
+msgid "Continue to pay by installments"
+msgstr "Weiter zum Ratenkauf"
+
+#: includes/Gateway/GatewayAbstract.php:401
+msgid "Could not initialize easycredit payment"
+msgstr ""
+"Die Zahlung mit easyCredit konnte nicht initialisiert werden. Bitte wählen "
+"Sie eine andere Zahlungsart."
+
+#: includes/Gateway/GatewayAbstract.php:396
+#, php-format
+msgid "Could not initialize easycredit payment: %s"
+msgstr "Die Zahlung mit easyCredit konnte nicht initialisiert werden: %s"
+
+#: includes/ExpressCheckout.php:101
+msgid "Created via express checkout"
+msgstr "Erstellt via Express-Checkout "
+
+#: includes/Plugin.php:473
+msgid ""
+"Credentials are valid! Your can now offer easyCredit payment in your store."
+msgstr ""
+"Die Zugangsdaten sind korrekt. Sie können jetzt easyCredit in Ihrem Shop "
+"anbieten."
+
+#: includes/Config/FieldProvider.php:136
+msgid "CSS Selector to include widget at product page"
+msgstr ""
+"CSS Selektor, der bestimmt wo das Widget auf der Produktseite angezeigt wird"
+
+#: includes/Config/FieldProvider.php:169
+msgid "CSS Selector to include widget at the cart page"
+msgstr "CSS Selektor, der bestimmt wo das Widget im Warenkorb angezeigt wird"
+
+#: includes/Config/FieldProvider.php:152
+msgid "CSS Selector to include widget in product listing page"
+msgstr ""
+"CSS Selektor, der bestimmt wo das Widget in der Produktübersicht angezeigt "
+"wird"
+
+#: includes/Config/FieldProvider.php:91
+msgid "Debug Logging"
+msgstr "Debug Logging"
+
+#: includes/Config/FieldProvider.php:189
+msgid "Delay (in seconds)"
+msgstr "Verzögerung (in Sekunden)"
+
+#: templates/template-intro.php:25
+msgid "Demo shop"
+msgstr "Demoshop"
+
+#: templates/template-marketing.php:26
+msgid "Demo shop with marketing components"
+msgstr "Demoshop mit Marketing-Komponenten"
+
+#: includes/Config/FieldProvider.php:33
+msgid "Display settings"
+msgstr "Darstellung"
+
+#: templates/template-intro.php:44
+msgid "Do you have any questions? We are here to help."
+msgstr "Sie haben Fragen? Wir helfen gerne."
+
+#: templates/template-intro.php:17 templates/template-marketing.php:25
+msgid "Documentation"
+msgstr "Dokumentation"
+
+#. Description of the plugin
+msgid ""
+"easyCredit - use the easiest pay later and installment purchase of Germany "
+"for your WooCommerce store now"
+msgstr ""
+"easyCredit - nutzen Sie jetzt den einfachsten Ratenkauf Deutschlands für "
+"Ihren WooCommerce-Shop"
+
+#. Name of the plugin
+msgid "easyCredit for WooCommerce"
+msgstr "easyCredit für WooCommerce"
+
+#: includes/Gateway/GatewayAbstract.php:274
+#| msgid "easyCredit-Ratenkauf credentials are not valid."
+msgid "easyCredit pamyent credentials are not valid."
+msgstr "Die Zugangsdaten für easyCredit sind nicht korrekt."
+
+#: includes/Plugin.php:496 includes/Plugin.php:508
+#: includes/Gateway/GatewayAbstract.php:262
+msgid "easyCredit payment credentials are not valid."
+msgstr "Die Zugangsdaten für easyCredit sind nicht korrekt."
+
+#: includes/Gateway/Ratenkauf.php:18
+msgid ""
+"easyCredit-Ratenkauf - Join today to get the simplest way of partial payment "
+"for your POS and E-Commerce. easyCredit-Ratenkauf gives you the opportunity "
+"to offer installments as an additional payment method in your German "
+"WooCommerce store."
+msgstr ""
+"easyCredit-Ratenkauf - jetzt die einfachste Teilzahlungslösung Deutschlands "
+"nutzen. Unser Credo einfach, fair und sicher gilt sowohl für Ratenkaufkunden "
+"als auch für Händler. Der schnelle, einfache und medienbruchfreie Prozess "
+"mit sofortiger Online-Bonitätsprüfung lässt sich sicher in den Onlineshop "
+"integrieren. Wir übernehmen das Ausfallrisiko und Sie können Ihren Umsatz "
+"bereits nach drei Tagen verbuchen."
+
+#: templates/template-intro.php:73
+msgid "easyCredit-Rechnung - the ideal addition to installment purchase"
+msgstr "easyCredit-Rechnung - die ideale Ergänzung zum Ratenkauf"
+
+#: includes/Config/FieldProvider.php:93
+msgid "Enable Debug Logging"
+msgstr "Debug Logging aktivieren"
+
+#: includes/Config/FieldProvider.php:26
+msgid "Enable payment method"
+msgstr "Zahlungsart aktivieren"
+
+#: templates/template-marketing.php:8
+msgid "Express Button"
+msgstr "Express Button"
+
+#: includes/Config/FieldProvider.php:102
+msgid "Express Checkout"
+msgstr "Express Checkout"
+
+#: templates/template-marketing.php:12
+msgid "Flashbox"
+msgstr "Flashbox"
+
+#: templates/template-intro.php:49
+msgid "Frequently asked questions (FAQ)"
+msgstr "Fragen & Antworten"
+
+#: templates/template-intro.php:51
+msgid "Give us a call: +49 (0)911 5390-2726"
+msgstr "Rufen Sie uns an: 0911 5390-2726"
+
+#: includes/Config/FieldProvider.php:190
+msgid ""
+"Here you can specify in seconds the delay after which the modal is displayed "
+"to the customer when the page is loaded (for example \"10\" for 10 seconds "
+"delay)."
+msgstr ""
+"Hier können Sie in Sekunden die Verzögerung angeben, nach welcher dem Kunden "
+"beim Laden der Seite das Modal angezeigt wird (beispielsweise \"10\" für 10 "
+"Sekunden Verzögerung)."
+
+#: includes/Config/FieldProvider.php:198
+msgid ""
+"Here you can specify in seconds the time after which the modal is displayed "
+"again to the customer (when the page is loaded) after he has actively closed "
+"the modal (for example \"3600\" for 1 hour)."
+msgstr ""
+"Hier können Sie in Sekunden angeben, nach welcher Zeit dem Kunden das Modal "
+"wieder angezeigt wird (beim Laden der Seite), nachdem er das Modal aktiv "
+"geschlossen hat (beispielsweise \"3600\" für 1 Stunde)."
+
+#. Author URI of the plugin
+msgid "https://netzkollektiv.com"
+msgstr "https://netzkollektiv.com"
+
+#. URI of the plugin
+msgid "https://www.easycredit-ratenkauf.de/"
+msgstr "https://www.easycredit-ratenkauf.de/"
+
+#: includes/Config/FieldProvider.php:138 includes/Config/FieldProvider.php:154
+#: includes/Config/FieldProvider.php:171
+msgid ""
+"If the widget is not shown in the right place, please enter a selector which "
+"matches your theme."
+msgstr ""
+"Wenn das Widget nicht an der richtigen Stelle angezeigt wird, lässt sich "
+"hier der zugehörige CSS-Selektor einstellen."
+
+#: includes/Pages/ReviewPage.php:123
+msgid "Interest:"
+msgstr "Zinsen für Ratenzahlung:"
+
+#: templates/template-click-and-collect.php:12
+msgid ""
+"It is important for you that when using Click&Collect you must ensure that "
+"the purchased product is handed over exclusively to the contractual partner. "
+"The responsibility for the correct handover lies with you as the merchant."
+msgstr ""
+"Wichtig für Sie ist, dass Sie bei Nutzung von Click&Collect sicherstellen "
+"müssen, dass das gekaufte Produkt ausschließlich an den Vertragspartner "
+"übergeben wird. Die Verantwortung für die korrekte Übergabe liegt bei Ihnen "
+"als Händler."
+
+#: templates/template-intro.php:99
+msgid "Learn more"
+msgstr "Mehr erfahren"
+
+#: includes/Config/FieldProvider.php:117
+#| msgid ""
+#| "Let customers initiate easyCredit-Ratenkauf directly from the cart page"
+msgid "Let customers initiate easyCredit payment directly from the cart page"
+msgstr ""
+"Ermöglichen Sie Ihren Kunden, die Zahlung mit easyCredit direkt aus dem "
+"Warenkorb zu starten."
+
+#: includes/Config/FieldProvider.php:109
+#| msgid ""
+#| "Let customers initiate easyCredit-Ratenkauf directly from the product "
+#| "detail page"
+msgid ""
+"Let customers initiate easyCredit payment directly from the product detail "
+"page"
+msgstr ""
+"Ermöglichen Sie Ihren Kunden die Zahlung mit easyCredit direkt von der "
+"Produktdetailseite zu starten."
+
+#: templates/template-marketing.php:4 includes/Config/FieldProvider.php:123
+msgid "Marketing"
+msgstr "Marketing"
+
+#: includes/Config/FieldProvider.php:260
+msgid "Marketing - Bar"
+msgstr "Marketing - Bar"
+
+#: includes/Config/FieldProvider.php:211
+msgid "Marketing - Card"
+msgstr "Marketing - Card"
+
+#: includes/Config/FieldProvider.php:242
+msgid "Marketing - Flashbox"
+msgstr "Marketing - Flashbox"
+
+#: includes/Config/FieldProvider.php:177
+msgid "Marketing - Modal"
+msgstr "Marketing - Modal"
+
+#: templates/template-marketing.php:27
+msgid "Marketing portal"
+msgstr "Marketing-Portal"
+
+#: templates/template-marketing.php:10
+msgid "Modal"
+msgstr "Modal"
+
+#. Author of the plugin
+msgid "NETZKOLLEKTIV"
+msgstr "NETZKOLLEKTIV"
+
+#: templates/template-intro.php:71
+msgid "New"
+msgstr "Neu"
+
+#: includes/Admin/OrderManagement.php:127 includes/Config/FieldProvider.php:272
+msgid "Order Management"
+msgstr "Bestellbearbeitung"
+
+#: includes/Config/FieldProvider.php:282
+msgid "Order status to confirm shipping"
+msgstr "Lieferung melden bei Bestellstatus"
+
+#: includes/Config/FieldProvider.php:294
+msgid "Order status to refund"
+msgstr "Rückabwicklung bei folgendem Bestellstatus durchführen"
+
+#: templates/template-marketing.php:7
+msgid "Overview"
+msgstr "Übersicht"
+
+#: includes/Pages/ReviewPage.php:48
+msgctxt "Page title"
+msgid "Review Order"
+msgstr "Bestellung überprüfen"
+
+#: templates/review-order.php:23
+msgid "Payment Method"
+msgstr "Zahlungsart"
+
+#: includes/Gateway/GatewayAbstract.php:414
+msgid "Payment Page URI could not be retrieved"
+msgstr ""
+"Leider konnten wir Sie nicht auf das Zahlungsterminal weiterleiten. Bitte "
+"wählen Sie eine andere Zahlungsart."
+
+#: includes/Gateway/GatewayAbstract.php:285
+#, php-format
+msgid ""
+"Please enter your credentials in the <a href=\"%s\">plugin settings</a> to "
+"use the easyCredit payment plugin."
+msgstr ""
+"Bitte tragen Sie Ihre Zugangsdaten in den <a href=\"%s\">Plugin "
+"Einstellungen</a> ein, um easyCredit anbieten zu können."
+
+#: includes/Plugin.php:519
+#, php-format
+#| msgid ""
+#| "Please enter your credentials to use easyCredit-Ratenkauf payment plugin "
+#| "in the <a href=\"%s\">plugin settings</a>."
+msgid ""
+"Please enter your credentials to use the easyCredit payment plugin in the <a "
+"href=\"%s\">plugin settings</a>."
+msgstr ""
+"Bitte tragen Sie Ihre Zugangsdaten in den <a href=\"%s\">Plugin "
+"Einstellungen</a> ein, um easyCredit anbieten zu können."
+
+#: includes/Plugin.php:497 includes/Gateway/GatewayAbstract.php:263
+#, php-format
+msgid ""
+"Please go to <a href=\"%s\">plugin settings</a> and correct API Key and API "
+"Token."
+msgstr ""
+"Bitte überprüfen Sie Ihre easycredit Zugangsdaten in den <a href=\"%s\">"
+"Plugin Einstellungen</a>."
+
+#: templates/review-order.php:10
+msgid "Please review and confirm your order"
+msgstr "Bitte überprüfen und bestätigen Sie Ihre Bestellung:"
+
+#: templates/template-click-and-collect.php:15
+msgid ""
+"Please set the shipping method with which you offer Click&Collect in the "
+"following:"
+msgstr ""
+"Bitte stellen Sie im Folgenden die Versandart mit der Sie Click&Collect "
+"anbieten ein:"
+
+#: includes/Config/FieldProvider.php:230
+msgid "Position in product list"
+msgstr "Position in der Produktliste"
+
+#: includes/Config/FieldProvider.php:197
+msgid "Reactivate after (in seconds)"
+msgstr "Reaktivierung nach (in Sekunden)"
+
+#: includes/Admin/OrderManagement.php:209
+#| msgid "Refund automatically set in easyCredit-Ratenkauf"
+msgid "Refund automatically set in easyCredit payment"
+msgstr ""
+"Die Rückerstattung wurde auf Basis des Bestellstatus automatisch an "
+"easyCredit gemeldet."
+
+#: includes/Config/FieldProvider.php:289
+msgid "Refund automatically?"
+msgstr "Rückabwicklung automatisch durchführen?"
+
+#: includes/Admin/OrderManagement.php:221
+#, php-format
+msgid "Refund update failed with message: %s"
+msgstr "Das automatische Melden der Rückabwicklung ist fehlgeschlagen: %s"
+
+#: templates/template-intro.php:29
+msgid "Register as a trader"
+msgstr "Als Händler registrieren"
+
+#: templates/template-click-and-collect.php:18
+#: templates/template-marketing.php:44 templates/template-marketing.php:61
+#: templates/template-marketing.php:78 templates/template-marketing.php:95
+#: templates/template-marketing.php:112 templates/template-marketing.php:129
+#: includes/Plugin.php:526
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: includes/Admin/OrderManagement.php:173
+#| msgid "Shipment automatically set in easyCredit-Ratenkauf"
+msgid "Shipment automatically set in easyCredit payment"
+msgstr ""
+"Die Lieferung wurde auf Basis des Bestellstatus automatisch an easyCredit "
+"gemeldet."
+
+#: includes/Admin/OrderManagement.php:185
+#, php-format
+msgid "Shipment update failed with message: %s"
+msgstr "Das automatische Melden der Lieferung ist fehlgeschlagen: %s"
+
+#: includes/Config/FieldProvider.php:310
+msgid "Shipping method"
+msgstr "Versandart"
+
+#: includes/Config/FieldProvider.php:266
+msgid "Show bar at the top of the screen"
+msgstr "Leiste am oberen Rand des Bildschirms anzeigen"
+
+#: includes/Config/FieldProvider.php:224
+msgid "Show card within search results"
+msgstr "Card in den Suchergebnissen anzeigen"
+
+#: includes/Config/FieldProvider.php:217
+msgid "Show card within the product list (category)"
+msgstr "Card innerhalb der Produktliste (Kategorie) anzeigen"
+
+#: includes/Config/FieldProvider.php:107
+#| msgid "Show expresss checkout button at product detail page"
+msgid "Show express checkout button at product detail page"
+msgstr "Zeige Express-Checkout Button auf Produktdetailseite"
+
+#: includes/Config/FieldProvider.php:115
+#| msgid "Show expresss checkout button in cart"
+msgid "Show express checkout button in cart"
+msgstr "Zeige Express-Checkout Button im Warenkorb"
+
+#: includes/Config/FieldProvider.php:248
+msgid "Show flashbox at the bottom of the screen"
+msgstr "Flashbox am unteren Rand des Bildschirms anzeigen"
+
+#: includes/Config/FieldProvider.php:183
+msgid ""
+"Show modal automatically when visiting the online shop for the first time"
+msgstr "Automatisches Anzeigen des Modals beim ersten Besuch des Online-Shops"
+
+#: includes/Config/FieldProvider.php:161
+msgid "Show widget in Cart"
+msgstr "Zeige Modellrechner-Widget im Warenkorb"
+
+#: includes/Config/FieldProvider.php:144
+msgid "Show widget in product listing"
+msgstr "Zeige Widget in der Produktübersicht"
+
+#: includes/Config/FieldProvider.php:128
+msgid "Show widget next to product price"
+msgstr "Zeige Modellrechner-Widget neben Produktpreis"
+
+#: includes/Config/FieldProvider.php:163
+#| msgid "Specifies if easyCredit-Ratenkauf will be advertised in cart view"
+msgid "Specifies if easyCredit payment will be advertised in cart view"
+msgstr ""
+"Bestimmt, ob der easyCredit im Warenkorb beworben wird. Für den größten "
+"Erfolg mit easyCredit empfehlen wir, das Widget hier ebenfalls zu aktivieren."
+
+#: includes/Config/FieldProvider.php:130
+#| msgid ""
+#| "Specifies if easyCredit-Ratenkauf will be advertised in product detail "
+#| "view"
+msgid ""
+"Specifies if easyCredit payment will be advertised in product detail view"
+msgstr ""
+"Bestimmt, ob Ratenkauf in der Detailansicht beworben wird (\"oder mtl. ab x "
+"EUR\"). Für den größten Erfolg mit easyCredit empfehlen wir, das Widget zu "
+"aktivieren."
+
+#: includes/Config/FieldProvider.php:146
+msgid ""
+"Specifies if easyCredit payment will be advertised in product listing view"
+msgstr ""
+"Bestimmt, ob Ratenkauf in der Produktübersicht beworben wird (\"oder mtl. ab "
+"x EUR\"). Für den größten Erfolg mit easyCredit empfehlen wir, das Widget zu "
+"aktivieren."
+
+#: includes/Config/FieldProvider.php:47
+msgid "Subtitle"
+msgstr "Untertitel"
+
+#: includes/Config/FieldProvider.php:80
+#| msgid ""
+#| "The API signature secures the data transfer against data manipulation by "
+#| "third parties. You can activate the API signature in the easyCredit-"
+#| "Ratenkauf merchant portal. "
+msgid ""
+"The API signature secures the data transfer against data manipulation by "
+"third parties. You can activate the API signature in the easyCredit merchant "
+"portal. "
+msgstr ""
+"Die API-Signatur sichert die Datenübertragung gegen Datenmanipulationen "
+"durch Dritte. Sie können die API-Signatur im Partnerportal aktivieren."
+
+#: templates/template-marketing.php:126
+msgid ""
+"The bar component can be displayed at the top of the screen and promotes the "
+"hire purchase with short slogans. The slogans are predefined and cannot be "
+"customised."
+msgstr ""
+"Die Bar-Komponente kann am oberen Bildschirmrand angezeigt werden und "
+"bewirbt den Ratenkauf mit kurzen Slogans. Die Slogans sind vorgegeben und "
+"können nicht angepasst werden."
+
+#: templates/template-marketing.php:92
+msgid ""
+"The card component can be used to replace a product within the product list "
+"with a banner to advertise the hire purchase. The banner shows a standard "
+"image that can be overwritten. This allows you to use an image that matches "
+"your product offering."
+msgstr ""
+"Mit der Card-Komponente kann innerhalb der Produktliste ein Produkt durch "
+"einen Banner zur Bewerbung des Ratenkaufs ersetzt werden. Der Banner zeigt "
+"ein Standardbild, das sich überschreiben lässt. So können Sie ein zu ihrem "
+"Produktangebot passendes Bild verwenden."
+
+#: includes/Admin/RequirementsChecker.php:67
+#, php-format
+msgid ""
+"The easyCredit payment review page does not exist. Probably it was deleted "
+"by mistake. The page is necessary to confirm easyCredit payments after being "
+"returned from the payment terminal. To restore the page, please restore it "
+"from the trash under \"Pages\", or deactivate and activate the plugin in the "
+"<a href=\"%s\">plugin administration</a>."
+msgstr ""
+"Die easyCredit-Zahlungsübersichtsseite existiert nicht. Wahrscheinlich wurde "
+"sie versehentlich gelöscht. Die Seite ist notwendig, um easyCredit-Zahlungen "
+"zu bestätigen, nachdem der Kunde vom Zahlungsterminal auf den Shop "
+"zurückgeleitet wurde. Um die Seite wiederherzustellen, stellen Sie sie bitte "
+"aus dem Papierkorb unter „Seiten“ wieder her, oder deaktivieren und "
+"aktivieren Sie das Plugin in der <a href=\"%s\">Plugin-Verwaltung</a>."
+
+#: templates/template-marketing.php:41
+msgid ""
+"The Express button can be displayed on the product detail page and in the "
+"shopping cart. It allows customers to buy the product or shopping cart "
+"without detours through the ordering process."
+msgstr ""
+"Der Express-Button kann auf der Produktdetailseite und im Warenkorb "
+"angezeigt werden. Er ermöglicht Kunden das Produkt oder den Warenkorb ohne "
+"Umwege über den Bestellprozess zu kaufen."
+
+#: templates/template-marketing.php:75
+msgid ""
+"The modal component can be used to actively draw the customer's attention to "
+"the instalment purchase in the shop. A time-controlled display of the modal "
+"is possible. If the customer closes the modal, the component remembers this "
+"and prevents it from being displayed again."
+msgstr ""
+"Die Modal-Komponente kann eingesetzt werden, um einen Kunden im Shop aktiv "
+"auf den Ratenkauf hinzuweisen. Ein zeitgesteuertes Einblenden des Modals ist "
+"möglich. Schliesst der Kunde das Modal, merkt die Komponente sich dies und "
+"verhindert ein weiteres Anzeigen."
+
+#: includes/Plugin.php:462
+msgid "The shipping address cannot be subsequently changed with easyCredit."
+msgstr ""
+"Die Versandadresse kann bei easyCredit nicht nachträglich verändert werden."
+
+#: templates/template-intro.php:7
+msgid "The simplest invoice and installment purchase in Germany."
+msgstr "Der einfachste Rechnungs- und Ratenkauf Deutschlands."
+
+#: includes/Admin/OrderManagement.php:165
+#: includes/Admin/OrderManagement.php:199
+msgid ""
+"The transaction id of this transaction is not available. This usually "
+"happens if the webhook which confirms the transaction is not working "
+"properly."
+msgstr ""
+"Die Transaktions-ID für diese Transaktion ist nicht verfügbar. Dies passiert,"
+" wenn der Webhook (2-Phasen Bestätigung), der die Transaktion bestätigt, "
+"nicht korrekt ausgeführt werden kann."
+
+#: templates/template-marketing.php:58
+msgid ""
+"The widget component is shown on the product detail page and in the shopping "
+"cart. It calculates the lowest possible rate with which a product with a "
+"certain price can be financed. Clicking on \\\"more info\\\" opens the rate "
+"calculator with further details on financing. If the product price is "
+"outside the possible financing amounts, the widget indicates the minimum or "
+"maximum possible financing amount."
+msgstr ""
+"Die Widget-Komponente wird auf der Produktdetailseite und auch im Warenkorb "
+"angezeigt. Sie berechnet die günstigstmögliche Rate mit der ein Produkt mit "
+"einem bestimmten Preis finanziert werden kann. Bei Klick auf \"mehr Infos\" "
+"öffnet sich der Ratenrechner mit weiteren Details zur Finanzierung. Liegt "
+"der Produktpreis außerhalb der möglichen Finanzierungsbeträge weist das "
+"Widget auf Wunsch auf den minimal oder maximal möglichen Finanzierungsbetrag "
+"hin."
+
+#: includes/Config/FieldProvider.php:49
+msgid ""
+"This controls the subtitle for the payment method the customer sees during "
+"checkout."
+msgstr ""
+"Dies steuert den Untertitel für die Zahlungsmethode, die der Kunde während "
+"der Kaufabwicklung sieht."
+
+#: includes/Config/FieldProvider.php:41
+msgid ""
+"This controls the title for the payment method the customer sees during "
+"checkout."
+msgstr ""
+"Diese Einstellung bestimmt, mit welchem Titel easyCredit-Ratenkauf im "
+"Bezahlvorgang angezeigt wird."
+
+#: templates/template-marketing.php:109
+msgid ""
+"This marketing component allows a banner to be displayed at the bottom of "
+"the screen to advertise hire purchase. The banner shows a standard image "
+"that can be overwritten. This allows you to use an image that matches your "
+"product offer."
+msgstr ""
+"Mit dieser Marketing-Komponente lässt sich ein Banner zur Bewerbung des "
+"Ratenkaufs am unteren Bildschirmrand einblenden. Der Banner zeigt ein "
+"Standardbild, das sich überschreiben lässt. So können Sie ein zu ihrem "
+"Produktangebot passendes Bild verwenden."
+
+#: includes/Admin/RequirementsChecker.php:30
+#| msgid ""
+#| "To use easyCredit-Ratenkauf the php.ini setting \"allow_url_fopen\" must "
+#| "be enabled."
+msgid ""
+"To use easyCredit payment the php.ini setting \"allow_url_fopen\" must be "
+"enabled."
+msgstr ""
+"Um easyCredit nutzen zu können, muss die php.ini-Einstellung "
+"\"allow_url_fopen\" aktiviert sein."
+
+#: includes/Gateway/GatewayAbstract.php:222
+msgid "Transaction could not be captured"
+msgstr "Die Transaktion konnte nicht authorisiert werden."
+
+#: includes/Gateway/GatewayAbstract.php:180
+#: includes/Gateway/GatewayAbstract.php:216
+msgid "Transaction not approved"
+msgstr "Transaktion wurde nicht genehmigt."
+
+#: templates/template-intro.php:91
+msgid "Unlock now"
+msgstr "Jetzt freischalten lassen"
+
+#: includes/Config/FieldProvider.php:205 includes/Config/FieldProvider.php:236
+#: includes/Config/FieldProvider.php:254
+msgid "Use your own image"
+msgstr "Eigenes Bild verwenden"
+
+#: templates/template-marketing.php:23
+msgid "Useful links"
+msgstr "Hilfreiche Links"
+
+#: includes/Config/FieldProvider.php:86
+msgid "Verify Credentials"
+msgstr "Zugangsdaten überprüfen"
+
+#: templates/template-intro.php:9
+msgid ""
+"We are delighted that you have decided in favour of easyCredit, the perfect "
+"payment method for your online shop."
+msgstr ""
+"Wir freuen uns, dass Sie sich für easyCredit entschieden haben, die perfekte "
+"Zahlungsmethode für den Handel in Onlineshops."
+
+#: templates/template-intro.php:46
+msgid "We are here for you from Monday to Friday from 8:00 to 18:00."
+msgstr ""
+"Wir sind von Montag bis Freitag von 8:00 bis 18:00 Uhr für Sie erreichbar."
+
+#: templates/template-marketing.php:20
+#| msgid ""
+#| "We provide you with a range of marketing components that you can easily "
+#| "activate in your online shop. In this way, you achieve an optimal "
+#| "presentation of financing via easyCredit-Ratenkauf, for higher sales and "
+#| "satisfied customers."
+msgid ""
+"We provide you with a range of marketing components that you can easily "
+"activate in your online shop. In this way, you achieve an optimal "
+"presentation of payment via easyCredit, for higher sales and satisfied "
+"customers."
+msgstr ""
+"Wir stellen Ihnen eine Reihe von Marketing-Komponenten zur Verfügung, die "
+"Sie ganz einfach in Ihrem Onlineshop aktivieren können. So erzielen Sie eine "
+"optimale Präsentation der Finanzierung über easyCredit, für höhere Umsätze "
+"und zufriedene Kunden."
+
+#: templates/template-marketing.php:9
+msgid "Widget"
+msgstr "Widget"
+
+#: templates/template-intro.php:75 includes/Gateway/Rechnung.php:18
+msgid ""
+"With easyCredit, you can now offer your customers the option of invoice "
+"purchase in addition to the classic installment purchase. The payment term "
+"is <strong>30 days in the future</strong>."
+msgstr ""
+"Sie können Ihren Kunden mit easyCredit neben dem klassischen Ratenkauf nun "
+"auch den Kauf auf Rechnung anbieten. Das Zahlungsziel liegt dabei <strong>30 "
+"Tage in der Zukunft</strong>."
+
+#: templates/template-click-and-collect.php:9
+#| msgid ""
+#| "You want to use Click&Collect for easyCredit-Ratenkauf? Nothing could be "
+#| "simpler! To be able to use the feature, you need an additional "
+#| "supplementary agreement to your factoring contract. To do so, simply "
+#| "contact your key account manager or ask him via our <a href=\\\"https:"
+#| "//www.easycredit-ratenkauf.de/click-und-collect/\\\" "
+#| "target=\\\"_blank\\\">Click&Collect form</a>."
+msgid ""
+"You want to use Click&Collect for easyCredit payment? Nothing could be "
+"simpler! To be able to use the feature, you need an additional supplementary "
+"agreement to your factoring contract. To do so, simply contact your key "
+"account manager or ask him via our <a href=\"https://www.easycredit-"
+"ratenkauf.de/click-und-collect/\" target=\"_blank\">Click&Collect form</a>."
+msgstr ""
+"Sie wollen Click&Collect für easyCredit nutzen? Nichts einfacher als das! Um "
+"das Feature nutzen zu können, benötigen Sie eine ergänzende "
+"Zusatzvereinbarung zu Ihrem Factoringvertrag. Sprechen Sie dazu einfach "
+"Ihren Key-Account-Manager an oder fragen Sie diesen über unser <a "
+"href=\"https://www.easycredit-ratenkauf.de/click-und-collect/\" "
+"target=\"_blank\">Click&Collect-Formular</a> an."
+
+#: includes/Plugin.php:500 includes/Gateway/GatewayAbstract.php:266
+msgid ""
+"Your credentials are valid, but your account has not been activated yet."
+msgstr ""
+"Ihre Zugangsdaten sind korrekt, aber der Zugang wurde noch nicht aktiviert."

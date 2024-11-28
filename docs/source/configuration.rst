@@ -10,7 +10,7 @@ Zur Konfiguration des Plugins navigieren Sie erneut zu :menuselection:`Plugins`.
 
 .. image:: ./_static/config-open.png
 
-Alternativ erreichen Sie die Zahlungsarten-Konfiguration unter :menuselection:`wooCommerce --> Einstellungen --> Zahlungsarten`. In der Liste der installierten Plugins sollte nun **easyCredit-Ratenkauf** enthalten sein. Klicken Sie dort auf *Verwalten*
+Alternativ erreichen Sie die Zahlungsarten-Konfiguration unter :menuselection:`wooCommerce --> Einstellungen --> Zahlungsarten`. In der Liste der installierten Plugins sollte nun **easyCredit** enthalten sein. Klicken Sie dort auf *Verwalten*
 
 API-Zugangsdaten konfigurieren
 -------------------------------
@@ -26,16 +26,16 @@ API-Zugangsdaten konfigurieren
 Widget konfigurieren
 ---------------------
 
-Um easyCredit-Ratenkauf bei Ihren Kunden zu bewerben, blendet die Extension ein Widget auf der Produktdetailseite und unterhalb des Warenkorbs ein. Das Widget kann über die CSS-Selektoren unter Erweiterte Einstellungen entsprechend des verwendeten Templates positioniert werden. Ein Beispiel für das Widget sehen Sie im folgenden Beispiel:
+Um easyCredit bei Ihren Kunden zu bewerben, blendet die Extension ein Widget auf der Produktdetailseite und unterhalb des Warenkorbs ein. Das Widget kann über die CSS-Selektoren unter Erweiterte Einstellungen entsprechend des verwendeten Templates positioniert werden. Ein Beispiel für das Widget sehen Sie im folgenden Beispiel:
 
 .. image:: ./_static/widget-product-detail.png
 
-.. note:: Das Widget wird nur für Artikel angezeigt, deren Preis innerhalb der Betragsgrenzen von easyCredit-Ratenkauf liegen.
+.. note:: Das Widget wird nur für Artikel angezeigt, deren Preis innerhalb der Betragsgrenzen von easyCredit liegt.
 
 Bestellbearbeitung
 ------------------
 
-Zur komfortablen Verwaltung ihrer Transaktionen können Sie das Plugin unter *Bestellbearbeitung* so konfigurieren, dass der Bestellstatus für Bestellungen mit einem bestimmten Status an easyCredit-Ratenkauf gemeldet wird.
+Zur komfortablen Verwaltung ihrer Transaktionen können Sie das Plugin unter *Bestellbearbeitung* so konfigurieren, dass der Bestellstatus für Bestellungen mit einem bestimmten Status an easyCredit gemeldet wird.
 Weitere Details dazu finden Sie unter :ref:`usage-merchant`.
 
 Click & Collect konfigurieren
