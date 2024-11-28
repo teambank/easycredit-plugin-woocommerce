@@ -59,11 +59,12 @@ export const goThroughPaymentPage = async ({
     await page.getByTestId("uc-deny-all-button").click();
 
     await expect(
-      page.getByText(
-        paymentType === PaymentTypes.INSTALLMENT
-          ? "Monatliche Wunschrate"
-          : "Ihre Bezahloptionen"
-      )
+      page.getByRole("heading", {
+        name:
+          paymentType === PaymentTypes.INSTALLMENT
+            ? "Monatliche Wunschrate"
+            : "Ihre Bezahloptionen",
+      })
     ).toBeVisible();
 
     await page.getByRole("button", { name: "Weiter zur Dateneingabe" }).click();
@@ -80,7 +81,7 @@ export const goThroughPaymentPage = async ({
     }
 
     await page.locator("tbk-vorwahldropdown .tel-wrapper").click();
-    await page.locator('tbk-vorwahldropdown').locator("p").filter({ hasText: "+49" }).click();
+    await page.locator('tbk-vorwahldropdown').locator('li').filter({ hasText: '+49' }).getByRole('paragraph').click();
     await page.locator('#mobilfunknummer').getByRole('textbox').fill('1703404848');
     await page.locator('app-ratenkauf-iban-input-dumb').getByRole('textbox').fill("DE12500105170648489890");
 
@@ -98,7 +99,7 @@ export const goThroughPaymentPage = async ({
     );
 
     await delay(500);
-    await page.getByRole("button", { name: "Ratenwunsch übernehmen" }).click();
+    await page.getByRole("button", { name: "Zahlungswunsch übernehmen" }).click();
   });
 };
 

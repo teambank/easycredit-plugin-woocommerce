@@ -37,7 +37,7 @@ test.describe("Check order listing page for merchant widget", () => {
 			expect(
 				page
 					.locator(
-						"table .easycredit_status_icon easycredit-merchant-status-widget.hydrated"
+						"table easycredit-merchant-status-widget.hydrated"
 					)
 					.first()
 			).toBeVisible();
@@ -64,7 +64,7 @@ test.describe("Check order detail page for merchant widget, manager & prevent sh
 
 		await test.step("check for merchant manager in detail view", async () => {
 			expect(
-				page.locator("#order_data easycredit...-status-widget.hydrated")
+				page.locator("#order_data easycredit-merchant-status-widget.hydrated")
 			).toBeVisible();
 		});
 
