@@ -292,7 +292,7 @@ class WC_Gateway_Ratenkaufbyeasycredit_Plugin
 
     public function enqueue_easycredit_components()
     {
-        wp_register_script('easycredit-components-module', 'https://ratenkauf.easycredit.de/api/resource/webcomponents/v3/easycredit-components/easycredit-components.esm.js', [], '1.0');
+        wp_register_script('easycredit-components-module', 'https://ratenkauf.easycredit.de/api/resource/webcomponents/v3/easycredit-components/easycredit-components.esm.js', [], '1.0', ['strategy'  => 'async', 'in_footer' => true]);
         wp_enqueue_script('easycredit-components-module');
         add_filter('script_loader_tag', [$this, 'add_module_nomodule_attribute'], 10, 3);
     }
