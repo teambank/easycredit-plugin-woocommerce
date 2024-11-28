@@ -18,12 +18,19 @@ export const getMethodConfiguration = (name) => {
 		const ecCheckout = useRef(null);
 		const privacyApproved = useRef(false);
 
-		const emulateSubmitCheckout = () => {
+		const emulateSubmitCheckout = async () => {
 			let button;
 			do {
-				button = document.querySelector(
-					".wc-block-components-checkout-place-order-button",
-				);
+				const selector =
+					".wc-block-components-checkout-place-order-button";
+				button = document.querySelector(selector);
+				if (!button) {
+					console.error(
+						`Could not submit order. Submit button with selector "$(selector)" was not found`,
+					);
+					return;
+				}
+				await new Promise((r) => setTimeout(r, 100));
 			} while (button.disabled);
 
 			button.dispatchEvent(
