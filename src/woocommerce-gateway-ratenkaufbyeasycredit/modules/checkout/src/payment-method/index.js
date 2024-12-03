@@ -1,4 +1,6 @@
 import { useRef, useEffect } from '@wordpress/element';
+import { useSelect } from "@wordpress/data";
+import { VALIDATION_STORE_KEY } from '@woocommerce/block-data';
 import { __ } from '@wordpress/i18n';
 import { decodeEntities } from '@wordpress/html-entities';
 import { getSetting } from '@woocommerce/settings';
@@ -7,6 +9,10 @@ const config = getSetting( 'ratenkaufbyeasycredit_data' );
 
 const Checkout = ( { billing, eventRegistration, activePaymentMethod } ) => {
 	const { onCheckoutFail, onCheckoutValidation } = eventRegistration;
+
+	const hasValidationErrors = useSelect((select) =>
+		select(VALIDATION_STORE_KEY).hasValidationErrors()
+	);
 
 	const ecCheckout = useRef( null );
 	const privacyApproved = useRef( false );
@@ -27,6 +33,10 @@ const Checkout = ( { billing, eventRegistration, activePaymentMethod } ) => {
 			return;
 		}
 		ecCheckout.current.addEventListener( 'submit', () => {
+			if (hasValidationErrors) {
+				// checkout will not submit => reset submit button loading animation
+				ecCheckout.current.dispatchEvent(new Event("closeModal"));
+			}
 			privacyApproved.current = true;
 			emulateSubmitCheckout();
 		} );
