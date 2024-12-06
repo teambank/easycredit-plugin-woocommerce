@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2.1.10
+------
+
+- behebt ein Problem mit der Einbindung der Komponenten als JavaScript-Modulen in Classic Themes
+- die Checkout-Komponente ist nun auch auf der Kundenbezahlungsseite funktional
+- die Checkout-Komponente im Blocks-Checkout wird wieder zurückgesetzt, wenn ein Fehler bei der Validierung auftritt
+
 2.1.9
 -----
 

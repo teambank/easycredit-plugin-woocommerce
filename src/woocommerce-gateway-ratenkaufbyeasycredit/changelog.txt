@@ -1,3 +1,13 @@
+= 2.1.10 =
+
+- behebt ein Problem mit der Einbindung der Komponenten als JavaScript-Modulen in Classic Themes
+- die Checkout-Komponente ist nun auch auf der Kundenbezahlungsseite funktional
+- die Checkout-Komponente im Blocks-Checkout wird wieder zurückgesetzt, wenn ein Fehler bei der Validierung auftritt
+
+= 2.1.9 =
+
+- die Veränderung der Lieferadresse wird nur bei Bestellungen, die mit easyCredit bezahlt wurden, unterbunden
+
 = 2.1.8 =
 
 - das Plugin ist nun kompatibel mit HPOS (High Performance Order Storage)
