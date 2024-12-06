@@ -13,9 +13,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - php-version: 7.4
-            wordpress-version: "5.6.10"
-            woocommerce-version: "5.6.2"
           - php-version: 8.0
             wordpress-version: "5.9.5"
             woocommerce-version: "6.9.4"
@@ -67,6 +64,7 @@ jobs:
       WORDPRESS_DB_NAME: wordpress
       WORDPRESS_DEBUG: true
       WP_CLI_ALLOW_ROOT: true
+      PHP_VERSION: ${{ matrix.php-version }}
  
     steps:
       - name: Checkout
@@ -97,7 +95,7 @@ jobs:
 
           wp core download --version=${{ matrix.wordpress-version }} --locale=de_DE
           wp config create --dbhost=$WORDPRESS_DB_HOST --dbname=$WORDPRESS_DB_NAME --dbuser=$WORDPRESS_DB_USER --dbpass=$WORDPRESS_DB_PASSWORD --locale=de_DE \
-           --extra-php="define('WP_DEBUG',true); define('WP_DEBUG_LOG',true); define('WP_DEBUG_DISPLAY',false);"
+           --extra-php="define('WP_DEBUG',true); define('WP_DEBUG_LOG',true); define('WP_DEBUG_DISPLAY',false); define( 'FS_METHOD', 'direct' );"
 
           wp core install --url=localhost --title=Example --admin_user=admin --admin_password=password --admin_email=info@example.com
           wp plugin install woocommerce --version=${{ matrix.woocommerce-version }} --activate
@@ -173,12 +171,18 @@ jobs:
       - name: Save Logs for Debugging
         if: always()
         run: |
-          [ -f $WORDPRESS_DIR/wp-content/debug.log ] && cp -r $WORDPRESS_DIR/wp-content/debug.log test-results/${{ matrix.woocommerce-version }}/
-          [ -d $WORDPRESS_DIR/wp-content/uploads/wc-logs ] && cp -r $WORDPRESS_DIR/wp-content/uploads/wc-logs/*.log test-results/${{ matrix.woocommerce-version }}/ 
-      - uses: actions/upload-artifact@v3
-        if: failure()
+          LOG_DIR=playwright-report/logs
+          mkdir $LOG_DIR
+          [ -f $WORDPRESS_DIR/wp-content/debug.log ] && cp -r $WORDPRESS_DIR/wp-content/debug.log $LOG_DIR/
+          [ -d $WORDPRESS_DIR/wp-content/uploads/wc-logs ] && cp -r $WORDPRESS_DIR/wp-content/uploads/wc-logs/*.log $LOG_DIR/
+          for i in $LOG_DIR/*; do
+            f=$(basename $i)
+            echo "<a href=\"$(basename $f)\">$f</a><br />" >> $LOG_DIR/index.html
+          done;
+      - name: Deploy Report
+        if: always()
+        uses: cloudflare/wrangler-action@v3
         with:
-          name: playwright-report
-          path: test-results/
-          retention-days: 7
-
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy playwright-report/ --project-name=easycredit-playwright-reports

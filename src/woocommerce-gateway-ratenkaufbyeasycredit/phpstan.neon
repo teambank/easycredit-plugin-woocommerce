@@ -1,3 +1,6 @@
+includes:
+  - phpstan-ignore-by-version.php
+
 parameters:
   level: 2
   reportUnmatchedIgnoredErrors: false

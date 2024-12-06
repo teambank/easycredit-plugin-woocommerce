@@ -4,9 +4,12 @@ export default defineConfig({
   outputDir: '../test-results/'+ process.env.VERSION + '/',
   use: {
     baseURL: process.env.BASE_URL ?? 'http://localhost/',
+    trace: "retain-on-failure",
     trace: 'on'
   },
-  timeout: 5 * 60 * 1000, // 5m
+  timeout: 40 * 1000, // 40s
+  retries: process.env.CI ? 2 : 0,
+  reporter: [["list", { printSteps: true }], ["html"]],
   projects: [
     {
       name: 'chromium',
