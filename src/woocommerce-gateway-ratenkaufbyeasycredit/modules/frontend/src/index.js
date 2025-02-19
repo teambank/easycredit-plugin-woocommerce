@@ -172,7 +172,7 @@ jQuery( function ( $ ) {
 		}
 
 		onHydrated( selector, () => {
-			$( selector ).submit( () => {
+			$( selector ).submit( function () {
 				let form = $( this ).closest( '.summary' ).find( 'form.cart' );
 				if ( form.length === 0 ) {
 					form = $( 'body' ).find( 'form.cart' );
