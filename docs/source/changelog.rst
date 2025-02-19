@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.1.11
+------
+
+- behebt ein Problem durch das der Express-Checkout nicht initialisiert werden konnte
+
 2.1.10
 ------
 

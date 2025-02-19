@@ -7,7 +7,7 @@ on:
 
 jobs:
   ci-current:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       max-parallel: 15
       fail-fast: false
@@ -37,7 +37,7 @@ jobs:
           - php-version: 8.3
             wordpress-version: "6.6"
             woocommerce-version: "9.1.0"
-          - php-version: 8.3
+          - php-version: 8.4
             wordpress-version: "6.7"
             woocommerce-version: "9.4.2"
 
@@ -100,7 +100,8 @@ jobs:
           wp core install --url=localhost --title=Example --admin_user=admin --admin_password=password --admin_email=info@example.com
           wp plugin install woocommerce --version=${{ matrix.woocommerce-version }} --activate
           wp theme install storefront --activate
-
+          
+          wp language theme install storefront de_DE
           wp language plugin install woocommerce de_DE
 
           #wp option pluck woocommerce_onboarding_profile 'skipped'
