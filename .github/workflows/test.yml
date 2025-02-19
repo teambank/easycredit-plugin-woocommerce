@@ -104,6 +104,12 @@ jobs:
           wp language theme install storefront de_DE
           wp language plugin install woocommerce de_DE
 
+          # fix for missing translations, lang files seem to be expected in another dir
+          LANG_DIR=$WORDPRESS_DIR/wp-content/languages
+          [ ! -d $LANG_DIR/woocommerce ] && mkdir $LANG_DIR/woocommerce
+          [ -f $LANG_DIR/plugins/woocommerce-de_DE.po ] && cp $LANG_DIR/plugins/woocommerce-de_DE.po $LANG_DIR/woocommerce/
+          [ -f $LANG_DIR/plugins/woocommerce-de_DE.mo ] && cp $LANG_DIR/plugins/woocommerce-de_DE.mo $LANG_DIR/woocommerce/
+
           #wp option pluck woocommerce_onboarding_profile 'skipped'
           wp option update woocommerce_show_marketplace_suggestions 'no'
           wp option update woocommerce_allow_tracking 'no'
