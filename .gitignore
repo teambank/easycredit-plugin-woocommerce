@@ -1,13 +1,22 @@
 .DS_Store
 Thumbs.db
-wp-cli.local.yml
-node_modules/
+# arbitrary files
 *.sql
 *.tar.gz
 *.zip
 .vscode
-/env
-/build
+
+# generated dirs
 /src/wc-easycredit/vendor
+node_modules
+
+# strauss-related (prefix vendor dir)
+bin/strauss.phar
+/src/wc-easycredit/vendor-prefixed
+
+# dev related
+/build
+/env
 /docker-compose.override.yml
+/wp-cli.local.yml
 /wordpress

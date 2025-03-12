@@ -31,7 +31,7 @@ function wc_easycredit()
 
     if (!isset($plugin)) {
 
-        require_once dirname(__FILE__) . '/vendor/autoload.php';
+        require_once dirname(__FILE__) . '/vendor-prefixed/autoload.php';
 
         spl_autoload_register(function ($class) {
             $ds = DIRECTORY_SEPARATOR;
