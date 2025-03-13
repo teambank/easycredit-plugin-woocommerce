@@ -49,15 +49,18 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         $this->temporaryOrderHelper = $temporaryOrderHelper;
 
         $this->has_fields = true;
-        add_action('init', [$this, 'init_form_fields']);
-        $this->init_settings();
 
-        $title = $this->get_option('title');
-        $this->title = !empty($title) ? $title : $this->method_title;
+        add_action('init', function() {
+            $this->init_form_fields();
+            $this->init_settings();
 
-        $this->description = '';
-        $this->instructions = $this->get_option('instructions');
-        $this->debug = $this->get_option('debug', false);
+            $title = $this->get_option('title');
+            $this->title = !empty($title) ? $title : $this->method_title;
+
+            $this->description = '';
+            $this->instructions = $this->get_option('instructions');
+            $this->debug = $this->get_option('debug', false);
+        });
 
         if (self::$initialized[$this->id]) {
             return; // initialize payment gateway only once, e.g. WPML Woocommerce tries to initialize again which results in duplicate/wrong behavior
@@ -375,7 +378,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         $order = wc_get_order($order_id);
 
         try {
-            $postData = $_POST['easycredit'];
+            $postData = $_POST['easycredit'] ?? [];
             if (isset($postData['numberOfInstallments'])) {
                 $this->integration
                     ->storage()
