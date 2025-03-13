@@ -36,8 +36,8 @@ const getComponent = (paymentType) => {
 };
 
 export const handleCheckout = (checkout) => {
-	document.body.addEventListener(
-		"submit",
+	document.addEventListener(
+		"easycredit-submit",
 		(e) => {
 			if (
 				e instanceof CustomEvent &&

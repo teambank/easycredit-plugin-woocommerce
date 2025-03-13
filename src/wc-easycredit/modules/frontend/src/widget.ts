@@ -86,91 +86,21 @@ export const handleWidget = () => {
     elements.forEach((element) => {
         applyWidget(document, element, processedSelector.attributes);
     });
+	handleVariationSwitch();
 }
 
-
-/*
-    const widget = document.createElement("easycredit-widget");
-    widget.setAttribute(
-        "webshop-id",
-        apiKey,
-    );
-    widget.setAttribute(
-        "amount",
-        amount,
-    );
-
-    const widgets = document.querySelectorAll(selector);
-    for (let i = 0; i < widgets.length; i++) {
-        const el = widgets[i];
-        if (
-            el instanceof HTMLElement &&
-            el.parentNode &&
-            window.getComputedStyle(el).visibility !== "hidden" &&
-            el.style.opacity !== "0"
-        ) {
-            el.parentNode.insertBefore(widget.cloneNode(true), el.nextSibling);
-            break;
-        }
-    }
-
-    const variationsForm = document.querySelector("form.variations_form")
-    if (!variationsForm) {
-        return
-    }
-    variationsForm.addEventListener("show_variation", function (event) {
-        if (!(event instanceof CustomEvent)) {
-            return
-        }
-
-        const variation = event.detail;
-        if (variation && variation.display_price) {
-            widget.setAttribute("amount", variation.display_price);
-        }
-    }); 
-}
-
-
-
-	initWidget(container) {
-		const selector = this.getMeta("widget-selector", container);
-		if (selector === null) {
-			return;
-		}
-		if (this.getMeta("api-key") === null) {
-			return;
-		}
-
-		let processedSelector = this.processSelector(selector);
-
-		let elements = container.querySelectorAll(processedSelector.selector);
-		elements.forEach((element) => {
-			this.applyWidget(container, element, processedSelector.attributes);
-		});
-	}
-
-
-	getMeta(key, container = null, element = null) {
-		let meta;
-
-		if (container === null) {
-			container = document;
-		}
-
-		const selector = "meta[name=easycredit-" + key + "]";
-
-		if (element) {
-			let box;
-			if ((box = element.closest(".cms-listing-col"))) {
-				if ((meta = box.querySelector(selector))) {
-					return meta.content;
-				}
+const handleVariationSwitch = () => {
+	const forms = document.querySelectorAll("form.variations_form");
+	forms.forEach((form) => {
+		jQuery(form).on("show_variation", function ( event, variation ) {
+			const widget = event.currentTarget.closest('.product.product-type-variable')?.querySelector('easycredit-widget');
+			if (!widget) {
+				return;
 			}
-		}
-		if ((meta = container.querySelector(selector))) {
-			return meta.content;
-		}
-		return null;
-	}
+
+			if (variation?.display_price) {
+				widget.setAttribute("amount", variation.is_in_stock ? variation.display_price : 1);
+			}
+		});
+	});
 }
-    */

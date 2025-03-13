@@ -22,22 +22,22 @@ const buildAdditionalParams = (detail) => {
 const methods = getMethods();
 const [methodName, config] = Object.entries(methods)[0];
 
+
+/*
+* go to express checkout if easycredit-checkout triggers easycredit-submit event
+*/
+document.addEventListener("easycredit-submit", (e) => {
+	if (!e.target.matches('easycredit-express-button')) {
+		return;
+	}
+
+	const additional = buildAdditionalParams(e.detail);
+	const params = new URLSearchParams(additional).toString();
+	window.location.href = config.expressUrl + "?" + params;
+});
+
 const ExpressButton = (props) => {
 	const ecCheckoutButton = useRef(null);
-
-	/*
-	 * submit checkout if easycredit-checkout triggers submit event
-	 */
-	useEffect(() => {
-		if (!ecCheckoutButton.current) {
-			return;
-		}
-		ecCheckoutButton.current.addEventListener("submit", (e) => {
-			const additional = buildAdditionalParams(e.detail);
-			const params = new URLSearchParams(additional).toString();
-			window.location.href = config.expressUrl + "?" + params;
-		});
-	}, [ecCheckoutButton]);
 
 	const amount = props.billing.cartTotal.value / 100;
 

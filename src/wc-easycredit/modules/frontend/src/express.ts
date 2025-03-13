@@ -91,28 +91,23 @@ const handleVariationSwitch = () => {
 	});	
 }
 
-export const handleExpressButton = async (element: HTMLElement) => {
-	/*
-	if (
-		element.closest(".wc-block-components-express-payment")
-	) {
-		return;
-	}
-	*/
-	document.body.addEventListener(
-		"submit",
-		(e) => {
-			if (
-				e instanceof CustomEvent &&
-				e.target &&
-				(e.target as HTMLElement).tagName === "EASYCREDIT-EXPRESS-BUTTON"
-			) {
-				e.preventDefault();
-				submitExpressForm(e);
-			}
+export const handleExpressButton = async () => {
+	document.addEventListener(
+		"easycredit-submit",
+		(e: Event) => {
+			if (!(e instanceof CustomEvent)) return;
+
+			const button = e.target as HTMLElement;
+			if (!button || button.tagName !== "EASYCREDIT-EXPRESS-BUTTON") return;
+
+			// Skip if button is within express payment block
+			if (button.closest(".wc-block-components-express-payment")) return;
+
+			e.preventDefault();
+			submitExpressForm(e);
 		},
 		true,
 	);
 
-	handleVariationSwitch()
+	handleVariationSwitch();
 };

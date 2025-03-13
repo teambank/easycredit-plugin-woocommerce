@@ -8,6 +8,28 @@ import { getSetting } from "@woocommerce/settings";
 export const getMethodConfiguration = (name) => {
 	const config = getSetting(name + "_data");
 
+	let currentHandler = null; // Store reference to current handler
+
+	const handleSubmit = (privacyApproved, hasValidationErrors, emulateSubmitCheckout) => {
+		currentHandler = (e) => {
+			if (!e.target.matches('easycredit-checkout') ||
+				e.target.getAttribute('payment-type') !== config.paymentType
+			) {
+				return;
+			}
+
+			if (hasValidationErrors) {
+				// checkout will not submit => reset submit button loading animation
+				e.target.dispatchEvent(new Event("closeModal"));
+				return;
+			}
+
+			privacyApproved.current = true;
+			emulateSubmitCheckout();
+		};
+		return currentHandler;
+	}
+
 	const Checkout = ({ billing, eventRegistration, activePaymentMethod }) => {
 		const { onCheckoutFail, onCheckoutValidation } = eventRegistration;
 
@@ -39,21 +61,16 @@ export const getMethodConfiguration = (name) => {
 		};
 
 		/*
-		 * submit checkout if easycredit-checkout triggers submit event
+		 * submit checkout if easycredit-checkout triggers easycredit-submit event
 		 */
 		useEffect(() => {
-			if (!ecCheckout.current) {
-				return;
+			if (currentHandler) {
+				document.removeEventListener('easycredit-submit', currentHandler);
 			}
-			ecCheckout.current.addEventListener("submit", () => {
-				if (hasValidationErrors) {
-					// checkout will not submit => reset submit button loading animation
-					ecCheckout.current.dispatchEvent(new Event("closeModal"));
-				}
-				privacyApproved.current = true;
-				emulateSubmitCheckout();
-			});
-		}, []);
+			const handler = handleSubmit(privacyApproved, hasValidationErrors, emulateSubmitCheckout);
+			console.log('adding listener for ' +  config.paymentType);
+			document.addEventListener('easycredit-submit', handler);
+		}, [hasValidationErrors]);
 
 		/*
 		 * open privacy approval modal if main checkout submit button is clicked
@@ -98,12 +115,21 @@ export const getMethodConfiguration = (name) => {
 		}, [onCheckoutFail, activePaymentMethod]);
 
 		return (
-			<easycredit-checkout
-				ref={ecCheckout}
-				webshop-id={decodeEntities(config.apiKey)}
-				amount={billing.cartTotal.value / 100}
-				payment-type={config.paymentType}
-			></easycredit-checkout>
+			<div>
+				<easycredit-checkout
+					ref={ecCheckout}
+					webshop-id={decodeEntities(config.apiKey)}
+					amount={billing.cartTotal.value / 100}
+					payment-type={config.paymentType}
+				></easycredit-checkout>
+				<span style={{ display: 'none' }}>
+					 {/*
+					 we need to trick the following wooCommerce css rule:
+					 .wc-block-components-radio-control-accordion-content:has(>:only-child:empty) { display:none; }
+					*/}
+					Checkout Component
+				</span>
+			</div>
 		);
 	};
 

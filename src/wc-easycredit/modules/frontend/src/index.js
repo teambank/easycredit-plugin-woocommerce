@@ -1,8 +1,4 @@
-import {
-	waitForComponentReady,
-	waitForLoadEvent,
-	watchForSelector,
-} from "./utils";
+import { waitForLoadEvent } from "./utils";
 import { handleExpressButton } from "./express";
 import { handleCheckout, handleCheckoutMethods } from "./checkout";
 import { handleMarketingComponents } from "./marketing";
@@ -15,31 +11,20 @@ const methods = {
 
 (async () => {
 	await waitForLoadEvent();
-	handleExpressButton(document.querySelector("easycredit-express-button"));
-})();
 
-(async () => {
-	await waitForLoadEvent();
-
-	const wooCommerceCheckout = document.querySelector(
-		"form.woocommerce-checkout",
-	);
-
-	if (!wooCommerceCheckout) {
-		return;
-	}
-	handleCheckout(wooCommerceCheckout);
-	for (const [paymentMethod, paymentType] of Object.entries(methods)) {
-		handleCheckoutMethods(wooCommerceCheckout, paymentMethod, paymentType);
-	}
-})();
-
-(async () => {
-	await waitForLoadEvent();
+	// Initialize all components
+	handleExpressButton();
 	handleMarketingComponents();
-})();
-
-(async () => {
-	await waitForLoadEvent();
 	handleWidget();
-})();
+
+	// Handle checkout if form exists
+	const wooCommerceCheckout = document.querySelector("form.woocommerce-checkout");
+	if (wooCommerceCheckout) {
+		handleCheckout(wooCommerceCheckout);
+		for (const [paymentMethod, paymentType] of Object.entries(methods)) {
+			handleCheckoutMethods(wooCommerceCheckout, paymentMethod, paymentType);
+		}
+	}
+})().catch(error => {
+	console.error('EasyCredit initialization failed:', error);
+});
