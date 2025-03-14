@@ -7,7 +7,6 @@
 
 namespace Netzkollektiv\EasyCredit\Pages;
 
-
 class ReviewPage
 {
 
@@ -118,7 +117,7 @@ class ReviewPage
             if ($key == 'payment_method') {
                 continue;
             }
-            if ($key == 'order_total') {
+            if ($key == 'order_total' && $interest !== null) {
                 $_totals['interest'] = [
                     'label' => __('Interest:', 'wc-easycredit'),
                     'value' => wc_price($interest, ['currency', $order->get_currency()]),
@@ -133,8 +132,12 @@ class ReviewPage
     protected function get_total_including_interest($order)
     {
         $interest = $this->integration->storage()->get('interest_amount');
-
         $total = $order->get_total();
+
+        if ($interest === null) {
+            return $total;
+        }
+
         $order->set_total($total + $interest);
         $_total = $order->get_formatted_order_total();
         $order->set_total($total);

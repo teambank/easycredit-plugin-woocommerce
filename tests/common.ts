@@ -149,11 +149,9 @@ export const confirmOrder = async ({
 				.soft(page.locator(".woocommerce-table--order-details tfoot"))
 				.toContainText("Zinsen für Ratenzahlung");
 		} else {
-			/* waiting for API implementation
 			await expect
 				.soft(page.locator(".woocommerce-table--order-details tfoot"))
 				.not.toContainText("Zinsen für Ratenzahlung");
-			*/
 		}
 
 		await page
