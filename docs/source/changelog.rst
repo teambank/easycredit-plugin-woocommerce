@@ -1,6 +1,27 @@
 Changelog
 =========
 
+3.0.1
+-----
+
+- die Web-Komponenten nutzen nun Event-Delegation (Event: easycredit-submit) zur Verbesserung der Zuverlässigkeit
+- bei variablen Produkten wird der Preis im Ratenrechner-Widget automatisch angepasst, wenn eine andere Variante ausgewählt wird
+- bei Zahlung über Rechnung wird die Zinsposition nicht mehr angezeigt
+- von der API-Library anhängige Bibliotheken werden nun geprefixt, um Konflikte mit anderen Plugins zu vermeiden
+- behebt einen Fehler beim Auslesen der Einstellungen ohne bestehende Konfiguration
+
+2.1.11
+------
+
+- behebt ein Problem durch das der Express-Checkout nicht initialisiert werden konnte
+
+2.1.10
+------
+
+- behebt ein Problem mit der Einbindung der Komponenten als JavaScript-Modulen in Classic Themes
+- die Checkout-Komponente ist nun auch auf der Kundenbezahlungsseite funktional
+- die Checkout-Komponente im Blocks-Checkout wird wieder zurückgesetzt, wenn ein Fehler bei der Validierung auftritt
+
 3.0.0
 -----
 
