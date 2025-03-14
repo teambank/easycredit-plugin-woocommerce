@@ -17,8 +17,8 @@ const methods = {
 	handleMarketingComponents();
 	handleWidget();
 
-	// Handle checkout if form exists
-	const wooCommerceCheckout = document.querySelector("form.woocommerce-checkout");
+	// Handle checkout if checkout form or customer payment page form exists
+	const wooCommerceCheckout = document.querySelector("form.woocommerce-checkout, form#order_review");
 	if (wooCommerceCheckout) {
 		handleCheckout(wooCommerceCheckout);
 		for (const [paymentMethod, paymentType] of Object.entries(methods)) {
