@@ -136,14 +136,16 @@ export const selectAndProceed = async ({
       await page
         .locator("easycredit-checkout-label[payment-type=INSTALLMENT]")
         .click();
-      await page.getByRole("button", { name: "Weiter zu easyCredit-Ratenkauf" }).click();
+      await page.locator("easycredit-checkout")
+        .getByRole("button", { name: "Weiter zu easyCredit-Ratenkauf" })
+        .click();
       return;
     }
     if (paymentType === PaymentTypes.BILL) {
       await page
         .locator("easycredit-checkout-label[payment-type=BILL]")
         .click();
-      await page
+      await page.locator("easycredit-checkout")
         .getByRole("button", { name: "Weiter zu easyCredit-Rechnung" })
         .click();
       return;

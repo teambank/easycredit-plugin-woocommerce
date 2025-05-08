@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-11 11:02+0000\n"
+"POT-Creation-Date: 2025-05-08 10:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -38,9 +38,10 @@ msgstr ""
 msgid "Activate now"
 msgstr ""
 
-#: includes/Plugin.php:509 includes/Plugin.php:516
-#: includes/Gateway/GatewayAbstract.php:275
-#: includes/Gateway/GatewayAbstract.php:282
+#: includes/Plugin.php:503
+#: includes/Plugin.php:510
+#: includes/Gateway/GatewayAbstract.php:279
+#: includes/Gateway/GatewayAbstract.php:286
 #, php-format
 msgid "An error occured while checking your credentials: %s"
 msgstr ""
@@ -82,15 +83,19 @@ msgstr ""
 msgid "Contact form"
 msgstr ""
 
+#: includes/Gateway/Rechnung.php:19
+msgid "Continue to Bill Payment"
+msgstr ""
+
 #: includes/Gateway/Ratenkauf.php:19
 msgid "Continue to pay by installments"
 msgstr ""
 
-#: includes/Gateway/GatewayAbstract.php:401
+#: includes/Gateway/GatewayAbstract.php:402
 msgid "Could not initialize easycredit payment"
 msgstr ""
 
-#: includes/Gateway/GatewayAbstract.php:396
+#: includes/Gateway/GatewayAbstract.php:397
 #, php-format
 msgid "Could not initialize easycredit payment: %s"
 msgstr ""
@@ -99,7 +104,7 @@ msgstr ""
 msgid "Created via express checkout"
 msgstr ""
 
-#: includes/Plugin.php:473
+#: includes/Plugin.php:467
 msgid ""
 "Credentials are valid! Your can now offer easyCredit payment in your store."
 msgstr ""
@@ -140,7 +145,8 @@ msgstr ""
 msgid "Do you have any questions? We are here to help."
 msgstr ""
 
-#: templates/template-intro.php:17 templates/template-marketing.php:25
+#: templates/template-marketing.php:25
+#: templates/template-intro.php:17
 msgid "Documentation"
 msgstr ""
 
@@ -154,12 +160,13 @@ msgstr ""
 msgid "easyCredit for WooCommerce"
 msgstr ""
 
-#: includes/Gateway/GatewayAbstract.php:274
+#: includes/Gateway/GatewayAbstract.php:278
 msgid "easyCredit pamyent credentials are not valid."
 msgstr ""
 
-#: includes/Plugin.php:496 includes/Plugin.php:508
-#: includes/Gateway/GatewayAbstract.php:262
+#: includes/Plugin.php:490
+#: includes/Plugin.php:502
+#: includes/Gateway/GatewayAbstract.php:266
 msgid "easyCredit payment credentials are not valid."
 msgstr ""
 
@@ -225,14 +232,15 @@ msgstr ""
 msgid "https://www.easycredit-ratenkauf.de/"
 msgstr ""
 
-#: includes/Config/FieldProvider.php:138 includes/Config/FieldProvider.php:154
+#: includes/Config/FieldProvider.php:138
+#: includes/Config/FieldProvider.php:154
 #: includes/Config/FieldProvider.php:171
 msgid ""
 "If the widget is not shown in the right place, please enter a selector which "
 "matches your theme."
 msgstr ""
 
-#: includes/Pages/ReviewPage.php:123
+#: includes/Pages/ReviewPage.php:122
 msgid "Interest:"
 msgstr ""
 
@@ -257,7 +265,8 @@ msgid ""
 "page"
 msgstr ""
 
-#: templates/template-marketing.php:4 includes/Config/FieldProvider.php:123
+#: templates/template-marketing.php:4
+#: includes/Config/FieldProvider.php:123
 msgid "Marketing"
 msgstr ""
 
@@ -293,7 +302,8 @@ msgstr ""
 msgid "New"
 msgstr ""
 
-#: includes/Admin/OrderManagement.php:127 includes/Config/FieldProvider.php:272
+#: includes/Config/FieldProvider.php:272
+#: includes/Admin/OrderManagement.php:127
 msgid "Order Management"
 msgstr ""
 
@@ -309,7 +319,7 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
-#: includes/Pages/ReviewPage.php:48
+#: includes/Pages/ReviewPage.php:47
 msgctxt "Page title"
 msgid "Review Order"
 msgstr ""
@@ -318,25 +328,26 @@ msgstr ""
 msgid "Payment Method"
 msgstr ""
 
-#: includes/Gateway/GatewayAbstract.php:414
+#: includes/Gateway/GatewayAbstract.php:415
 msgid "Payment Page URI could not be retrieved"
 msgstr ""
 
-#: includes/Gateway/GatewayAbstract.php:285
+#: includes/Gateway/GatewayAbstract.php:289
 #, php-format
 msgid ""
 "Please enter your credentials in the <a href=\"%s\">plugin settings</a> to "
 "use the easyCredit payment plugin."
 msgstr ""
 
-#: includes/Plugin.php:519
+#: includes/Plugin.php:513
 #, php-format
 msgid ""
 "Please enter your credentials to use the easyCredit payment plugin in the <a "
 "href=\"%s\">plugin settings</a>."
 msgstr ""
 
-#: includes/Plugin.php:497 includes/Gateway/GatewayAbstract.php:263
+#: includes/Plugin.php:491
+#: includes/Gateway/GatewayAbstract.php:267
 #, php-format
 msgid ""
 "Please go to <a href=\"%s\">plugin settings</a> and correct API Key and API "
@@ -378,11 +389,14 @@ msgstr ""
 msgid "Register as a trader"
 msgstr ""
 
+#: includes/Plugin.php:520
+#: templates/template-marketing.php:44
+#: templates/template-marketing.php:61
+#: templates/template-marketing.php:78
+#: templates/template-marketing.php:95
+#: templates/template-marketing.php:112
+#: templates/template-marketing.php:129
 #: templates/template-click-and-collect.php:18
-#: templates/template-marketing.php:44 templates/template-marketing.php:61
-#: templates/template-marketing.php:78 templates/template-marketing.php:95
-#: templates/template-marketing.php:112 templates/template-marketing.php:129
-#: includes/Plugin.php:526
 msgid "Settings"
 msgstr ""
 
@@ -505,7 +519,14 @@ msgid ""
 "and prevents it from being displayed again."
 msgstr ""
 
-#: includes/Plugin.php:462
+#: includes/Compatibility.php:31
+#, php-format
+msgid ""
+"The old version of the easyCredit-Ratenkauf plugin is still present in %s. "
+"Please delete it from your plugins folder to avoid conflicts."
+msgstr ""
+
+#: includes/Plugin.php:456
 msgid "The shipping address cannot be subsequently changed with easyCredit."
 msgstr ""
 
@@ -557,12 +578,12 @@ msgid ""
 "enabled."
 msgstr ""
 
-#: includes/Gateway/GatewayAbstract.php:222
+#: includes/Gateway/GatewayAbstract.php:226
 msgid "Transaction could not be captured"
 msgstr ""
 
-#: includes/Gateway/GatewayAbstract.php:180
-#: includes/Gateway/GatewayAbstract.php:216
+#: includes/Gateway/GatewayAbstract.php:184
+#: includes/Gateway/GatewayAbstract.php:220
 msgid "Transaction not approved"
 msgstr ""
 
@@ -570,7 +591,8 @@ msgstr ""
 msgid "Unlock now"
 msgstr ""
 
-#: includes/Config/FieldProvider.php:205 includes/Config/FieldProvider.php:236
+#: includes/Config/FieldProvider.php:205
+#: includes/Config/FieldProvider.php:236
 #: includes/Config/FieldProvider.php:254
 msgid "Use your own image"
 msgstr ""
@@ -605,7 +627,8 @@ msgstr ""
 msgid "Widget"
 msgstr ""
 
-#: templates/template-intro.php:75 includes/Gateway/Rechnung.php:18
+#: templates/template-intro.php:75
+#: includes/Gateway/Rechnung.php:18
 msgid ""
 "With easyCredit, you can now offer your customers the option of invoice "
 "purchase in addition to the classic installment purchase. The payment term "
@@ -621,7 +644,8 @@ msgid ""
 "ratenkauf.de/click-und-collect/\" target=\"_blank\">Click&Collect form</a>."
 msgstr ""
 
-#: includes/Plugin.php:500 includes/Gateway/GatewayAbstract.php:266
+#: includes/Plugin.php:494
+#: includes/Gateway/GatewayAbstract.php:270
 msgid ""
 "Your credentials are valid, but your account has not been activated yet."
 msgstr ""
