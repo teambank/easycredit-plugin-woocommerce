@@ -326,7 +326,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
 
         $this->plugin->load_template('payment-fields', [
             'easyCredit' => $this,
-            'easyCreditWebshopId' => $this->get_option('api_key'),
+            'easyCreditWebshopId' => $this->plugin->get_option('api_key'),
             'easyCreditAmount' => isset($quote) ? $quote->getOrderDetails()->getOrderValue() : 0,
             'easyCreditError' => $error,
             'easyCreditPaymentType' => $this->PAYMENT_TYPE,
@@ -350,9 +350,6 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
             );
         }
 
-        if ('' === $option) {
-            $option = $this->plugin->get_option($key, $empty_value);
-        }
         return $option;
     }
 
