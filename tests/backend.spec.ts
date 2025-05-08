@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { takeScreenshot, scaleDown, delay } from "./utils";
+import { takeScreenshot, scaleDown, delay, greaterOrEqualsThan } from "./utils";
 
 test.beforeEach(scaleDown);
 test.afterEach(takeScreenshot);
@@ -29,6 +29,11 @@ test("settingsCheck", async ({ page }) => {
 
 test.describe("Check order listing page for merchant widget", () => {
 	test("checkOrderListingPage", async ({ page }) => {
+		if (!greaterOrEqualsThan("7.4.1")) {
+			test.skip();
+			return;
+		}
+
 		await goToOrderList(page);
 
 		await delay(1000);
@@ -47,6 +52,11 @@ test.describe("Check order listing page for merchant widget", () => {
 
 test.describe("Check order detail page for merchant widget, manager & prevent shipping address change", () => {
 	test("checkOrderDetailPage", async ({ page }) => {
+		if (!greaterOrEqualsThan("7.4.1")) {
+			test.skip();
+			return;
+		}
+
 		await goToOrderList(page);
 
 		// go to first order

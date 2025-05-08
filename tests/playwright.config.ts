@@ -4,7 +4,6 @@ import {
 	defineConfig,
 	devices,
 } from "@playwright/test";
-import { seconds } from './utils'
 
 const isBlocksCheckout  = (): boolean => {
   if (!process.env.VERSION) {
@@ -63,7 +62,8 @@ let config: PlaywrightTestConfig = {
 		locale: "de-DE",
 	},
 	retries: process.env.CI ? 2 : 0,
-	timeout: seconds(40),
+	timeout: 40_000,
+	expect: { timeout: 10_000 },
 	projects: projects,
     reporter: [["list", { printSteps: true }], ["html"]]
 };
