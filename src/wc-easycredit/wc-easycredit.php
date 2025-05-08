@@ -78,9 +78,9 @@ if (array_filter(
         }
     });
 
-    add_action('woocommerce_blocks_loaded', 'woocommerce_gateway_easycredit_woocommerce_block_support');
+    add_action('woocommerce_blocks_loaded', 'wc_easycredit_woocommerce_block_support');
 
-    function woocommerce_gateway_easycredit_woocommerce_block_support()
+    function wc_easycredit_woocommerce_block_support()
     {
         if (class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType')) {
             require_once dirname(__FILE__) . '/includes/Methods/Ratenkauf.php';

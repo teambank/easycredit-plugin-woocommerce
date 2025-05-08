@@ -54,6 +54,9 @@ class Plugin
     {
         $plugin = $this;
 
+        // Initialize compatibility checks
+        new Compatibility();
+
         $this->integration = $integration = new Integration(
             $plugin
         );
