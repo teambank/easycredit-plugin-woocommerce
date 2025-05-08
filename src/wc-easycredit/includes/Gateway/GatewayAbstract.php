@@ -41,13 +41,14 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         FieldProvider $fieldProvider,
         TemporaryOrder $temporaryOrderHelper
     ) {
-        $this->_construct();
-
         $this->plugin = $plugin;
         $this->integration = $integration;
         $this->fieldProvider = $fieldProvider;
         $this->temporaryOrderHelper = $temporaryOrderHelper;
 
+        $this->_construct();
+
+        $this->icon = $this->plugin->plugin_url . '/assets/img/easycredit-supersign.svg';
         $this->has_fields = true;
 
         add_action('init', function() {
