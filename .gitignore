@@ -6,6 +6,11 @@ Thumbs.db
 *.zip
 .vscode
 
+# Yarn 2+ (Berry)
+.yarn/cache
+.yarn/install-state.gz
+.yarn/unplugged
+
 # generated dirs
 /src/wc-easycredit/vendor
 node_modules
