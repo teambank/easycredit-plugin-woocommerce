@@ -1,12 +1,18 @@
-DIR="$(cd "$(dirname "$0")"; pwd)";
-cd $DIR/..
+#!/bin/bash
+set -e
 
-[ -d ./build ] || mkdir ./build
-[ -d ./dist ] || mkdir ./dist
-rm -r build/*
+# In das Projektverzeichnis wechseln
+DIR="$(cd "$(dirname "$0")"; pwd)"
+cd "$DIR/.."
 
+# Ordnerstruktur vorbereiten
+mkdir -p build dist
+rm -rf build/*
+
+# Composer-Abhängigkeiten ohne Dev-Pakete installieren
 composer install --no-dev
 
+# Quellcode nach build/ kopieren, bestimmte Dateien und Ordner ausschließen
 rsync -rv \
   --exclude '*backup*' \
   --exclude 'test' \
@@ -17,8 +23,22 @@ rsync -rv \
   --exclude 'merchant-interface' \
  src/* build/
 
-version_statement=$(grep "define('WC_RATENKAUFBYEASYCREDIT_VERSION" src/woocommerce-gateway-ratenkaufbyeasycredit/woocommerce-gateway-ratenkaufbyeasycredit.php)
-version=$(php -r "$version_statement echo WC_RATENKAUFBYEASYCREDIT_VERSION;")
-echo $version
-rm dist/wc-easycredit-$version.zip
-(cd build && zip -r - *) > dist/wc-easycredit-$version.zip
+# Plugin-Version aus PHP-Datei extrahieren
+version_statement=$(grep "define('WC_EASYCREDIT_VERSION" src/wc-easycredit/wc-easycredit.php)
+version=$(php -r "$version_statement echo WC_EASYCREDIT_VERSION;")
+
+# Sicherstellen, dass eine Version gefunden wurde
+if [ -z "$version" ]; then
+  echo "❌ Version konnte nicht extrahiert werden." >&2
+  exit 1
+fi
+
+echo "📦 Version: $version"
+
+# Alte ZIP-Datei löschen, falls vorhanden
+rm -f "dist/wc-easycredit-$version.zip"
+
+# Build-Inhalte zippen und in dist/ ablegen
+(cd build && zip -r "../dist/wc-easycredit-$version.zip" .)
+
+echo "✅ Build abgeschlossen: dist/wc-easycredit-$version.zip"
