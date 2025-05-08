@@ -25,6 +25,7 @@ try {
 
     // Update WooCommerce settings and options
     run('wp option update woocommerce_onboarding_profile \'{"skipped": true}\' --json');
+    run('wp option update woocommerce_coming_soon no');
     run('wp option update woocommerce_task_list_reminder_bar_hidden "yes"');
     run('wp option update woocommerce_task_list_prompt_shown 1');
     run('wp option update woocommerce_show_marketplace_suggestions "no"');
