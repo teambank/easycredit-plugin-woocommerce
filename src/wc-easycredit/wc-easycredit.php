@@ -9,18 +9,18 @@
  * License URI:     https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:     wc-easycredit
  * Domain Path:     /languages
- * Version:         3.0.1
+ * Version:         3.0.2
  * Requires Plugins: woocommerce
  * Requires at least: 4.4
- * Tested up to: 6.5
+ * Tested up to: 6.7
  * WC requires at least: 3.0.0
- * WC tested up to: 9.0.2
+ * WC tested up to: 9.8.2
  *
  */
 
 defined('ABSPATH') or exit;
 
-define('WC_EASYCREDIT_VERSION', '3.0.1');
+define('WC_EASYCREDIT_VERSION', '3.0.2');
 define('WC_EASYCREDIT_ID', 'easycredit');
 
 use Netzkollektiv\EasyCredit\Plugin;

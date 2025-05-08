@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.2
+-----
+
+- ein Zahlungsart-Icon für die neue Zahlartenübersicht von wooCommerce wurde hinzugefügt (Admin)
+- behebt einen Fehler beim Update von altem Plugin-Slug (woocommerce-ratenkaufbyeasycredit-gateway) auf neuen Plugin-Slug (wc-easycredit)
+
 3.0.1
 -----
 
