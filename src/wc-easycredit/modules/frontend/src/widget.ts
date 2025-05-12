@@ -67,7 +67,7 @@ const applyWidget = (container, element, attributes) => {
 			widget.setAttribute(name, value as string);
 		}
 	}
-	element.appendChild(widget);
+	element.parentNode?.insertBefore(widget, element.nextSibling);
 };
 
 export const handleWidget = () => {
@@ -82,9 +82,13 @@ export const handleWidget = () => {
     }
 
     let processedSelector = processSelector(selector);
-    let elements = document.querySelectorAll(processedSelector.selector);
-    elements.forEach((element) => {
-        applyWidget(document, element, processedSelector.attributes);
+    let elements = Array.from(document.querySelectorAll(processedSelector.selector));
+    const visibleElements = elements.filter(el => {
+      const style = window.getComputedStyle(el);
+      return style.visibility !== 'hidden' && style.opacity !== '0';
+    });
+    visibleElements.forEach(element => {
+      applyWidget(document, element, processedSelector.attributes);
     });
 	handleVariationSwitch();
 }
