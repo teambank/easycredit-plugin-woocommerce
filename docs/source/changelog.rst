@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.3
+-----
+
+- Kompatibilität erhöht auf Wordpress 6.8
+- behebt ein Darstellungsproblem des Widgets auf der Produktdetailseite in Firefox
+
 3.0.2
 -----
 
