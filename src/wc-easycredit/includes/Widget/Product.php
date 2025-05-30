@@ -19,7 +19,7 @@ class Product extends WidgetAbstract
         if ($product->get_id()) {
             parent::add_meta_tags($array);
             echo '<meta name="easycredit-widget-selector" content="' . $this->plugin->get_option('widget_selector') . '">';
-            echo '<meta name="easycredit-amount" content="' . $product->get_price() . '">';
+            echo '<meta name="easycredit-amount" content="' . wc_get_price_including_tax($product) . '">';
         }
     }
 

@@ -25,7 +25,7 @@ class ProductListing extends WidgetAbstract
         }
         global $product;
         echo '<div class="easycredit-placeholder"></div>';
-        echo '<meta name="easycredit-amount" content="' . $product->get_price() . '">';
+        echo '<meta name="easycredit-amount" content="' . wc_get_price_including_tax($product) . '">';
     }
 
     public function add_meta_tags($array)

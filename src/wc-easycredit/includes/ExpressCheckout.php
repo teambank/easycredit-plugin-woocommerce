@@ -126,7 +126,7 @@ class ExpressCheckout
         $post = get_post();
 
         $product = new \WC_Product($post->ID);
-        $amount = $product->get_price();
+        $amount = wc_get_price_including_tax($product);
         if ($product->is_type('variable')) {
             $amount = 1;  // default display has no selection, do not show button implicitly
         }
