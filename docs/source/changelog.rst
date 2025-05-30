@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.0.4
+-----
+
+- Widget & Express Checkout verwenden nun den Preis inklusive Steuern, wenn Netto-Preise gepflegt sind
+
 3.0.3
 -----
 
