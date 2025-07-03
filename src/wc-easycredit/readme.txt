@@ -1,6 +1,6 @@
-=== easyCredit Rechnung & Ratenkauf for wooCommerce ===
-Contributors: easycredit, ratenkaufbyeasycredit, netzkollektiv, easycredit-ratenkauf, easycredit-rechnungskauf
-Tags: payment, woocommerce, ratenkauf, pay by installments, easycredit, pay later
+=== Invoice and Partial Payments for Woocommerce – easyCredit Business Services ===
+Contributors: easycredit, ratenkaufbyeasycredit, netzkollektiv, easycredit-ratenkauf, easycredit-rechnung
+Tags: payment, woocommerce, ratenkauf, pay by installments, easycredit, pay later, bill payment
 Requires at least: 4.4
 Tested up to: 6.8
 Requires PHP: 7.0
@@ -10,9 +10,34 @@ Stable tag: 3.0.4
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
-easyCredit-Ratenkauf is the easiest and fastest installment payment solution of Germany. Join today to get the simplest way of partial payment for your POS and E-Commerce. easyCredit-Ratenkauf gives you the opportunity to offer installments as an additional payment method in your German WooCommerce store.
+Business Services from easyCredit - your partner for invoice and installment purchase. We offer your customers flexible, transparent and secure payment options. You get access to a leading range of installment and invoice options that boost your sales and increase customer satisfaction. Awarded as “Leader Payment” by OMR Reviews in Q1/25.
 
-== Description ==
-easyCredit-Ratenkauf is the easiest and fastest installment payment solution of Germany. Join today to get the simplest way of partial payment for your POS and E-Commerce. easyCredit-Ratenkauf gives you the opportunity to offer installments as an additional payment method in your German WooCommerce store.
+Expand your payment offering with easyCredit-Ratenkauf and easyCredit-Rechnung in your German WooCommerce store. Rely on our many years of experience in liquidity management and the proven high level of customer satisfaction with easyCredit.
 
-Traditional financing solutions are often connected with complicated application processes for customers. With easyCredit-Ratenkauf you can offer a simple, fully online and fast financing solution. Customers can use 'easyCredit-Ratenkauf' in just a few steps: choose their purchases, calculate their preferred installments, enter their personal data, and pay. No paperwork, immediate approval, and complete flexibility throughout. Simple. Fair. Paying in installments with 'easyCredit-Ratenkauf'.
+# Product Overview
+
+## easyCredit-Ratenkauf
+
+- For basket values from **200 euros to 10,000 euros**
+- Selectable terms from **2 to 60 months**
+
+## easyCredit-Rechnung
+
+- For basket values from **50 euros to 5,000 euros**
+- Fast payout for you despite a **30-day payment break** for your customers
+
+---
+
+## Your Advantages
+
+- **Easy** – One plugin for both payment methods  
+- **Fair** – Simple, transparent pricing model  
+- **Secure** – We assume the full default risk
+
+---
+
+## Advantages for Your Customers
+
+- **Fast** – Immediate decision in the payment process  
+- **Easy** – Direct online completion – no app or login needed  
+- **Flexible** – Early repayment of the installment purchase possible
