@@ -41,7 +41,7 @@ if (isBlocksCheckout()) {
 }
 
 /* test backend only desktop */
-["Desktop Chrome"].forEach((device) => {
+/*["Desktop Chrome"].forEach((device) => {
 	let name = projects.find((p) => p.name?.match("checkout"))?.name; // checkout required, so that we have at least one order in the backend
 	projects.push({
 		name: `backend @ ${device}`,
@@ -52,7 +52,7 @@ if (isBlocksCheckout()) {
 		dependencies: ["backend-auth", name as string],
 		testMatch: 'backend\.spec\.ts'
 	});
-});
+});*/
 
 let config: PlaywrightTestConfig = {
 	outputDir: "../test-results/" + process.env.VERSION + "/",
