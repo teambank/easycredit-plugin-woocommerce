@@ -1,6 +1,14 @@
 import { test } from '@playwright/test';
 import { takeScreenshot, scaleDown } from "./utils";
-import { goToProduct, goToCart, fillBlocksCheckout, selectAndProceed, goThroughPaymentPage, confirmOrder  } from './common';
+import {
+	goToProduct,
+	goToCart,
+	fillBlocksCheckout,
+	selectAndProceed,
+	goThroughPaymentPage,
+	startExpress, 
+	confirmOrder
+} from "./common";
 import { PaymentTypes } from "./types";
 
 test.beforeEach(scaleDown)
@@ -63,13 +71,7 @@ test.describe("go through @express blocks checkout @installment", () => {
 		await page.getByRole("button", { name: "In den Warenkorb" }).click();
 
 		await goToCart(page);
-
-		await page
-			.locator("a")
-			.filter({ hasText: "Direkt in Raten" })
-			.first()
-			.click();
-		await page.getByText("Akzeptieren", { exact: true }).click();
+		await startExpress({ page, paymentType: PaymentTypes.INSTALLMENT });
 
 		await goThroughPaymentPage({
 			page: page,
@@ -90,11 +92,7 @@ test.describe("go through @express blocks checkout @bill", () => {
 
 		await goToCart(page);
 
-		await page
-			.locator("a")
-			.filter({ hasText: "In 30 Tagen zahlen" })
-			.click();
-		await page.getByText("Akzeptieren", { exact: true }).click();
+		await startExpress({ page, paymentType: PaymentTypes.BILL });
 
 		await goThroughPaymentPage({
 			page: page,

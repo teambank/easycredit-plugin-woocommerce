@@ -46,82 +46,108 @@ export const fillBlocksCheckout = async (page) => {
 		.fill("012345678");
 };
 
-export const goThroughPaymentPage = async ({
-  page,
-  paymentType,
-  express = false,
-  switchPaymentType = false,
+export const startExpress = async ({
+	page,
+	paymentType,
 }: {
-  page: any;
-  paymentType: PaymentTypes;
-  express?: boolean;
-  switchPaymentType?: boolean;
+	page: any;
+	paymentType: PaymentTypes;
 }) => {
-  await test.step(`easyCredit Payment (${paymentType})`, async () => {
-    await page.getByTestId("uc-deny-all-button").click();
+	await test.step(`Start express checkout (${paymentType})`, async () => {
+		if (paymentType === PaymentTypes.INSTALLMENT) {
+			await page
+				.locator("button")
+				.filter({ hasText: "in Raten" })
+				.click();
+			await page.getByText("Akzeptieren", { exact: true }).click();
+		}
+		if (paymentType === PaymentTypes.BILL) {
+			await page
+				.locator("button")
+				.filter({ hasText: "heute bestellen" })
+				.click();
+			await page.getByText("Akzeptieren", { exact: true }).click();
+		}
+	});
+};
 
-    await expect(
-      page.getByRole("heading", {
-        name:
-          paymentType === PaymentTypes.INSTALLMENT
-            ? "Monatliche Wunschrate"
-            : "Ihre Bezahloptionen",
-      })
-    ).toBeVisible();
+export const goThroughPaymentPage = async ({
+	page,
+	paymentType,
+	express = false,
+	switchPaymentType = false,
+}: {
+	page: any;
+	paymentType: PaymentTypes;
+	express?: boolean;
+	switchPaymentType?: boolean;
+}) => {
+	await test.step(`easyCredit Payment (${paymentType})`, async () => {
+		await page.getByTestId("uc-deny-all-button").click();
 
-    if (switchPaymentType) {
-      await page
-        .locator(".paymentoptions")
-        .getByText(
-          paymentType === PaymentTypes.INSTALLMENT ? "Rechnung" : "Ratenkauf"
-        )
-        .click();
-    }
+		await expect(
+			page.getByRole("heading", {
+				name:
+					paymentType === PaymentTypes.INSTALLMENT
+						? "Monatliche Wunschrate"
+						: "Ihre Bezahloptionen",
+			})
+		).toBeVisible();
 
-    await page.getByRole("button", { name: "Weiter zur Dateneingabe" }).click();
+		if (switchPaymentType) {
+			const switchButton = await page
+				.locator(".paymentoptions")
+				.getByText(
+					paymentType === PaymentTypes.INSTALLMENT
+						? "Rechnung"
+						: "Ratenkauf"
+				);
+			await expect(switchButton).toBeVisible();
+			await switchButton.click({ force: true });
+		}
 
-    if (express) {
-      await page.locator("#firstName").fill(randomize("Ralf"));
-      await page.locator("#lastName").fill("Ratenkauf");
-    }
+		await page.getByRole("button", { name: "Dateneingabe" }).click();
 
-    await page.locator("#dateOfBirth").fill("05.04.1972");
+		if (express) {
+			await page.locator("#firstName").fill(randomize("Ralf"));
+			await page.locator("#lastName").fill("Ratenkauf");
+		}
 
-    if (express) {
-      await page
-        .locator("#email")
-        .getByRole("textbox")
-        .fill("ralf.ratenkauf@teambank.de");
-    }
+		await page.locator("#dateOfBirth").fill("05.04.1972");
 
-    await page
-      .locator("#mobilfunknummer")
-      .getByRole("textbox")
-      .fill("1703404848");
-    await page
-      .locator("app-ratenkauf-iban-input-dumb")
-      .getByRole("textbox")
-      .fill("DE12500105170648489890");
+		if (express) {
+			await page
+				.locator("#email")
+				.getByRole("textbox")
+				.fill("ralf.ratenkauf@teambank.de");
+		}
 
-    if (express) {
-      await page.locator("#streetAndNumber").fill("Beuthener Str. 25");
-      await page.locator("#postalCode").fill("90402");
-      await page.locator("#city").fill("Nürnberg");
-    }
+		await page
+			.locator("#mobilfunknummer")
+			.getByRole("textbox")
+			.fill("1703404848");
+		await page
+			.locator("app-ratenkauf-iban-input-dumb")
+			.getByRole("textbox")
+			.fill("DE12500105170648489890");
 
-    await page.locator("#agreeSepa").click();
+		if (express) {
+			await page.locator("#streetAndNumber").fill("Beuthener Str. 25");
+			await page.locator("#postalCode").fill("90402");
+			await page.locator("#city").fill("Nürnberg");
+		}
 
-    await delay(500);
+		await page.locator("#sepamandat tbk-svg-icon").click();
 
-    await clickWithRetry(
-      page.getByRole("button", { name: "Zahlungswunsch prüfen" })
-    );
+		await delay(1000);
 
-    await delay(500);
-    await page
-      .getByRole("button", { name: "Zahlungswunsch übernehmen" })
-      .click();
-  });
+		await page.locator("#next-btn").click();
+
+		await delay(500);
+		await clickWithRetry(
+			page.getByRole("button", { name: "Zahlung übernehmen" })
+		);
+	});
 };
 
 export const selectAndProceed = async ({

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { randomize, takeScreenshot, scaleDown } from "./utils";
-import { goToProduct, fillClassicCheckout, goThroughPaymentPage, confirmOrder, selectAndProceed } from "./common";
+import { goToProduct, fillClassicCheckout, goThroughPaymentPage, confirmOrder, selectAndProceed, startExpress } from "./common";
 import { PaymentTypes } from "./types";
 
 test.beforeEach(scaleDown);
@@ -60,11 +60,7 @@ test.describe("Go through @express @installment", () => {
 	test("expressCheckoutInstallments", async ({ page }) => {
 		await goToProduct(page);
 
-		await page
-			.locator("a")
-			.filter({ hasText: "Direkt in Raten zahlen" })
-			.click();
-		await page.getByText("Akzeptieren", { exact: true }).click();
+		await startExpress({ page, paymentType: PaymentTypes.INSTALLMENT });
 
 		await goThroughPaymentPage({
 			page: page,
@@ -82,11 +78,7 @@ test.describe("go through @express @bill", () => {
 	test("expressCheckoutBill", async ({ page }) => {
 		await goToProduct(page);
 
-		await page
-			.locator("a")
-			.filter({ hasText: "In 30 Tagen zahlen" })
-			.click();
-		await page.getByText("Akzeptieren", { exact: true }).click();
+		await startExpress({ page, paymentType: PaymentTypes.BILL });
 
 		await goThroughPaymentPage({
 			page: page,
@@ -117,11 +109,7 @@ test.describe("Go through @express @installment with variable product ", () => {
 		await page.getByLabel("Size").selectOption("small");
 		await expect(page.locator("easycredit-express-button")).toBeVisible();
 
-		await page
-			.locator("a")
-			.filter({ hasText: "Direkt in Raten zahlen" })
-			.click();
-		await page.getByText("Akzeptieren", { exact: true }).click();
+		await startExpress({ page, paymentType: PaymentTypes.INSTALLMENT });
 
 		await goThroughPaymentPage({
 			page: page,

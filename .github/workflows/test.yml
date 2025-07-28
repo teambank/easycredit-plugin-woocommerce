@@ -43,6 +43,9 @@ jobs:
           - php-version: "8.4"
             wordpress-version: "6.8"
             woocommerce-version: "9.8.2"
+          - php-version: "8.4"
+            wordpress-version: "6.8"
+            woocommerce-version: "10.0.2"
 
     name: woo v${{ matrix.woocommerce-version }}, wp v${{ matrix.wordpress-version }} @ php v${{ matrix.php-version }}
 
