@@ -156,7 +156,7 @@ class ExpressCheckout
         ></easycredit-express-button>';
     }
 
-    protected function payment_types_to_be_displayed_at_product()
+    protected function payment_types_to_be_displayed_at_product(): array
     {
         $post = get_post();
 
@@ -171,19 +171,19 @@ class ExpressCheckout
         return $this->get_enabled_payment_types('express_checkout_detail_enabled');
     }
 
-    protected function payment_types_to_be_displayed_in_cart()
+    protected function payment_types_to_be_displayed_in_cart(): array
     {
         if (
             trim($this->plugin->get_option('api_key')) == '' ||
             WC()->cart->get_total('raw') === 0 ||
             !is_cart()
         ) {
-            return false;
+            return [];
         }
         return $this->get_enabled_payment_types('express_checkout_cart_enabled');
     }
 
-    protected function get_enabled_payment_types($configKey)
+    protected function get_enabled_payment_types($configKey): array
     {
         return array_filter(array_map(function ($method) use ($configKey) {
             return $this->plugin->get_option($configKey) === 'yes' &&
