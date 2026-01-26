@@ -7,4 +7,12 @@
 /** @var string $easyCreditPaymentType */
 
 $id = esc_attr($easyCredit->id); ?>
-<easycredit-checkout webshop-id="<?php echo $easyCreditWebshopId; ?>" payment-type="<?php echo $easyCreditPaymentType; ?>" alert="<?php echo $easyCreditError; ?>" amount="<?php echo $easyCreditAmount; ?>" is-active="true" />
+<easycredit-checkout
+    webshop-id="<?php echo $easyCreditWebshopId; ?>"
+    payment-type="<?php echo $easyCreditPaymentType; ?>"
+    alert="<?php echo $easyCreditError; ?>"
+    amount="<?php echo $easyCreditAmount; ?>"
+    <?php if (isset($easyCreditPaymentPlan) && $easyCreditPaymentPlan): ?>
+    payment-plan="<?php echo htmlentities($easyCreditPaymentPlan, ENT_QUOTES, 'UTF-8'); ?>"
+    <?php endif; ?>
+    is-active="true" />

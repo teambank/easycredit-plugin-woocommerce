@@ -83,6 +83,10 @@ jobs:
           php -i
           env
           node -v
+      - name: Install Dependencies
+        run: |
+          npm install --global pnpm
+          npm install --frozen-lockfile
       - name: Install Wordpress & wooCommerce
         run: | 
           node -e 'console.log(JSON.stringify({"core": "WordPress/WordPress#${{ matrix.wordpress-version }}", "phpVersion": "${{ matrix.php-version }}", "lifecycleScripts":{}}, null, 2));' > .wp-env.override.json
@@ -105,17 +109,13 @@ jobs:
         run: | 
           cd $PLUGIN_DIR
           php vendor/bin/phpstan analyze .
-      - name: Install Dependencies
-        run: |
-          npm install --global yarn
-          yarn install --frozen-lockfile
       - name: Setup Playwright
-        run: yarn playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium
       - name: Playwright E2E Tests
         run: |
           cd $GITHUB_WORKSPACE
 
-          VERSION=${{ matrix.woocommerce-version }} BASE_URL=http://localhost:8888 yarn playwright test -c tests/
+          VERSION=${{ matrix.woocommerce-version }} BASE_URL=http://localhost:8888 npx playwright test -c tests/
       - name: Save Logs for Debugging
         if: always()
         run: |

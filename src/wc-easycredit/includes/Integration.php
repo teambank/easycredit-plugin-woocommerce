@@ -16,10 +16,10 @@ class Integration
     protected $logger;
 
     protected $storage;
-    
+
     protected $config;
 
-    public function __construct (
+    public function __construct(
         Plugin $plugin
     ) {
         $this->plugin = $plugin;
@@ -87,6 +87,14 @@ class Integration
     public function quote_builder()
     {
         return new \Netzkollektiv\EasyCredit\Api\QuoteBuilder(
+            $this->plugin,
+            $this->storage()
+        );
+    }
+
+    public function order_builder()
+    {
+        return new \Netzkollektiv\EasyCredit\Api\OrderBuilder(
             $this->plugin,
             $this->storage()
         );

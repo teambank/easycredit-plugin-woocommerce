@@ -64,8 +64,10 @@ class ExpressCheckout
         }
     }
 
-    public function create_order($transaction)
+    public function import_data_from_transaction($transactionInfo)
     {
+        $transaction = $transactionInfo->getTransaction();
+
         $updateAddress = function ($address, $type = 'billing') {
             $fields = [
                 'first_name' => $address->getFirstName(),
@@ -81,39 +83,19 @@ class ExpressCheckout
                 WC()->customer->{"set_{$type}_{$field}"}($value);
             });
         };
-        $updateAddress($transaction->getTransaction()->getOrderDetails()->getInvoiceAddress());
-        $updateAddress($transaction->getTransaction()->getOrderDetails()->getShippingAddress(), 'shipping');
+        $updateAddress($transaction->getOrderDetails()->getInvoiceAddress());
+        $updateAddress($transaction->getOrderDetails()->getShippingAddress(), 'shipping');
 
-        $contact = $transaction->getTransaction()->getCustomer()->getContact();
-        WC()->customer->set_billing_phone($contact->getMobilePhoneNumber());
+        $contact = $transaction->getCustomer()->getContact();
+        if (!empty($contact->getMobilePhoneNumber())) {
+            WC()->customer->set_billing_phone($contact->getMobilePhoneNumber());
+        }
         WC()->customer->set_billing_email($contact->getEmail());
         WC()->customer->save();
 
-        $order_data = [];
-        foreach (['billing', 'shipping'] as $prefix) {
-            array_walk(WC()->customer->get_data()[$prefix], function ($value, $field) use (&$order_data, $prefix) {
-                $order_data[$prefix . '_' . $field] = $value;
-            });
-        }
-
-        $order = new \WC_Order();
-        $order->set_created_via('easycredit-express-checkout');
-        $order->add_order_note(__('Created via express checkout', 'wc-easycredit'));
-        $order->set_payment_method(
-            $this->plugin->get_method_by_payment_type($transaction->getTransaction()->getPaymentType())
-        );
-
-        if (class_exists(OrderController::class)) {
-            $orderController = new OrderController();
-            $orderController->update_order_from_cart($order);
-        } elseif (class_exists(LegacyOrderController::class)) {
-            $orderController = new LegacyOrderController();
-            $orderController->update_order_from_cart($order);
-        }
-
         $this->integration->storage()
-            ->set('order_id', $order->get_id())
             ->set('express', false);
+        $this->integration->checkout()->finalizeExpress($transaction);
     }
 
     public function add_button_at_product()

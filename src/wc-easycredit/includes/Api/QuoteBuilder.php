@@ -11,112 +11,119 @@ use Teambank\EasyCreditApiV3\Model\InvoiceAddress;
 use Teambank\EasyCreditApiV3\Model\ShippingAddress;
 use Teambank\EasyCreditApiV3\Model\Transaction;
 
-use Netzkollektiv\EasyCredit\Plugin;
-use Netzkollektiv\EasyCredit\Pages\ReviewPage;
-
-class QuoteBuilder
+class QuoteBuilder extends TransactionBuilderAbstract
 {
-    protected $plugin;
-    protected $storage;
-    protected $systemBuilder;
-    protected $addressBuilder;
-    protected $customerBuilder;
-    protected $itemBuilder;
-
-    protected $quote;
-    protected $customer;
-
-    public function __construct(
-        Plugin $plugin,
-        Storage $storage
-    ) {
-        $this->plugin = $plugin;
-        $this->storage = $storage;
-
-        $this->systemBuilder = new SystemBuilder();
-        $this->addressBuilder = new Quote\AddressBuilder();
-        $this->customerBuilder = new Quote\CustomerBuilder();
-        $this->itemBuilder = new Quote\ItemBuilder();
-    }
+    protected $cart;
 
     public function getId()
     {
-        return $this->quote->get_order_key();
+        return (string) $this->cart->get_cart_hash();
     }
 
     public function getPaymentType()
     {
-        return $this->plugin->get_payment_type_by_method($this->quote->get_payment_method()) . '_PAYMENT';
+        $paymentMethod = WC()->session->get('chosen_payment_method');
+        return $this->plugin->get_payment_type_by_method($paymentMethod) . '_PAYMENT';
     }
 
     public function getShippingMethod()
     {
-        $shippingItem = \current($this->quote->get_items('shipping'));
-        if ($shippingItem instanceof \WC_Order_Item_Shipping) {
-            $shippingMethod = $shippingItem->get_name();
-            if ($this->getIsClickAndCollect()) {
-                $shippingMethod = '[Selbstabholung] ' . $shippingMethod;
+        // For WC_Cart, get shipping method from session
+        if (WC()->session) {
+            $chosen_shipping_methods = WC()->session->get('chosen_shipping_methods');
+            if (!empty($chosen_shipping_methods)) {
+                $shipping_method_id = \current($chosen_shipping_methods);
+                $packages = WC()->shipping()->get_packages();
+                if (!empty($packages)) {
+                    $available_methods = \current($packages)['rates'] ?? [];
+                    if (isset($available_methods[$shipping_method_id])) {
+                        $shippingMethod = $available_methods[$shipping_method_id]->get_label();
+                        if ($this->getIsClickAndCollect()) {
+                            $shippingMethod = '[Selbstabholung] ' . $shippingMethod;
+                        }
+                        return $shippingMethod;
+                    }
+                }
             }
-            return $shippingMethod;
         }
+        return null;
     }
 
     public function getIsClickAndCollect()
     {
-        $shippingItem = \current($this->quote->get_items('shipping'));
-        if ($shippingItem instanceof \WC_Order_Item_Shipping) {
-            return $shippingItem->get_method_id() == $this->plugin->get_option('clickandcollect_shipping_method');
+        // For WC_Cart, get shipping method from session
+        if (WC()->session) {
+            $chosen_shipping_methods = WC()->session->get('chosen_shipping_methods');
+            if (!empty($chosen_shipping_methods)) {
+                $shipping_method_id = \current($chosen_shipping_methods);
+                // Extract method ID (format is usually "method_id:instance_id")
+                $method_parts = \explode(':', $shipping_method_id);
+                $method_id = $method_parts[0];
+                return $method_id == $this->plugin->get_option('clickandcollect_shipping_method');
+            }
         }
-    }
-
-    public function getFinancingTerm(): ?string
-    {
-        return (string) intval($this->storage->get('numberOfInstallments'));
+        return false;
     }
 
     public function getGrandTotal()
     {
-        return $this->quote->get_total();
-    }
-
-    public function isLoggedIn()
-    {
-        return ($this->customer !== false && $this->customer->get_id());
+        return $this->cart->get_total(null);
     }
 
     public function getInvoiceAddress()
     {
-        $address = $this->quote->get_address('billing');
-        if (!\array_filter($address) && $this->isLoggedIn()) {
+        // For WC_Cart, get address from WC()->customer which has the current checkout values
+        $address = [];
+        if (WC()->customer) {
+            $address = WC()->customer->get_billing();
+        }
+
+        // Fallback to stored customer data if WC()->customer doesn't have address
+        if (empty(\array_filter($address)) && $this->isLoggedIn()) {
             $address = $this->customer->get_billing();
         }
 
         return $this->addressBuilder
-            ->setAddress(new InvoiceAddress())
+            ->setAddress(new InvoiceAddress(null))
             ->build($address);
     }
 
     public function getShippingAddress()
     {
+        $postData = [];
+        if (isset($_POST['post_data'])) {
+            \parse_str($_POST['post_data'], $postData);
+        } else {
+            $postData = $_POST;
+        }
+
+        $ship_to_different_address = ! empty($postData['ship_to_different_address']) && ! \wc_ship_to_billing_address_only();
+
         $_key = 'billing';
-        if ($this->quote->get_meta('ship_to_different_address')) {
+        if ($ship_to_different_address) {
             $_key = 'shipping';
         }
 
-        $address = $this->quote->get_address($_key);
-        if (!\array_filter($address) && $this->isLoggedIn()) {
+        // Get address from WC()->customer which has the current checkout values
+        $address = [];
+        if (WC()->customer) {
+            $address = ($_key == 'billing') ? WC()->customer->get_billing() : WC()->customer->get_shipping();
+        }
+
+        // Fallback to stored customer data if WC()->customer doesn't have address
+        if (empty(\array_filter($address)) && $this->isLoggedIn()) {
             $address = ($_key == 'billing') ? $this->customer->get_billing() : $this->customer->get_shipping();
         }
 
         return $this->addressBuilder
-            ->setAddress(new ShippingAddress())
+            ->setAddress(new ShippingAddress(null))
             ->build($address);
     }
 
     public function getCustomer()
     {
         return $this->customerBuilder->build(
-            $this->quote,
+            $this->cart,
             $this->customer
         );
     }
@@ -124,106 +131,25 @@ class QuoteBuilder
     public function getItems()
     {
         return $this->_getItems(
-            $this->quote->get_items()
+            $this->cart->get_cart_contents()
         );
     }
 
-    public function getSystem()
+
+    public function build(): Transaction
     {
-        return $this->systemBuilder->build();
-    }
+        $this->cart = WC()->cart;
+        $this->customer = $this->cart->get_customer();
 
-    public function getOrderCount()
-    {
-        if (!$this->isLoggedIn()) {
-            return 0;
-        }
-
-        $query = new \WP_Query();
-        $query->query([
-            'numberposts' => -1,
-            'meta_key' => '_customer_user',
-            'meta_value' => $this->customer->get_id(),
-            'post_type' => \wc_get_order_types(),
-            'post_status' => \array_keys(\wc_get_order_statuses()),
-        ]);
-        return $query->found_posts;
-    }
-
-    public function build(\WC_Order $order): Transaction
-    {
-        $this->quote = $order;
-        $this->customer = new \WC_Customer($order->get_user_id());
-
-        $transaction =  new Transaction([
-            'financingTerm' => $this->getFinancingTerm(),
-            'paymentType' => $this->getPaymentType(),
-            'paymentSwitchPossible' => count($this->plugin->get_enabled_payment_methods()) > 1, // Switch between installment & bill payment should be possible if both methods are enabled
-            'orderDetails' => new \Teambank\EasyCreditApiV3\Model\OrderDetails([
-                'orderValue' => $this->getGrandTotal(),
-                'orderId' => $this->getId(),
-                'numberOfProductsInShoppingCart' => \count($this->getItems()),
-                'invoiceAddress' => $this->isExpress() ? null : $this->getInvoiceAddress(),
-                'shippingAddress' => $this->isExpress() ? null : $this->getShippingAddress(),
-                'shoppingCartInformation' => $this->getItems(),
-            ]),
-            'shopsystem' => $this->getSystem(),
-            'customer' => $this->getCustomer(),
-            'customerRelationship' => new \Teambank\EasyCreditApiV3\Model\CustomerRelationship([
-                'customerSince' => ($this->customer->get_date_created() instanceof \WC_DateTime) ? $this->customer->get_date_created()->format('Y-m-d') : null,
-                'orderDoneWithLogin' => $this->isLoggedIn(),
-                'numberOfOrders' => $this->getOrderCount(),
-                'logisticsServiceProvider' => $this->getShippingMethod(),
-            ]),
-            'redirectLinks' => $this->getRedirectLinks(),
-        ]);
+        $transaction = $this->buildTransaction();
         $transaction = apply_filters('easycredit_quotebuilder_filter_transaction', $transaction);
 
         return $transaction;
     }
 
-    protected function _getItems(array $items): array
+    protected function getCancelUrl()
     {
-        $_items = [];
-        foreach ($items as $item) {
-            $quoteItem = $this->itemBuilder->build($item);
-            if ($quoteItem->getPrice() <= 0) {
-                continue;
-            }
-            $_items[] = $quoteItem;
-        }
-
-        return $_items;
-    }
-
-    protected function getCancelUrl($order)
-    {
-        $uri = $order->get_cancel_endpoint();
-        if ($order->get_id() > 0) {
-            return \add_query_arg(
-                [
-                    'cancel_order' => 'true',
-                    'order' => $order->get_order_key(),
-                    'order_id' => $order->get_id(),
-                    '_wpnonce' => \wp_create_nonce('woocommerce-cancel_order'),
-                ],
-                $uri
-            );
-        }
-        return \esc_url_raw($uri);
-    }
-
-    protected function getRedirectLinks()
-    {
-        return new \Teambank\EasyCreditApiV3\Model\RedirectLinks([
-            'urlSuccess' => \get_permalink(\get_option(ReviewPage::PAGE_ID)),
-            'urlCancellation' => $this->getCancelUrl($this->quote),
-            'urlDenial' => $this->getCancelUrl($this->quote)
-        ]);
-    }
-
-    protected function isExpress()
-    {
-        return $this->storage->get('express');
+        // For WC_Cart, return cart URL as cancellation URL
+        return \esc_url_raw(\wc_get_checkout_url());
     }
 }

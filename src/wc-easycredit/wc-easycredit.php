@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name:     easyCredit for WooCommerce
  * Plugin URI:      https://www.easycredit-ratenkauf.de/
@@ -53,58 +54,28 @@ function wc_easycredit()
 
     return $plugin;
 }
-
-function easyCreditCheckForWooCommerce($plugin)
+function is_woocommerce_plugin($plugin)
 {
-    return preg_match('/^woocommerce[\-\.0-9]*\/woocommerce.php$/', $plugin);
-}
+    $pattern = '/^woocommerce[\-\.0-9]*\/woocommerce.php$/';
 
-$sitewidePlugins = is_array(get_site_option('active_sitewide_plugins')) ? get_site_option('active_sitewide_plugins') : [];
-if (array_filter(
-    array_merge(
-        apply_filters('active_plugins', get_option('active_plugins')),
-        array_keys($sitewidePlugins)
-    ),
-    'easyCreditCheckForWooCommerce',
-    ARRAY_FILTER_USE_BOTH
-)) {
-    // Declare HPOS compatibility
-    add_action('before_woocommerce_init', function () {
-        if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
-            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
-        }
-        if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
-            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, true);
-        }
-    });
-
-    add_action('woocommerce_blocks_loaded', 'wc_easycredit_woocommerce_block_support');
-
-    function wc_easycredit_woocommerce_block_support()
-    {
-        if (class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType')) {
-            require_once dirname(__FILE__) . '/includes/Methods/Ratenkauf.php';
-            require_once dirname(__FILE__) . '/includes/Methods/Rechnung.php';
-
-            add_action('woocommerce_blocks_payment_method_type_registration', function (Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry) {
-                $container = Automattic\WooCommerce\Blocks\Package::container();
-
-                $container->register(Netzkollektiv\EasyCredit\Methods\Ratenkauf::class, function () {
-                    return new Netzkollektiv\EasyCredit\Methods\Ratenkauf(__FILE__);
-                });
-                $payment_method_registry->register(
-                    $container->get(Netzkollektiv\EasyCredit\Methods\Ratenkauf::class)
-                );
-
-                $container->register(Netzkollektiv\EasyCredit\Methods\Rechnung::class, function () {
-                    return new Netzkollektiv\EasyCredit\Methods\Rechnung(__FILE__);
-                });
-                $payment_method_registry->register(
-                    $container->get(Netzkollektiv\EasyCredit\Methods\Rechnung::class)
-                );
-            }, 5);
-        }
+    if (!preg_match($pattern, $plugin)) {
+        return false;
     }
 
-    wc_easycredit()->maybe_run();
+    return file_exists(WP_PLUGIN_DIR . '/' . $plugin);
 }
+
+function is_woocommerce_active()
+{
+    $activePlugins = apply_filters('active_plugins', get_option('active_plugins', []));
+    $sitewidePlugins = get_site_option('active_sitewide_plugins', []);
+
+    $allActivePlugins = array_merge($activePlugins, array_keys($sitewidePlugins));
+    return !empty(array_filter($allActivePlugins, 'is_woocommerce_plugin', ARRAY_FILTER_USE_BOTH));
+}
+
+if (!is_woocommerce_active()) {
+    return;
+}
+
+wc_easycredit()->maybe_run();

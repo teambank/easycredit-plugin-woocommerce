@@ -12,9 +12,14 @@ class AbstractMethod extends AbstractPaymentMethodType
 
     protected $method_settings = null;
 
-    public function __construct($plugin_file)
+    protected $integration = null;
+
+    protected $place_order_button_label;
+
+    public function __construct($plugin_file, $integration = null)
     {
         $this->plugin_file = $plugin_file;
+        $this->integration = $integration;
     }
 
     public function initialize()
@@ -62,14 +67,25 @@ class AbstractMethod extends AbstractPaymentMethodType
 
     public function get_payment_method_data()
     {
-        return [
+        $method_data = [
             'id'          => $this->name,
             'title'       => $this->method_settings['title'] ?? '',
             'description' => $this->method_settings['description'] ?? '',
             'supports'    => ['products'],
             'enabled'     => $this->is_active(),
             'apiKey'      => $this->settings['api_key'],
-            'expressUrl'  => get_site_url(null, 'easycredit/express')
+            'expressUrl'  => get_site_url(null, 'easycredit/express'),
+            'placeOrderButtonLabel' => $this->place_order_button_label
         ];
+
+        $payment_plan = $this->integration ? $this->integration->storage()->get('summary') : null;
+
+        // Only add easycredit-selection as required feature if payment plan exists and this is the currently selected payment method
+        if ($payment_plan && WC()->session->get('chosen_payment_method') === $this->name) {
+            $method_data['supports'][] = 'easycredit_selection';
+            $method_data['paymentPlan'] = $payment_plan;
+        }
+
+        return $method_data;
     }
 }
