@@ -10,8 +10,7 @@ import {
 	confirmOrder,
 	addCurrentProductToCart,
 	checkAddressInvalidation,
-	checkAmountInvalidation,
-	registerAndLoginCustomer,
+	checkAmountInvalidation
 } from "./common";
 import { PaymentTypes } from "./types";
 
@@ -107,6 +106,8 @@ test.describe("go through @express blocks checkout @bill", () => {
 		});
 	});
 });
+
+
 
 /*test.describe("go through standard @installment and switch to @bill", () => {
   test("standardCheckoutInstallmentSwitchToBill", async ({ page }) => {
@@ -220,7 +221,42 @@ test.describe("amount change should invalidate payment @express", () => {
   });
 });
 
-/*
+test.describe("shipping address must equal billing address for easyCredit", () => {
+  test("blocksCheckoutShippingDiffersFromBillingShowsError", async ({ page }) => {
+    await goToProduct(page);
+
+    await addCurrentProductToCart(page);
+
+    await page.goto("index.php/checkout/");
+
+    await fillBlocksCheckout(page);
+
+    // Allow separate shipping address (uncheck "Use same address for billing")
+    const sameAsBillingCheckbox = page.getByLabel(
+      "Gleiche Adresse als Rechnungsadresse verwenden"
+    );
+    await sameAsBillingCheckbox.check();
+    await sameAsBillingCheckbox.uncheck();
+
+    const billingFields = page.locator("#billing-fields");
+    await fillBlocksCheckout(page, billingFields);
+
+    // overwrite postcode to make it different from the main form
+	  await billingFields.getByRole("textbox", { name: "Postleitzahl" }).fill("12345");
+
+    await selectAndProceed({
+      page,
+      paymentType: PaymentTypes.INSTALLMENT,
+    });
+
+    // AddressValidator should reject differing shipping/billing addresses
+    await expect(page.locator("body")).toContainText(
+      "Zur Zahlung mit easyCredit muss die Rechnungsadresse mit der Lieferadresse übereinstimmen."
+    );
+  });
+});
+
+
 test.describe("product below amount constraint should not be buyable @bill @installment", () => {
   test("productBelowAmountConstraints", async ({ page }) => {
     await test.step(`Go to product (sku: below50)`, async () => {
@@ -262,7 +298,7 @@ test.describe("product above amount constraint should not be buyable @bill @inst
     }
   });
 });
-*/
+
 
 test.describe("order without authorization should not be possible", () => {
   test("orderWithoutAuthorizationRestricted", async ({ page }) => {
@@ -274,9 +310,10 @@ test.describe("order without authorization should not be possible", () => {
 
     await selectAndProceed({ page, paymentType: PaymentTypes.INSTALLMENT, selectOnly: true })
 
-	await delay(1000);
+	  await delay(1000);
 
-	await page.locator(".wc-block-components-checkout-place-order-button").click();
+	  await page.locator(".wc-block-components-checkout-place-order-button").click();
+    await page.getByText("Akzeptieren", { exact: true }).click();
 
     await expect(page.locator('body')).toContainText("Zur Dateneingabe");
   });

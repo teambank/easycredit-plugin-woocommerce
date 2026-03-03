@@ -36,18 +36,23 @@ export const fillClassicCheckout = async (page) => {
 		.fill("ralf.ratenkauf@teambank.de");
 }
 
-export const fillBlocksCheckout = async (page) => {
-	await page.getByLabel("E-Mail-Adresse").fill("ralf.ratenkauf@teambank.de");
-	await page
+export const fillBlocksCheckout = async (page, scope?: any) => {
+	const root = scope ?? page;
+
+	if (scope === undefined) { // only for the main form, not for the billing-fields
+		await page.getByLabel("E-Mail-Adresse").fill("ralf.ratenkauf@teambank.de");
+	}
+
+	await root
 		.getByRole("textbox", { name: "Vorname" })
 		.fill(randomize("Ralf"));
-	await page.getByRole("textbox", { name: "Nachname" }).fill("Ratenkauf");
-	await page
+	await root.getByRole("textbox", { name: "Nachname" }).fill("Ratenkauf");
+	await root
 		.getByRole("textbox", { name: "Adresse", exact: true })
 		.fill("Beuthener Str. 25");
-	await page.getByRole("textbox", { name: "Postleitzahl" }).fill("90471");
-	await page.getByRole("textbox", { name: "Stadt" }).fill("Nürnberg");
-	await page
+	await root.getByRole("textbox", { name: "Postleitzahl" }).fill("90471");
+	await root.getByRole("textbox", { name: "Stadt" }).fill("Nürnberg");
+	await root
 		.getByRole("textbox", { name: "Telefon (optional)" })
 		.fill("012345678");
 };
@@ -256,7 +261,10 @@ export const checkAddressInvalidation = async (page) => {
 		await page.locator("easycredit-checkout").waitFor({ state: 'visible' });
 
 		// Change address to invalidate the payment
-		await page.locator('[aria-label="Lieferadresse bearbeiten"]').first().click();
+		await page
+			.locator('[aria-label="Lieferadresse bearbeiten"], [aria-label="Rechnungsadresse bearbeiten"]')
+		 .first()
+		 .click();
 
 		const addressField = page.getByRole("textbox", { name: "Postleitzahl", exact: true });
 		await addressField.fill("90403");

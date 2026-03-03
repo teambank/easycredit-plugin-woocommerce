@@ -69,6 +69,20 @@ try {
 	run('wp option update woocommerce_default_country "DE:DE-BY"');
 	run('wp option update woocommerce_currency "EUR"');
 	run('wp option update woocommerce_checkout_phone_field "optional"');
+	run('wp option update woocommerce_calc_shipping "yes"');
+
+	// Configure flat rate shipping method "Shipping" with price 5.90 in default zone (zone 0)
+	const SHIPPING_METHOD_ID = run(
+		'wp wc shipping_zone_method create 0 --method_id="flat_rate" --user="admin" --porcelain'
+	)
+		.toString()
+		.trim();
+	if (SHIPPING_METHOD_ID) {
+		run(
+			`wp option update woocommerce_flat_rate_${SHIPPING_METHOD_ID}_settings '{"title":"Shipping","tax_status":"taxable","cost":"5.90"}'`
+		);
+	}
+
 	run('wp rewrite structure "/index.php/%postname%/"');
 
 	// Copy .htaccess file

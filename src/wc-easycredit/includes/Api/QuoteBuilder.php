@@ -90,29 +90,20 @@ class QuoteBuilder extends TransactionBuilderAbstract
 
     public function getShippingAddress()
     {
-        $postData = [];
-        if (isset($_POST['post_data'])) {
-            \parse_str($_POST['post_data'], $postData);
-        } else {
-            $postData = $_POST;
-        }
-
-        $ship_to_different_address = ! empty($postData['ship_to_different_address']) && ! \wc_ship_to_billing_address_only();
-
-        $_key = 'billing';
-        if ($ship_to_different_address) {
-            $_key = 'shipping';
-        }
-
-        // Get address from WC()->customer which has the current checkout values
         $address = [];
         if (WC()->customer) {
-            $address = ($_key == 'billing') ? WC()->customer->get_billing() : WC()->customer->get_shipping();
+            // Prefer shipping address; fall back to billing if shipping is empty
+            $address = WC()->customer->get_shipping();
+            if (empty(\array_filter($address))) {
+                $address = WC()->customer->get_billing();
+            }
         }
 
-        // Fallback to stored customer data if WC()->customer doesn't have address
         if (empty(\array_filter($address)) && $this->isLoggedIn()) {
-            $address = ($_key == 'billing') ? $this->customer->get_billing() : $this->customer->get_shipping();
+            $address = $this->customer->get_shipping();
+            if (empty(\array_filter($address))) {
+                $address = $this->customer->get_billing();
+            }
         }
 
         return $this->addressBuilder
