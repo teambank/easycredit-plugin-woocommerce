@@ -69,6 +69,7 @@ try {
 	run('wp option update woocommerce_default_country "DE:DE-BY"');
 	run('wp option update woocommerce_currency "EUR"');
 	run('wp option update woocommerce_checkout_phone_field "optional"');
+	run('wp option update woocommerce_checkout_company_field "optional"');
 	run('wp option update woocommerce_calc_shipping "yes"');
 
 	// Configure flat rate shipping method "Shipping" with price 5.90 in default zone (zone 0)

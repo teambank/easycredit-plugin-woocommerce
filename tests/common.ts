@@ -39,7 +39,7 @@ export const fillClassicCheckout = async (page) => {
 export const fillBlocksCheckout = async (page, scope?: any) => {
 	const root = scope ?? page;
 
-	if (scope === null) { // only for the main form, not for the billing-fields
+	if (scope === undefined) { // only for the main form, not for the billing-fields
 		await page.getByLabel("E-Mail-Adresse").fill("ralf.ratenkauf@teambank.de");
 	}
 
@@ -189,7 +189,7 @@ export const selectAndProceed = async ({
       await page
         .locator("easycredit-checkout-label[payment-type=BILL]")
         .click();
-      if (!selectOnly) {
+	  if (!selectOnly) {
         await page.locator("easycredit-checkout")
           .getByRole("button", { name: "auf Rechnung zahlen" })
           .click();
@@ -226,7 +226,7 @@ export const confirmOrder = async ({
 				.not.toContainText(/Zinsen für Ratenzahlung|Interest/);
 		}
 
-		await page.getByRole("button", { name: "Kostenpflichtig bestellen" }).click();
+		await page.getByRole("button", { name: /Kostenpflichtig bestellen|Bestellung aufgeben/ }).click();
 
 		/* Success Page */
 		await expect(page).toHaveURL(/order-received/);
@@ -262,7 +262,7 @@ export const checkAddressInvalidation = async (page) => {
 
 		// Change address to invalidate the payment
 		await page
-			.locator('[aria-label="Lieferadresse bearbeiten"], [aria-label="Rechnungsadresse bearbeiten"]')
+			.locator('[aria-label="Lieferadresse bearbeiten"], [aria-label="Rechnungsadresse bearbeiten"], [aria-label="Adresse bearbeiten"]')
 		 .first()
 		 .click();
 

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { takeScreenshot, scaleDown, delay } from "./utils";
+import { takeScreenshot, scaleDown, delay, greaterOrEqualsThan} from "./utils";
 import {
 	goToProduct,
 	goToCart,
@@ -144,12 +144,30 @@ test.describe("go through @express blocks checkout @bill", () => {
 */
 
 test.describe("company should not be able to pay @bill @installment", () => {
-  test.skip("companyBlocked", async ({ page }) => {
+  
+  test("companyBlocked", async ({ page }) => {
+    test.skip(!greaterOrEqualsThan("9.6.0"), "Requires WooCommerce 9.6.0+");
+
+    await goToProduct(page);
+
+    await addCurrentProductToCart(page);
+
+    await page.goto("index.php/checkout/");
+    await fillBlocksCheckout(page);
+    await page.getByRole("textbox", { name: "Unternehmen" }).fill("Test GmbH");
+
+    await selectAndProceed({ page, paymentType: PaymentTypes.INSTALLMENT });
+
+    await expect(page.locator("body")).toContainText(
+      "nur für Privatpersonen möglich"
+    );
   });
 });
 
 test.describe("amount change should invalidate payment @installment", () => {
   test("checkoutAmountChange", async ({ page }) => {
+    // test.skip(!greaterOrEqualsThan("9.4.0"), "only tested in WooCommerce 9.4.0+, implementation differs");
+
     await goToProduct(page);
 
     await addCurrentProductToCart(page);
@@ -171,6 +189,8 @@ test.describe("amount change should invalidate payment @installment", () => {
 
 test.describe("address change should invalidate payment @installment", () => {
   test("checkoutAddressChange", async ({ page }) => {
+    // test.skip(!greaterOrEqualsThan("9.4.0"), "only tested in WooCommerce 9.4.0+, implementation differs");
+
     await goToProduct(page);
 
     await addCurrentProductToCart(page);
@@ -191,6 +211,8 @@ test.describe("address change should invalidate payment @installment", () => {
 
 test.describe("address change should invalidate payment @express", () => {
   test("expressCheckoutAddressChange", async ({ page }) => {
+    // test.skip(!greaterOrEqualsThan("9.4.0"), "only tested in WooCommerce 9.4.0+, implementation differs");
+
     await goToProduct(page);
 
     await startExpress({ page, paymentType: PaymentTypes.INSTALLMENT });
@@ -259,9 +281,7 @@ test.describe("shipping address must equal billing address for easyCredit", () =
 
 test.describe("product below amount constraint should not be buyable @bill @installment", () => {
   test("productBelowAmountConstraints", async ({ page }) => {
-    await test.step(`Go to product (sku: below50)`, async () => {
-      await page.goto('/Below-50/below50');
-    });
+    await goToProduct(page, "below50");
     await addCurrentProductToCart(page);
 
     await page.goto("index.php/checkout/");
@@ -313,7 +333,7 @@ test.describe("order without authorization should not be possible", () => {
 	  await delay(1000);
 
 	  await page.locator(".wc-block-components-checkout-place-order-button").click();
-    await page.getByRole("button", { name: "Akzeptieren" }).click();
+    await page.getByRole("button", { name: "Akzeptieren" }).click({force: true});
 
     await expect(page.locator('body')).toContainText("Zur Dateneingabe");
   });

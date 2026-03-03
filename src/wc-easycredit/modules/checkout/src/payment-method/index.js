@@ -39,7 +39,7 @@ export const getMethodConfiguration = (name) => {
 
 		const ecCheckout = useRef(null);
 		const [paymentPlan, setPaymentPlan] = useState(config.paymentPlan);
-		const privacyApproved = useRef(paymentPlan !== null);
+		const privacyApproved = useRef(paymentPlan != null);
 		
 		// Create a hash from cart data (amount + addresses) to detect changes
 		const createCartHash = (amount, billingAddress, shippingAddress) => {
@@ -94,35 +94,6 @@ export const getMethodConfiguration = (name) => {
 				prevCartHash.current = currentCartHash;
 			}
 		}, [billing.cartTotal.value, billing.billingAddress, shippingData.shippingAddress]);
-
-		/*
-		 * update place order button label based on payment plan state
-		 */
-		useEffect(() => {
-			if (activePaymentMethod !== config.id) {
-				return;
-			}
-
-			const button = document.querySelector('.wc-block-components-checkout-place-order-button');
-			if (!button || !config.placeOrderButtonLabel) {
-				return;
-			}
-
-			// Store default label on first render
-			if (!button.hasAttribute('data-default-label')) {
-				button.setAttribute('data-default-label', button.textContent);
-			}
-
-			// Show custom label when there's no payment plan, show default when payment plan exists
-			if (!paymentPlan) {
-				button.textContent = decodeEntities(config.placeOrderButtonLabel);
-			} else {
-				const defaultLabel = button.getAttribute('data-default-label');
-				if (defaultLabel) {
-					button.textContent = defaultLabel;
-				}
-			}
-		}, [paymentPlan, activePaymentMethod]);
 
 		/*
 		 * submit checkout if easycredit-checkout triggers easycredit-submit event
