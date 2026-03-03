@@ -39,7 +39,7 @@ export const fillClassicCheckout = async (page) => {
 export const fillBlocksCheckout = async (page, scope?: any) => {
 	const root = scope ?? page;
 
-	if (scope === undefined) { // only for the main form, not for the billing-fields
+	if (scope === null) { // only for the main form, not for the billing-fields
 		await page.getByLabel("E-Mail-Adresse").fill("ralf.ratenkauf@teambank.de");
 	}
 

@@ -156,7 +156,8 @@ export const getMethodConfiguration = (name) => {
 
 				ecCheckout.current.dispatchEvent(new Event("openModal"));
 				return {
-					errorMessage: "Bitte stimmen Sie der Datenübermittlung zu.",
+					type: 'error',
+					message: "Bitte stimmen Sie der Datenübermittlung zu.",
 				};
 			});
 			return unsubscribe;

@@ -313,7 +313,7 @@ test.describe("order without authorization should not be possible", () => {
 	  await delay(1000);
 
 	  await page.locator(".wc-block-components-checkout-place-order-button").click();
-    await page.getByText("Akzeptieren", { exact: true }).click();
+    await page.getByRole("button", { name: "Akzeptieren" }).click();
 
     await expect(page.locator('body')).toContainText("Zur Dateneingabe");
   });
