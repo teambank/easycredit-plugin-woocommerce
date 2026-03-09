@@ -123,7 +123,6 @@ class OrderBuilder extends TransactionBuilderAbstract
             return \esc_url_raw($this->order->get_checkout_payment_url());
         }
 
-        // Otherwise redirect to checkout - customer may want to change the order
         return \esc_url_raw(\wc_get_checkout_url());
     }
 }

@@ -462,12 +462,30 @@ class Plugin
                 WC()->session->set('chosen_payment_method', $gateway_id);
             }
 
-            WC()->cart->calculate_fees();
-            WC()->cart->calculate_shipping();
-            WC()->cart->calculate_totals();
+            // Where to send the customer: order payment page or checkout (set once).
+            $order_pay_url = $this->integration->storage()->get('order_pay_url');
+            $is_order_pay = !empty($order_pay_url);
 
-            // Redirect to checkout cleanly without parameters
-            wp_safe_redirect(wc_get_checkout_url());
+            // Always add the interest fee when returning from the payment page.
+            $interest_amount = $this->integration->storage()->get('interest_amount');
+            if ($interest_amount !== null && (float) $interest_amount > 0) {
+                if ($is_order_pay) {
+                    $order_id = $this->integration->storage()->get('order_id');
+                    if ($order_id) {
+                        $order = wc_get_order($order_id);
+                        if ($order) {
+                            InterestFeeHandler::add_to_order($order, (float) $interest_amount);
+                        }
+                    }
+                } elseif (WC()->cart) {
+                    WC()->cart->calculate_fees();
+                    WC()->cart->calculate_shipping();
+                    WC()->cart->calculate_totals();
+                }
+            }
+
+            $redirect_url = $is_order_pay ? $order_pay_url : wc_get_checkout_url();
+            wp_safe_redirect($redirect_url);
             exit;
         } catch (\Exception $e) {
             $this->handleError($e->getMessage());

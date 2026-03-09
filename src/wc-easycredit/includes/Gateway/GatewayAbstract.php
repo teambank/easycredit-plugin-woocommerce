@@ -6,6 +6,7 @@ use Teambank\EasyCreditApiV3 as ApiV3;
 
 use Netzkollektiv\EasyCredit\Config\FieldProvider;
 use Netzkollektiv\EasyCredit\Integration;
+use Netzkollektiv\EasyCredit\InterestFeeHandler;
 use Netzkollektiv\EasyCredit\Plugin;
 
 abstract class GatewayAbstract extends \WC_Payment_Gateway
@@ -60,8 +61,6 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
 
         if (!is_admin()) {
             add_action('woocommerce_after_calculate_totals', [$this, 'maybe_expire']);
-
-            // add_action('template_redirect', [$this, 'maybe_order_confirm']);
             add_action(
                 'woocommerce_cart_calculate_fees',
                 [$this, 'add_interest_fee']
@@ -82,17 +81,12 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
 
     public function validate_fields()
     {
-        global $wp;
-        if (isset($wp->query_vars['order-pay'])) {
-            $order = wc_get_order($wp->query_vars['order-pay']);
-        }
-
         try {
             $this->integration->storage()
                 ->set('express', false);
 
             $checkout = $this->integration->checkout();
-            $checkout->isAvailable($this->integration->quote_builder()->build());
+            $checkout->isAvailable($this->build_quote_from_context());
         } catch (\Exception $e) {
             $error = $e->getMessage();
             wc_add_notice(
@@ -135,8 +129,16 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
     {
         global $wp_query;
 
-        // Don't expire during confirmAction
-        if ($wp_query && $wp_query->get('easycredit_action') === 'confirm') {
+        // Don't expire during easycredit_action requests.
+        if ($wp_query && $wp_query->get('easycredit_action')) {
+            return;
+        }
+
+        // Don't expire transactions while on the customer payment page (order-pay),
+        // otherwise a successfully initialized/approved transaction might be cleared
+        // before the customer clicks "Pay for order".
+        global $wp;
+        if (isset($wp->query_vars['order-pay'])) {
             return;
         }
 
@@ -151,8 +153,9 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
             return;
         }
 
-        $quote = $this->integration->quote_builder()->build();
         $checkout = $this->integration->checkout();
+        $quote = $this->build_quote_from_context();
+
         if (!$checkout->isAmountValid($quote)) {
             $checkout->clear();
             return;
@@ -163,58 +166,60 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
             return;
         }
     }
-    /*public function maybe_order_confirm()
+
+    /**
+     * Add the EasyCredit interest fee to the cart when the corresponding gateway
+     * is selected. This is tied to the woocommerce_cart_calculate_fees action.
+     */
+    public function add_interest_fee()
     {
-        if (!is_checkout()) {
+        if (!WC()->cart || !WC()->session) {
             return;
         }
 
-        try {
-            $checkout = $this->integration->checkout();
-
-            if (!$checkout->isInitialized()) {
-                return; // Payment not initialized yet, let checkout handle it
-            }
-
-            // Load transaction to ensure summary is available
-            $checkout->loadTransaction();
-
-            // Payment is approved - show notice to customer that they can submit the order
-            if ($checkout->isApproved()) {
-                wc_add_notice(
-                    __('Your payment has been approved. Please review your order and click "Place order" to complete your purchase.', 'wc-easycredit'),
-                    'success'
-                );
-            }
-        } catch (\Exception $e) {
-            // If there's an error, let the checkout page handle it
+        // Check if easyCredit payment method is selected
+        $chosen_payment_method = WC()->session->get('chosen_payment_method');
+        if (!$chosen_payment_method || !$this->plugin->is_easycredit_method($chosen_payment_method)) {
             return;
         }
-    }*/
+
+        $interest_amount = $this->integration->storage()->get('interest_amount');
+        if ($interest_amount === null || (float) $interest_amount <= 0) {
+            return;
+        }
+
+        InterestFeeHandler::add_to_cart((float) $interest_amount);
+    }
+
+    /**
+     * Build the appropriate EasyCredit transaction "quote" based on context.
+     * On the customer payment page (order-pay) we must use the existing order;
+     * otherwise we fall back to the current cart.
+     */
+    protected function build_quote_from_context()
+    {
+        global $wp;
+
+        if (isset($wp->query_vars['order-pay'])) {
+            $order = wc_get_order($wp->query_vars['order-pay']);
+            if ($order) {
+                return $this->integration->order_builder()->build($order);
+            }
+        }
+
+        return $this->integration->quote_builder()->build();
+    }
 
     public function payment_fields()
     {
         $error = false;
         $checkout = $this->integration->checkout();
 
-        global $wp;
-        $quote = null;
-
         try {
             $this->integration->storage()->set('express', false);
 
-            if (isset($wp->query_vars['order-pay'])) {
-                $order = wc_get_order($wp->query_vars['order-pay']);
-                if ($order) {
-                    $quote = $this->integration->order_builder()->build($order);
-                }
-            } else {
-                $quote = $this->integration->quote_builder()->build();
-            }
-
-            if ($quote) {
-                $checkout->isAvailable($quote);
-            }
+            $quote = $this->build_quote_from_context();
+            $checkout->isAvailable($quote);
         } catch (\Exception $e) {
             $error = $e->getMessage();
         }
@@ -228,12 +233,23 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
             $error = 'easyCredit-Ratenkauf ist leider nur in Deutschland verfügbar.';
         }
 
+        // Show payment plan summary when: (POST with this method) or (order-pay and summary in storage for this order)
+        $showSummary = (isset($_POST['payment_method']) && $_POST['payment_method'] === $this->id);
+        if (!$showSummary) {
+            global $wp;
+            if (isset($wp->query_vars['order-pay'])) {
+                $order = wc_get_order($wp->query_vars['order-pay']);
+                $showSummary = $order && $order->get_payment_method() === $this->id && $this->integration->storage()->get('summary');
+            }
+        }
+        $easyCreditPaymentPlan = $showSummary ? $this->integration->storage()->get('summary') : null;
+
         $this->plugin->load_template('payment-fields', [
             'easyCredit' => $this,
             'easyCreditWebshopId' => $this->plugin->get_option('api_key'),
             'easyCreditAmount' => isset($quote) ? $quote->getOrderDetails()->getOrderValue() : 0,
             'easyCreditError' => $error,
-            'easyCreditPaymentPlan' => (isset($_POST['payment_method']) && $_POST['payment_method'] === $this->id) ? $this->integration->storage()->get('summary') : null,
+            'easyCreditPaymentPlan' => $easyCreditPaymentPlan,
             'easyCreditPaymentType' => $this->PAYMENT_TYPE,
         ]);
     }
@@ -279,7 +295,15 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
     public function process_payment($order_id)
     {
         $order = wc_get_order($order_id);
-        $quote = $this->integration->order_builder()->build($order);
+
+        // Track whether this payment was started from the customer payment page
+        // so that the success handler (easycredit/return) can redirect back there.
+        global $wp;
+        if (isset($wp->query_vars['order-pay'])) {
+            $this->integration->storage()->set('order_pay_url', \esc_url_raw($order->get_checkout_payment_url()));
+        } else {
+            $this->integration->storage()->set('order_pay_url', null);
+        }
 
         // Store number of installments if provided
         $postData = $_POST['easycredit'] ?? [];
@@ -288,6 +312,8 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         }
 
         $checkout = $this->integration->checkout();
+
+        $quote = $this->integration->order_builder()->build($order);
 
         // Handle already approved payment (customer returned from payment gateway)
         if ($checkout->isInitialized() && $this->tryCompleteApprovedPayment($checkout, $order, $quote)) {
@@ -299,7 +325,14 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
 
         // Initialize new payment and redirect to payment gateway
         try {
-            $checkout->clear();
+            // For order-pay re-initializations, ensure any previous interest fee
+            // is removed from the order so that the initialization amount never
+            // includes the interest.
+            if (isset($wp->query_vars['order-pay']) && !$checkout->isInitialized()) {
+                InterestFeeHandler::remove_from_order($order);
+                $quote = $this->integration->order_builder()->build($order);
+            }
+
             $checkout->start($quote);
         } catch (ApiV3\ApiException $e) {
             $messages = [];
@@ -372,83 +405,27 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         return true;
     }
 
-    public function add_interest_fee()
-    {
-        if (!WC()->cart) {
-            return;
-        }
-
-        // Check if easyCredit payment method is selected
-        $chosen_payment_method = WC()->session->get('chosen_payment_method');
-        if (!$chosen_payment_method || !$this->plugin->is_easycredit_method($chosen_payment_method)) {
-            return;
-        }
-
-        $interest_amount = $this->integration->storage()->get('interest_amount');
-        if ($interest_amount !== null && $interest_amount > 0) {
-            WC()->cart->add_fee(
-                __('Interest', 'wc-easycredit'),
-                (float) $interest_amount,
-                false
-            );
-        }
-    }
-
     /**
-     * Remove interest fee from order after successful payment
+     * Remove interest fee from order after successful payment (if option enabled).
      *
-     * @param int $order_id Order ID
+     * @param \WC_Order $order
      */
     public function remove_interest_after_payment($order)
     {
-        // Check if the option is enabled
-        $option_enabled = $this->plugin->get_option('remove_interest_after_payment');
-
-        if ($option_enabled !== 'yes') {
+        if ($this->plugin->get_option('remove_interest_after_payment') !== 'yes') {
             return;
         }
 
-        $payment_method = $order->get_payment_method();
-
-        // Only process easyCredit orders
-        if (!$this->plugin->is_easycredit_method($payment_method)) {
+        if (!$this->plugin->is_easycredit_method($order->get_payment_method())) {
             return;
         }
 
-        // Get interest amount from order meta
         $interest_amount = $order->get_meta(Plugin::META_KEY_INTEREST_AMOUNT);
-
         if (!$interest_amount || $interest_amount <= 0) {
             return;
         }
 
-        // Find and remove the interest fee item
-        $fee_items = $order->get_items('fee');
-        $interest_fee_removed = false;
-
-        foreach ($fee_items as $item_id => $fee_item) {
-            $fee_name = $fee_item->get_name();
-
-            // Check if this is the interest fee by name
-            // The fee name might be translated, so check both current translation and original
-            if ($fee_name === __('Interest', 'wc-easycredit') || $fee_name === 'Interest') {
-                // Remove the fee item
-                wc_delete_order_item($item_id);
-                $interest_fee_removed = true;
-                break;
-            }
-        }
-
-        if ($interest_fee_removed) {
-            // Recalculate order totals
-            $current_total = $order->get_total('edit');
-            $new_total = $current_total - (float) $interest_amount;
-
-            // Update order total
-            $order->set_total($new_total);
-            $order->save();
-
-            // Add order note
+        if (InterestFeeHandler::remove_from_order($order)) {
             $order->add_order_note(
                 sprintf(
                     __('Interest amount of %s automatically removed from order total after successful payment.', 'wc-easycredit'),
