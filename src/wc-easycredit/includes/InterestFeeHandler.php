@@ -87,8 +87,8 @@ class InterestFeeHandler
     }
 
     /**
-     * Remove all EasyCredit interest fee line items from an order (by name).
-     * Recalculates and saves the order.
+     * Remove all EasyCredit interest fee line items from an order (by name),
+     * then recalculate and save totals.
      *
      * @param \WC_Order $order
      * @return bool True if at least one fee was removed
@@ -96,15 +96,19 @@ class InterestFeeHandler
     public static function remove_from_order(\WC_Order $order): bool
     {
         $removed = false;
+
         foreach ($order->get_items('fee') as $item_id => $fee_item) {
             if (self::is_interest_fee_item($fee_item)) {
-                wc_delete_order_item($item_id);
+                // Use the WC_Order API so the in-memory items cache stays in sync.
+                $order->remove_item($item_id);
                 $removed = true;
             }
         }
-        $order->calculate_shipping();
-        $order->calculate_totals();
-        $order->save();
+
+        if ($removed) {
+            $order->calculate_totals();
+            $order->save();
+        }
 
         return $removed;
     }
