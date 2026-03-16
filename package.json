@@ -16,11 +16,13 @@
     "phpstan": "export $(cat .env | xargs) && cd $PLUGIN_DIR && vendor/bin/phpstan analyse .",
     "fix-cs": "export $(cat .env | xargs) && cd $PLUGIN_DIR && vendor/bin/ecs check --fix --config=../../ecs.php",
     "wp-env": "wp-env",
-    "start": "pnpm exec wp-env start; VERSION=10.3.5 node ./scripts/setup-woocommerce.js"
+    "wp-env:select": "node ./scripts/generate-wp-env-from-test-yml.js",
+    "start": "node ./scripts/start-from-override.js"
   },
   "dependencies": {
-    "@playwright/test": "^1.54",
-    "@wordpress/env": "^10.3.5"
+    "@playwright/test": "^1.58",
+    "@wordpress/env": "^10.3.5",
+    "yaml": "^2.6.0"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.32",
