@@ -11,16 +11,17 @@
 		"@wordpress/element": "^6.0.0"
 	},
 	"scripts": {
-		"install:modules:frontend": "cd modules/frontend && yarn install",
-		"install:modules:backend": "cd modules/backend && yarn install",
-		"install:modules:checkout": "cd modules/checkout && yarn install",
-		"install:modules:marketing": "cd modules/marketing && yarn install",
-		"postinstall": "for dir in ./modules/*; do (cd $dir && yarn install); done",
-		"build": "for dir in ./modules/*; do (echo \"building $dir ...\" && cd $dir && yarn build); done;",
-		"packages-update": "for dir in ./modules/*; do (echo \"building $dir ...\" && cd $dir && yarn packages-update); done;",
-		"format": "for dir in ./modules/*; do (echo \"building $dir ...\" && cd $dir && yarn format); done;",
-		"lint:css": "for dir in ./modules/*; do (echo \"building $dir ...\" && cd $dir && yarn lint:css); done;",
-		"lint:js": "for dir in ./modules/*; do (echo \"building $dir ...\" && cd $dir && yarn lint:js); done;",
+		"install:modules:frontend": "cd modules/frontend && pnpm install",
+		"install:modules:backend": "cd modules/backend && pnpm install",
+		"install:modules:checkout": "cd modules/checkout && pnpm install",
+		"install:modules:marketing": "cd modules/marketing && pnpm install",
+		"postinstall": "for dir in ./modules/*; do (cd $dir && pnpm install); done",
+		"build": "for dir in ./modules/*; do (echo \"building $dir ...\" && cd $dir && pnpm build); done;",
+		"packages-update": "for dir in ./modules/*; do (echo \"building $dir ...\" && cd $dir && pnpm packages-update); done;",
+		"update": "for dir in ./modules/*; do (echo \"updating $dir ...\" && cd $dir && pnpm update); done;",
+		"format": "for dir in ./modules/*; do (echo \"building $dir ...\" && cd $dir && pnpm format); done;",
+		"lint:css": "for dir in ./modules/*; do (echo \"building $dir ...\" && cd $dir && pnpm lint:css); done;",
+		"lint:js": "for dir in ./modules/*; do (echo \"building $dir ...\" && cd $dir && pnpm lint:js); done;",
 		"plugin-zip": "wp-scripts plugin-zip"
 	}
 }

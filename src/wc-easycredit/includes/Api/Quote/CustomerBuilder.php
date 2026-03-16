@@ -22,7 +22,8 @@ class CustomerBuilder
     public function getFirstname()
     {
         if (!$this->isLoggedIn()) {
-            return $this->quote->get_address('billing')['first_name'];
+            $address = $this->getBillingAddress();
+            return $address['first_name'] ?? '';
         }
         return $this->customer->get_first_name();
     }
@@ -30,14 +31,16 @@ class CustomerBuilder
     public function getLastname()
     {
         if (!$this->isLoggedIn()) {
-            return $this->quote->get_address('billing')['last_name'];
+            $address = $this->getBillingAddress();
+            return $address['last_name'] ?? '';
         }
         return $this->customer->get_last_name();
     }
 
     public function getEmail()
     {
-        return $this->quote->get_address('billing')['email'];
+        $address = $this->getBillingAddress();
+        return $address['email'] ?? '';
     }
 
     public function getDob()
@@ -47,12 +50,37 @@ class CustomerBuilder
 
     public function getCompany()
     {
-        return $this->quote->get_address('billing')['company'];
+        $address = $this->getBillingAddress();
+        return $address['company'] ?? '';
     }
 
     public function getTelephone()
     {
-        return $this->quote->get_billing_phone();
+        if ($this->quote instanceof \WC_Order) {
+            return $this->quote->get_billing_phone();
+        }
+        $address = $this->getBillingAddress();
+        return $address['phone'] ?? '';
+    }
+
+    protected function getBillingAddress()
+    {
+        if ($this->quote instanceof \WC_Order) {
+            return $this->quote->get_address('billing');
+        } elseif ($this->quote instanceof \WC_Cart) {
+            // Use WC()->customer which has the current checkout values set via set_props()
+            if (WC()->customer) {
+                $address = WC()->customer->get_billing();
+                if (!empty(\array_filter($address))) {
+                    return $address;
+                }
+            }
+            // Fallback to stored customer data if logged in
+            if ($this->isLoggedIn()) {
+                return $this->customer->get_billing();
+            }
+        }
+        return [];
     }
 
     public function isLoggedIn()
@@ -66,7 +94,7 @@ class CustomerBuilder
     }
 
     public function build(
-        \WC_Order $quote,
+        $quote,
         $customer
     ) {
         $this->quote = $quote;

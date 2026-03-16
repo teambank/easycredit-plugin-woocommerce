@@ -49,17 +49,17 @@ export const greaterOrEqualsThan = (v) => {
   );
 };
 
-export async function clickWithRetry(locator, maxRetries = 3) {
+export async function doWithRetry(action: () => Promise<void>, maxRetries = 3) {
   let attempt = 0;
   while (attempt < maxRetries) {
     try {
-      await locator.click();
+      await action();
       return;
     } catch (e) {
-      console.error(`Click failed on attempt ${attempt + 1}: ${e.message}`);
+      console.error(`Action failed on attempt ${attempt + 1}: ${e.message}`);
       attempt++;
       if (attempt === maxRetries) {
-        throw new Error(`Max retries reached, click failed: ${e.message}`);
+        throw new Error(`Max retries reached, action failed: ${e.message}`);
       }
     }
   }

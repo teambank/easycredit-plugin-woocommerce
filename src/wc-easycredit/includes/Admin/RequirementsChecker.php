@@ -8,7 +8,6 @@
 namespace Netzkollektiv\EasyCredit\Admin;
 
 use Netzkollektiv\EasyCredit\Plugin;
-use Netzkollektiv\EasyCredit\Pages\ReviewPage;
 
 class RequirementsChecker
 {
@@ -21,7 +20,6 @@ class RequirementsChecker
 
         add_action('admin_notices', [$this, 'auto_check_credentials']);
         add_action('admin_notices', [$this, 'auto_check_requirements']);
-        add_action('admin_notices', [$this, 'check_review_page_exists']);        
     }
 
     public function auto_check_requirements()
@@ -52,23 +50,6 @@ class RequirementsChecker
         set_transient('easycredit-settings-checked', true, DAY_IN_SECONDS);
     }
 
-    public function check_review_page_exists()
-    {
-        if (get_current_screen()->parent_base !== 'woocommerce') {
-            return;
-        }
-
-        $page_path = ReviewPage::PAGE_SLUG;
-        if (get_page_by_path($page_path, OBJECT)) {
-            return;
-        }
-
-        echo $this->_display_settings_error(
-            __('The easyCredit payment review page does not exist. Probably it was deleted by mistake. The page is necessary to confirm easyCredit payments after being returned from the payment terminal. To restore the page, please restore it from the trash under "Pages", or deactivate and activate the plugin in the <a href="%s">plugin administration</a>.', 'wc-easycredit'),
-            is_multisite() ? admin_url('network/plugins.php?s=easycredit') : admin_url('plugins.php?s=easycredit')
-        );
-        return;
-    }
 
     protected function _display_settings_error($msg, $uri = null)
     {

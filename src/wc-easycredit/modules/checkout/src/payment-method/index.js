@@ -1,6 +1,6 @@
-import { useRef, useEffect } from "@wordpress/element";
+import { useRef, useEffect, useState } from "@wordpress/element";
 import { useSelect } from "@wordpress/data";
-import { VALIDATION_STORE_KEY } from '@woocommerce/block-data';
+import { VALIDATION_STORE_KEY, CHECKOUT_STORE_KEY } from '@woocommerce/block-data';
 import { __ } from "@wordpress/i18n";
 import { decodeEntities } from "@wordpress/html-entities";
 import { getSetting } from "@woocommerce/settings";
@@ -30,7 +30,7 @@ export const getMethodConfiguration = (name) => {
 		return currentHandler;
 	}
 
-	const Checkout = ({ billing, eventRegistration, activePaymentMethod }) => {
+	const Checkout = ({ billing, shippingData, eventRegistration, activePaymentMethod }) => {
 		const { onCheckoutFail, onCheckoutValidation } = eventRegistration;
 
 		const hasValidationErrors = useSelect((select) =>
@@ -38,7 +38,25 @@ export const getMethodConfiguration = (name) => {
 		);
 
 		const ecCheckout = useRef(null);
-		const privacyApproved = useRef(false);
+		const [paymentPlan, setPaymentPlan] = useState(config.paymentPlan);
+		const privacyApproved = useRef(paymentPlan != null);
+		
+		// Create a hash from cart data (amount + addresses) to detect changes
+		const createCartHash = (amount, billingAddress, shippingAddress) => {
+			return JSON.stringify({
+				amount,
+				billingAddress,
+				shippingAddress: shippingAddress || {}
+			});
+		};
+		
+		const prevCartHash = useRef(
+			createCartHash(
+				billing.cartTotal.value,
+				billing.billingAddress,
+				shippingData.shippingAddress
+			)
+		);
 
 		const emulateSubmitCheckout = async () => {
 			let button;
@@ -61,6 +79,23 @@ export const getMethodConfiguration = (name) => {
 		};
 
 		/*
+		 * reset payment plan if amount or address changes (using cart hash)
+		 */
+		useEffect(() => {
+			const currentCartHash = createCartHash(
+				billing.cartTotal.value,
+				billing.billingAddress,
+				shippingData.shippingAddress
+			);
+
+			if (prevCartHash.current !== currentCartHash) {
+				setPaymentPlan(null);
+				privacyApproved.current = false;
+				prevCartHash.current = currentCartHash;
+			}
+		}, [billing.cartTotal.value, billing.billingAddress, shippingData.shippingAddress]);
+
+		/*
 		 * submit checkout if easycredit-checkout triggers easycredit-submit event
 		 */
 		useEffect(() => {
@@ -68,7 +103,6 @@ export const getMethodConfiguration = (name) => {
 				document.removeEventListener('easycredit-submit', currentHandler);
 			}
 			const handler = handleSubmit(privacyApproved, hasValidationErrors, emulateSubmitCheckout);
-			console.log('adding listener for ' +  config.paymentType);
 			document.addEventListener('easycredit-submit', handler);
 		}, [hasValidationErrors]);
 
@@ -93,7 +127,8 @@ export const getMethodConfiguration = (name) => {
 
 				ecCheckout.current.dispatchEvent(new Event("openModal"));
 				return {
-					errorMessage: "Bitte stimmen Sie der Datenübermittlung zu.",
+					type: 'error',
+					message: "Bitte stimmen Sie der Datenübermittlung zu.",
 				};
 			});
 			return unsubscribe;
@@ -121,6 +156,7 @@ export const getMethodConfiguration = (name) => {
 					webshop-id={decodeEntities(config.apiKey)}
 					amount={billing.cartTotal.value / 100}
 					payment-type={config.paymentType}
+					payment-plan={paymentPlan}
 				></easycredit-checkout>
 				<span style={{ display: 'none' }}>
 					 {/*
@@ -151,19 +187,15 @@ export const getMethodConfiguration = (name) => {
 		paymentMethodId: config.id,
 		label: <CheckoutLabel />,
 		ariaLabel: "easycredit",
+		supports: {features: config.supports}
 	};
 
-	if (name === "easycredit_rechnung") {
+	if (config.placeOrderButtonLabel && !config.paymentPlan) {
 		methodConfiguration = {
 			...methodConfiguration,
-			placeOrderButtonLabel: __("Continue to pay by invoice"),
+			placeOrderButtonLabel: decodeEntities(config.placeOrderButtonLabel),
 		};
 	}
-	if (name === "easycredit_ratenkauf") {
-		methodConfiguration = {
-			...methodConfiguration,
-			placeOrderButtonLabel: __("Continue to pay by installments"),
-		};
-	}
+	
 	return methodConfiguration;
 };

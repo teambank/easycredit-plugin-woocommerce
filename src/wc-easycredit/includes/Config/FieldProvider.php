@@ -297,12 +297,21 @@ class FieldProvider
                 'options' => wc_get_order_statuses(),
             ],
 
+            'remove_interest_after_payment' => [
+                'title' => __('Remove interest after successful payment', 'wc-easycredit'),
+                'type' => 'checkbox',
+                'label' => __('Automatically remove interest from order total after payment is completed', 'wc-easycredit'),
+                'description' => __('If enabled, the interest amount will be automatically deducted from the order total once the payment is successfully completed.', 'wc-easycredit'),
+                'desc_tip' => true,
+                'default' => 'no',
+            ],
+
             'clickandcollect_intro' => [
                 'type' => 'clickandcollectintro',
             ],
 
             'marketing_components_clickandcollect' => [
-                'title' =>__('Click & Collect', 'wc-easycredit'),
+                'title' => __('Click & Collect', 'wc-easycredit'),
                 'type' => 'title',
             ],
 

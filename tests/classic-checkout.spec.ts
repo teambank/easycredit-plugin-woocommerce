@@ -27,6 +27,7 @@ test.describe("Go through classic @installment", () => {
 		await confirmOrder({
 			page: page,
 			paymentType: PaymentTypes.INSTALLMENT,
+			isClassicCheckout: true
 		});
 	});
 });
@@ -52,6 +53,7 @@ test.describe("Go through classic @bill", () => {
 		await confirmOrder({
 			page: page,
 			paymentType: PaymentTypes.BILL,
+			isClassicCheckout: true
 		});
 	});
 });
@@ -70,6 +72,7 @@ test.describe("Go through @express @installment", () => {
 		await confirmOrder({
 			page: page,
 			paymentType: PaymentTypes.INSTALLMENT,
+			isClassicCheckout: true
 		});
 	});
 });
@@ -88,6 +91,7 @@ test.describe("go through @express @bill", () => {
 		await confirmOrder({
 			page: page,
 			paymentType: PaymentTypes.BILL,
+			isClassicCheckout: true
 		});
 	});
 });
@@ -119,6 +123,7 @@ test.describe("Go through @express @installment with variable product ", () => {
 		await confirmOrder({
 			page: page,
 			paymentType: PaymentTypes.INSTALLMENT,
+			isClassicCheckout: true
 		});
 	});
 });

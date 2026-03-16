@@ -26,20 +26,16 @@ class Plugin
 
     private $rewrite_rules = [
         'easycredit/(cancel)/?' => 'index.php?easycredit_action=$matches[1]',
-        'easycredit/(express)/?' => 'index.php?easycredit_action=$matches[1]'
+        'easycredit/(express)/?' => 'index.php?easycredit_action=$matches[1]',
+        'easycredit/(return)/?' => 'index.php?easycredit_action=$matches[1]'
     ];
 
     private $integration;
 
-    private $express_checkout;
+    public $express_checkout;
 
+    public $infoPage;
     private $paymentGateways;
-
-    private $reviewPage;
-
-    private $infoPage;
-
-    private $temporaryOrderHelper;
 
     public function __construct($file)
     {
@@ -52,6 +48,11 @@ class Plugin
 
     public function run()
     {
+        // Ensure WooCommerce is loaded before proceeding
+        if (!class_exists('WooCommerce')) {
+            return;
+        }
+
         $plugin = $this;
 
         // Initialize compatibility checks
@@ -62,19 +63,13 @@ class Plugin
         );
         $fieldProvider = new Config\FieldProvider();
 
-        $this->temporaryOrderHelper = new Helper\TemporaryOrder(
-            $this,
-            $this->integration
-        );
-
         $this->paymentGateways = [];
         foreach (['Ratenkauf', 'Rechnung'] as $method) {
             $class = 'Netzkollektiv\\EasyCredit\\Gateway\\' . $method;
             $this->paymentGateways[$method] = new $class(
                 $plugin,
                 $integration,
-                $fieldProvider,
-                $this->temporaryOrderHelper
+                $fieldProvider
             );
         }
         $configGeneralSection = new Config\General(
@@ -113,11 +108,6 @@ class Plugin
                 $this->paymentGateways['Ratenkauf']
             );
 
-            $this->reviewPage = new Pages\ReviewPage(
-                $plugin,
-                $integration,
-                $this->express_checkout
-            );
             $this->infoPage = new Pages\InfoPage();
         }
 
@@ -131,6 +121,7 @@ class Plugin
         }
 
         add_filter('woocommerce_payment_gateways', [$this, 'payment_gateways']);
+        add_filter('woocommerce_available_payment_gateways', [$this, 'filter_available_payment_gateways']);
 
         add_action('admin_enqueue_scripts', [$this, 'enqueue_backend_resources']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_resources']);
@@ -143,10 +134,83 @@ class Plugin
         add_action('init', [$this, 'add_rewrite_rules']);
         add_action('admin_init', [$this, 'check_rewrite_rules']);
         add_action('template_redirect', [$this, 'handle_controller']);
+
+        add_action('woocommerce_blocks_loaded', [$this, 'woocommerce_block_support']);
+        add_filter('woocommerce_cart_hash', [$this, 'filter_cart_hash'], 10, 2);
+    }
+
+    /**
+     * Filter cart hash to exclude interest amount when easyCredit is selected.
+     * This prevents WooCommerce from creating a new order when the customer returns
+     * from the payment gateway with the interest fee added.
+     */
+    public function filter_cart_hash($hash, $cart_session)
+    {
+        if (!WC()->cart || !WC()->session || !$cart_session) {
+            return $hash;
+        }
+
+        $chosen_payment_method = WC()->session->get('chosen_payment_method');
+        if (!$chosen_payment_method || !$this->is_easycredit_method($chosen_payment_method)) {
+            return $hash;
+        }
+
+        $interest_amount = $this->integration->storage()->get('interest_amount');
+        if ($interest_amount === null || $interest_amount <= 0) {
+            return $hash;
+        }
+
+        // Recalculate hash without the interest fee
+        $total = WC()->cart->get_total('edit') - $interest_amount;
+        $total = wc_format_decimal($total, wc_get_price_decimals());
+
+        return md5(wp_json_encode($cart_session) . $total);
+    }
+
+    public function woocommerce_block_support()
+    {
+        if (class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType')) {
+            require_once dirname($this->file) . '/includes/Methods/Ratenkauf.php';
+            require_once dirname($this->file) . '/includes/Methods/Rechnung.php';
+
+            $plugin = $this;
+            add_action('woocommerce_blocks_payment_method_type_registration', function (\Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry) use ($plugin) {
+                $container = \Automattic\WooCommerce\Blocks\Package::container();
+
+                $container->register(\Netzkollektiv\EasyCredit\Methods\Ratenkauf::class, function () use ($plugin) {
+                    return new \Netzkollektiv\EasyCredit\Methods\Ratenkauf($plugin->file, $plugin->integration);
+                });
+                $payment_method_registry->register(
+                    $container->get(\Netzkollektiv\EasyCredit\Methods\Ratenkauf::class)
+                );
+
+                $container->register(\Netzkollektiv\EasyCredit\Methods\Rechnung::class, function () use ($plugin) {
+                    return new \Netzkollektiv\EasyCredit\Methods\Rechnung($plugin->file, $plugin->integration);
+                });
+                $payment_method_registry->register(
+                    $container->get(\Netzkollektiv\EasyCredit\Methods\Rechnung::class)
+                );
+            }, 5);
+
+            woocommerce_store_api_register_payment_requirements(array('data_callback' => function () use ($plugin): array {
+                $requirements = array();
+                // Check if easycredit summary/paymentPlan is set
+                if ($plugin->integration && $plugin->integration->storage()) {
+                    $summary = $plugin->integration->storage()->get('summary');
+                    if (!empty($summary)) {
+                        $requirements[] = 'easycredit_selection';
+                    }
+                }
+                return $requirements;
+            }));
+        }
     }
 
     public function maybe_run()
     {
+        // Declare HPOS and Blocks compatibility
+        add_action('before_woocommerce_init', [$this, 'declare_woocommerce_compatibility']);
+
         add_action('plugins_loaded', [$this, 'run']);
         add_action('init', [$this, 'load_textdomain']);
 
@@ -155,7 +219,16 @@ class Plugin
         register_activation_hook($this->file, [$this, 'activate']);
         register_deactivation_hook($this->file, [$this, 'deactivate']);
         register_uninstall_hook(__FILE__, 'uninstall');
+
         add_action('wpmu_new_blog', [$this, 'activate_new_blog'], 10, 6);
+    }
+
+    public function declare_woocommerce_compatibility()
+    {
+        if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', $this->file, true);
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', $this->file, true);
+        }
     }
 
     public function activate_new_blog($blog_id, $user_id, $domain, $path, $site_id, $meta)
@@ -253,6 +326,38 @@ class Plugin
         return $gateways;
     }
 
+    public function filter_available_payment_gateways($available_gateways)
+    {
+        // Only filter on frontend, not in admin
+        if (is_admin()) {
+            return $available_gateways;
+        }
+
+        // Check if summary is in storage
+        $summary = $this->integration->storage()->get('summary');
+        if (empty($summary)) {
+            return $available_gateways;
+        }
+
+        // Get the chosen payment method from session
+        if (!WC()->session) {
+            return $available_gateways;
+        }
+
+        $chosen_payment_method = WC()->session->get('chosen_payment_method');
+
+        // If an easycredit method is selected, filter to only show that method
+        if ($chosen_payment_method && $this->is_easycredit_method($chosen_payment_method)) {
+            // Check if the chosen method exists in available gateways
+            if (isset($available_gateways[$chosen_payment_method])) {
+                // Keep only the selected easycredit gateway
+                return [$chosen_payment_method => $available_gateways[$chosen_payment_method]];
+            }
+        }
+
+        return $available_gateways;
+    }
+
     public function get_option($option_key, $default_value = false)
     {
         $options = get_option('woocommerce_easycredit_settings', $default_value);
@@ -281,14 +386,25 @@ class Plugin
 
     public function expressAction()
     {
+        $postData = [];
+        if (isset($_POST['post_data'])) {
+            parse_str($_POST['post_data'], $postData);
+        } else {
+            $postData = $_POST;
+        }
+
+        $params = isset($_REQUEST['easycredit']) ? $_REQUEST['easycredit'] : [];
+        if (isset($params['paymentType'])) {
+            $paymentType = $params['paymentType'];
+            WC()->session->set('chosen_payment_method', $this->get_method_by_payment_type($paymentType)->id);
+        }
+
         try {
             try {
                 $this->integration->storage()
                     ->set('express', true);
 
-                $quote = $this->integration->quote_builder()->build(
-                    $this->temporaryOrderHelper->get_order()
-                );
+                $quote = $this->integration->quote_builder()->build();
 
                 $checkout = $this->integration->checkout();
                 $checkout->start($quote);
@@ -313,6 +429,69 @@ class Plugin
         }
     }
 
+
+    public function returnAction()
+    {
+        try {
+            $checkout = $this->integration->checkout();
+
+            if (!$checkout->isInitialized()) {
+                throw new \Exception(__('Transaction not initialized', 'wc-easycredit'));
+            }
+
+            // Load transaction to get payment details (this also sets the summary in storage)
+            $transaction = $checkout->loadTransaction();
+            if (!$checkout->isApproved()) {
+                throw new \Exception(__('Transaction not approved', 'wc-easycredit'));
+            }
+
+            // Handle express checkout - create order if needed
+            if ($this->integration->storage()->get('express')) {
+                // For express checkout, create order from transaction
+                if ($this->express_checkout) {
+                    $this->express_checkout->import_data_from_transaction($transaction);
+                }
+            }
+
+            // Set payment method based on transaction
+            $gateway = $this->get_method_by_payment_type($transaction->getTransaction()->getPaymentType());
+            $gateway_id = $gateway ? $gateway->id : null;
+
+            // Set chosen payment method in session for WooCommerce to recognize it
+            if ($gateway_id && WC()->session) {
+                WC()->session->set('chosen_payment_method', $gateway_id);
+            }
+
+            // Where to send the customer: order payment page or checkout (set once).
+            $order_pay_url = $this->integration->storage()->get('order_pay_url');
+            $is_order_pay = !empty($order_pay_url);
+
+            // Always add the interest fee when returning from the payment page.
+            $interest_amount = $this->integration->storage()->get('interest_amount');
+            if ($interest_amount !== null && (float) $interest_amount > 0) {
+                if ($is_order_pay) {
+                    $order_id = $this->integration->storage()->get('order_id');
+                    if ($order_id) {
+                        $order = wc_get_order($order_id);
+                        if ($order) {
+                            InterestFeeHandler::add_to_order($order, (float) $interest_amount);
+                        }
+                    }
+                } elseif (WC()->cart) {
+                    WC()->cart->calculate_fees();
+                    WC()->cart->calculate_shipping();
+                    WC()->cart->calculate_totals();
+                }
+            }
+
+            $redirect_url = $is_order_pay ? $order_pay_url : wc_get_checkout_url();
+            wp_safe_redirect($redirect_url);
+            exit;
+        } catch (\Exception $e) {
+            $this->handleError($e->getMessage());
+        }
+    }
+
     /*
      * add notice, redirect to cart / cancel order and clear easycredit storage 
      **/
@@ -321,14 +500,7 @@ class Plugin
         $this->integration->logger()->error($message);
         wc_add_notice(__($message, 'wc-easycredit'), 'error');
         $this->integration->checkout()->clear();
-
-        $url = wc_get_page_permalink('cart');
-
-        $order = $this->get_current_order();
-        if ($order) {
-            $url = $order->get_cancel_order_url_raw();
-        }
-        wp_safe_redirect($url);
+        wp_safe_redirect(wc_get_page_permalink('cart'));
         exit;
     }
 
@@ -337,7 +509,6 @@ class Plugin
         require_once(\WC_ABSPATH . 'includes/admin/wc-admin-functions.php');
 
         $pages = array_merge(
-            Pages\ReviewPage::get_page_data(),
             Pages\InfoPage::get_page_data(),
         );
         foreach ($pages as $key => $page) {
@@ -350,16 +521,6 @@ class Plugin
         }
 
         delete_transient('woocommerce_cache_excluded_uris');
-    }
-
-    public function get_current_order()
-    {
-        $order_id = $this->integration->storage()->get('order_id');
-        if (!$order_id) {
-            return false;
-        }
-
-        return wc_get_order($order_id);
     }
 
     public function load_textdomain()
@@ -444,16 +605,17 @@ class Plugin
         foreach ($this->paymentGateways as $gateway) {
             $methods_status[$gateway->id] = $gateway->get_option('enabled');
         }
-        wp_localize_script( 'wc_easycredit_js', 'ecMethodsStatus', $methods_status);
+        wp_localize_script('wc_easycredit_js', 'ecMethodsStatus', $methods_status);
     }
 
-    public function prevent_shipping_address_change($order) {
+    public function prevent_shipping_address_change($order)
+    {
         if (!$this->is_easycredit_method($order->get_payment_method())) {
             return;
         }
 
         echo "
-            <p>". __('The shipping address cannot be subsequently changed with easyCredit.', 'wc-easycredit') . "</p>
+            <p>" . __('The shipping address cannot be subsequently changed with easyCredit.', 'wc-easycredit') . "</p>
             <script>
             jQuery('#order_data .order_data_column_container .order_data_column h3:contains(\"" . esc_html__('Shipping', 'woocommerce') . "\") a.edit_address').hide();
             </script>

@@ -26,7 +26,6 @@ class Storage implements \Teambank\EasyCreditApiV3\Integration\StorageInterface
     public function set($key, $value): self
     {
         $this->logger->debug('storage::set ' . $key . ' = ' . $value);
-        $this->session->set('easycredit[' . $key . ']', $value);
 
         $data = $this->session->get($this->key);
         if (!\is_array($data)) {
@@ -53,7 +52,11 @@ class Storage implements \Teambank\EasyCreditApiV3\Integration\StorageInterface
     public function clear(): self
     {
         $backtrace = \debug_backtrace();
-        $this->logger->info('storage::clear from ' . $backtrace[1]['class'] . ':' . $backtrace[1]['function']);
+        $levels = array_map(function ($level) {
+            return ($level['class'] ?? '') . '::' . ($level['function'] ?? '');
+        }, array_slice($backtrace, 1, 2));
+        $logMessage = 'storage::clear from ' . implode(' -> ', $levels);
+        $this->logger->info($logMessage);
 
         $this->session->set($this->key, null);
         return $this;

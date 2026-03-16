@@ -46,6 +46,30 @@ jobs:
           - php-version: "8.4"
             wordpress-version: "6.8"
             woocommerce-version: "10.0.2"
+          # => skip 10.1.2 for now, flaky blocks checkout behavior
+          #- php-version: "8.4"
+          #  wordpress-version: "6.9"
+          #  woocommerce-version: "10.1.2"
+          # => skip 10.2.2 for now, flaky blocks checkout behavior
+          #- php-version: "8.4"
+          #  wordpress-version: "6.9"
+          #  woocommerce-version: "10.2.2"
+          - php-version: "8.4"
+            wordpress-version: "6.9"
+            woocommerce-version: "10.3.6"
+          - php-version: "8.4"
+            wordpress-version: "6.9"
+            woocommerce-version: "10.4.3"
+          - php-version: "8.5"
+            wordpress-version: "6.9"
+            woocommerce-version: "10.5.3"
+          - php-version: "8.5"
+            wordpress-version: "6.9"
+            woocommerce-version: "10.6.0"
+          # => worpdress 7.0 will be tsted once its released
+          #- php-version: "8.5"
+          #   wordpress-version: "7.0"
+          #   woocommerce-version: "10.6.0"
 
     name: woo v${{ matrix.woocommerce-version }}, wp v${{ matrix.wordpress-version }} @ php v${{ matrix.php-version }}
 
@@ -83,6 +107,10 @@ jobs:
           php -i
           env
           node -v
+      - name: Install Dependencies
+        run: |
+          npm install --global pnpm
+          npm install --frozen-lockfile
       - name: Install Wordpress & wooCommerce
         run: | 
           node -e 'console.log(JSON.stringify({"core": "WordPress/WordPress#${{ matrix.wordpress-version }}", "phpVersion": "${{ matrix.php-version }}", "lifecycleScripts":{}}, null, 2));' > .wp-env.override.json
@@ -105,17 +133,13 @@ jobs:
         run: | 
           cd $PLUGIN_DIR
           php vendor/bin/phpstan analyze .
-      - name: Install Dependencies
-        run: |
-          npm install --global yarn
-          yarn install --frozen-lockfile
       - name: Setup Playwright
-        run: yarn playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium
       - name: Playwright E2E Tests
         run: |
           cd $GITHUB_WORKSPACE
 
-          VERSION=${{ matrix.woocommerce-version }} BASE_URL=http://localhost:8888 yarn playwright test -c tests/
+          VERSION=${{ matrix.woocommerce-version }} BASE_URL=http://localhost:8888 npx playwright test -c tests/
       - name: Save Logs for Debugging
         if: always()
         run: |

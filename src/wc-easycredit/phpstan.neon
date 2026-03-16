@@ -19,7 +19,3 @@ parameters:
         message: '#Action callback returns bool but should not return anything#'
         paths:
           - 'includes/class-gateway-easycredit.php'
-    - # ignore false positive
-        message: '#Function apply_filters invoked with 3 parameters, 2 required#'
-        paths:
-          - 'templates/review-order.php'
