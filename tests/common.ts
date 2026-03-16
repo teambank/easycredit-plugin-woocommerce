@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { delay, randomize, clickWithRetry } from "./utils";
+import { delay, randomize, doWithRetry } from "./utils";
 import { PaymentTypes } from "./types";
 
 export const goToCart = async (page) => {
@@ -156,9 +156,9 @@ export const goThroughPaymentPage = async ({
 		await page.locator("#next-btn").click();
 
 		await delay(500);
-		await clickWithRetry(
-			page.getByRole("button", { name: "Zahlung übernehmen" })
-		);
+		await doWithRetry(async () => {
+			await page.getByRole("button", { name: "Zahlung übernehmen" }).click();
+		});
 	});
 };
 
@@ -243,9 +243,10 @@ export const checkAmountInvalidation = async (page) => {
 		const quantityInput = page.locator('.wc-block-components-quantity-selector input').first();
 		await quantityInput.fill('2');
 		
-		// Wait for the batch API request to complete after changing quantity
-		await page.waitForResponse(response => 
-			response.url().includes('wp-json/wc/store/v1/batch')
+		// Wait for the relevant API request to complete after changing quantity
+		await page.waitForResponse((response) =>
+			response.url().includes('wp-json/wc/store/v1/batch') ||
+			response.url().includes('wp-json/wc/store/v1/cart/update-item')
 		);
 		
 		// Go back to checkout and wait for it to be loaded

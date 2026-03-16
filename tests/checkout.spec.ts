@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { takeScreenshot, scaleDown, delay, greaterOrEqualsThan} from "./utils";
+import { takeScreenshot, scaleDown, delay, greaterOrEqualsThan, doWithRetry } from "./utils";
 import {
 	goToProduct,
 	goToCart,
@@ -253,14 +253,17 @@ test.describe("shipping address must equal billing address for easyCredit", () =
 
     await fillBlocksCheckout(page);
 
-    // Allow separate shipping address (uncheck "Use same address for billing")
-    const sameAsBillingCheckbox = page.getByLabel(
-      "Gleiche Adresse als Rechnungsadresse verwenden"
-    );
-    await sameAsBillingCheckbox.check();
-    await sameAsBillingCheckbox.uncheck();
-
     const billingFields = page.locator("#billing-fields");
+
+    // Allow separate shipping address (uncheck "Use same address for billing")
+    await doWithRetry(async () => {
+      const sameAsBillingCheckbox = page.getByLabel(
+        "Gleiche Adresse als Rechnungsadresse verwenden"
+      );
+      await sameAsBillingCheckbox.setChecked(false);
+      await expect(billingFields).toBeVisible();
+    });
+    
     await fillBlocksCheckout(page, billingFields);
 
     // overwrite postcode to make it different from the main form
