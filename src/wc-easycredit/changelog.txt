@@ -1,3 +1,10 @@
+= 3.1.0 =
+
+- die Review Page wurde entfernt, der Kunde wird auf den Checkout zurückgeleitet
+- die Blocks‑Checkout‑Integration und Payment‑Requirements wurden konsolidiert/aufgeräumt, Tests und Checkout‑Flows (inkl. Review‑Page‑Entfernung) wurden an das neue Verhalten angepasst.
+- Tests und Build‑Konfiguration umfassend überarbeitet, zur Anpassung an den neuen Checkout‑Flow
+- Kompatibilität aktualisiert: getestet bis WordPress 6.9 und WooCommerce 10.6.0
+
 = 3.0.4 =
 
 - Widget & Express Checkout verwenden nun den Preis inklusive Steuern, wenn Netto-Preise gepflegt sind

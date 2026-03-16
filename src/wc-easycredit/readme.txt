@@ -2,11 +2,11 @@
 Contributors: easycredit, ratenkaufbyeasycredit, netzkollektiv, easycredit-ratenkauf, easycredit-rechnung
 Tags: payment, woocommerce, ratenkauf, pay by installments, easycredit, pay later, bill payment
 Requires at least: 4.4
-Tested up to: 6.8
-Requires PHP: 7.0
+Tested up to: 6.9
+Requires PHP: 7.1
 WC requires at least: 3.9
-WC tested up to: 9.8.2
-Stable tag: 3.0.4
+WC tested up to: 10.6.0
+Stable tag: 3.1.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 

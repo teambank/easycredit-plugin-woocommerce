@@ -1,0 +1,53 @@
+{
+  "name": "WordPress",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "service": "wordpress",
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": false,
+      "installDockerBuildx": true,
+      "version": "latest",
+      "dockerDashComposeVersion": "latest"
+    },
+    "ghcr.io/devcontainers/features/php:1": {
+      "installComposer": true,
+      "version": "8.3"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    },
+    // Optional - For tools that require SSH
+    "ghcr.io/devcontainers/features/sshd:1": {}
+  },
+
+  "forwardPorts": [
+    // forward php xdebug port
+    9003,
+    // forward wp-env ports
+    8888,
+    8889,
+    // forward ssh port
+    2222
+  ],
+
+  // Set *default* container specific settings.json values on container create.
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "php.suggest.basic": false // avoids duplicate autocomplete
+  },
+
+  // Add the IDs of any extensions you want installed.
+  "extensions": [
+    "felixfbecker.php-pack",
+    "wordpresstoolbox.wordpress-toolbox",
+    "johnbillion.vscode-wordpress-hooks"
+  ],
+
+  // Sets up WordPress on container start.
+  // "postCreateCommand": ".devcontainer/wp-setup.sh",
+  "remoteUser": "vscode",
+  "postStartCommand": "pnpm install --frozen-lockfile --force && node ./scripts/generate-wp-env-from-test-yml.js --latest && pnpm start && ln -s $(pnpm exec wp-env install-path)/wordpress ${containerWorkspaceFolder}/wordpress"
+}
