@@ -13,7 +13,7 @@
   ],
   "type": "wordpress-plugin",
   "require": {
-    "netzkollektiv/easycredit-api-v3-php": "^2.0.7",
+    "netzkollektiv/easycredit-api-v3-php": "^2.0.8",
     "guzzlehttp/psr7": "^2.7",
     "psr/http-client": "^1.0"
   },
