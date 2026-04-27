@@ -47,10 +47,10 @@ class AbstractMethod extends AbstractPaymentMethodType
     {
         $dir = 'modules/checkout/build';
 
-        $dependencies = [];
-        $version = '1.0';
-
-        require plugin_dir_path($this->plugin_file) . $dir . '/index.asset.php';
+        $asset_file = plugin_dir_path($this->plugin_file) . $dir . '/index.asset.php';
+        $asset_data = require $asset_file;
+        $dependencies = $asset_data['dependencies'] ?? [];
+        $version = $asset_data['version'] ?? '1.0';
 
         wp_register_script(
             'wc-easycredit-blocks',

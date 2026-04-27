@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "@wordpress/element";
+import { createElement, useRef, useEffect, useState } from "@wordpress/element";
 import { useSelect } from "@wordpress/data";
 import { VALIDATION_STORE_KEY, CHECKOUT_STORE_KEY } from '@woocommerce/block-data';
 import { __ } from "@wordpress/i18n";
@@ -149,43 +149,36 @@ export const getMethodConfiguration = (name) => {
 			return unsubscribe;
 		}, [onCheckoutFail, activePaymentMethod]);
 
-		return (
-			<div>
-				<easycredit-checkout
-					ref={ecCheckout}
-					webshop-id={decodeEntities(config.apiKey)}
-					amount={billing.cartTotal.value / 100}
-					payment-type={config.paymentType}
-					payment-plan={paymentPlan}
-				></easycredit-checkout>
-				<span style={{ display: 'none' }}>
-					 {/*
-					 we need to trick the following wooCommerce css rule:
-					 .wc-block-components-radio-control-accordion-content:has(>:only-child:empty) { display:none; }
-					*/}
-					Checkout Component
-				</span>
-			</div>
+		return createElement(
+			'div',
+			null,
+			createElement('easycredit-checkout', {
+				ref: ecCheckout,
+				'webshop-id': decodeEntities(config.apiKey),
+				amount: billing.cartTotal.value / 100,
+				'payment-type': config.paymentType,
+				'payment-plan': paymentPlan,
+			}),
+			// Keep hidden content so Woo does not collapse empty accordion body.
+			createElement('span', { style: { display: 'none' } }, 'Checkout Component')
 		);
 	};
 
 	const CheckoutLabel = () => {
-		return (
-			<easycredit-checkout-label
-				payment-type={config.paymentType}
-			></easycredit-checkout-label>
-		);
+		return createElement('easycredit-checkout-label', {
+			'payment-type': config.paymentType,
+		});
 	};
 
 	let methodConfiguration = {
 		name: name,
-		content: <Checkout />, // checkout view
-		edit: <Checkout />, // admin view
+		content: createElement(Checkout), // checkout view
+		edit: createElement(Checkout), // admin view
 		canMakePayment: () => {
 			return config.enabled;
 		},
 		paymentMethodId: config.id,
-		label: <CheckoutLabel />,
+		label: createElement(CheckoutLabel),
 		ariaLabel: "easycredit",
 		supports: {features: config.supports}
 	};

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "@wordpress/element";
+import { createElement, useRef } from "@wordpress/element";
 import { decodeEntities } from "@wordpress/html-entities";
 import { getSetting } from "@woocommerce/settings";
 
@@ -41,14 +41,12 @@ const ExpressButton = (props) => {
 
 	const amount = props.billing.cartTotal.value / 100;
 
-	return (
-		<easycredit-express-button
-			ref={ecCheckoutButton}
-			webshop-id={decodeEntities(config.apiKey)}
-			amount={amount}
-			payment-types={getConfigProperties("paymentType").join(",")}
-		></easycredit-express-button>
-	);
+	return createElement('easycredit-express-button', {
+		ref: ecCheckoutButton,
+		'webshop-id': decodeEntities(config.apiKey),
+		amount,
+		'payment-types': getConfigProperties("paymentType").join(","),
+	});
 };
 
 const getConfigProperties = (propertyName) => {
@@ -57,8 +55,8 @@ const getConfigProperties = (propertyName) => {
 
 const methodConfiguration = {
 	name: "easycredit",
-	content: <ExpressButton />,
-	edit: <ExpressButton />,
+	content: createElement(ExpressButton),
+	edit: createElement(ExpressButton),
 	canMakePayment: () => {
 		return getConfigProperties("enabled").some(Boolean);
 	},
