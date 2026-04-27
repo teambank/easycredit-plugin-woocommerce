@@ -4,6 +4,7 @@ namespace Netzkollektiv\EasyCredit\Gateway;
 
 use Teambank\EasyCreditApiV3 as ApiV3;
 
+use Netzkollektiv\EasyCredit\Compatibility\DiviMaybeExpireCompatibility;
 use Netzkollektiv\EasyCredit\Config\FieldProvider;
 use Netzkollektiv\EasyCredit\Integration;
 use Netzkollektiv\EasyCredit\InterestFeeHandler;
@@ -150,6 +151,12 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         $storage = $this->integration->storage();
         $authorizedAmount = $storage->get('authorized_amount');
         if ($authorizedAmount === null) {
+            return;
+        }
+
+        // Divi's Additional Info checkout module can trigger an intermediate totals
+        // calculation (shipping zeroed briefly) during render; skip expiry there.
+        if (DiviMaybeExpireCompatibility::shouldSkipExpire()) {
             return;
         }
 
