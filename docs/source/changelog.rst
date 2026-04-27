@@ -1,6 +1,14 @@
 Changelog
 =========
 
+3.1.1
+-----
+
+- die Zahlungsartenbeschreibungen für easyCredit-Ratenkauf und easyCredit-Rechnung werden im WooCommerce-Backend wieder korrekt in der Zahlartenliste angezeigt
+- Übersetzungen für Gateway- und Blocks-Beschriftungen werden nun erst ab init geladen, um Premature-Textdomain-Hinweise (WordPress 6.7+) zu vermeiden
+- die Ausrichtung der Marketing-Tabs im Backend wurde korrigiert (kein zu weit nach links versetzter erster Tab)
+- Anpassung zur Kompatibilität mit Divi-Template: Transaktion wird nicht invalidiert, wenn Checkout geladen wird.
+
 3.0.4
 -----
 
