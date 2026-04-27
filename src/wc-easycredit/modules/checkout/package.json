@@ -5,21 +5,21 @@
 	"author": "NETZKOLLEKTIV <corporate@netzkollektiv.com>",
 	"license": "MIT",
 	"devDependencies": {
-		"@babel/runtime": "^7.28.4",
-		"@woocommerce/dependency-extraction-webpack-plugin": "^3.1.0",
-		"@wordpress/components": "^28.13.0",
-		"@wordpress/eslint-plugin": "^19.2.0",
-		"@wordpress/prettier-config": "^4.36.0",
-		"@wordpress/scripts": "^28.6.0",
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1"
+		"@babel/runtime": "^7.29.2",
+		"@woocommerce/dependency-extraction-webpack-plugin": "^4.0.0",
+		"@wordpress/components": "^32.6.0",
+		"@wordpress/eslint-plugin": "^25.0.0",
+		"@wordpress/prettier-config": "^4.44.0",
+		"@wordpress/scripts": "^32.0.0",
+		"react": "^19.2.5",
+		"react-dom": "^19.2.5"
 	},
 	"scripts": {
 		"build": "wp-scripts build",
 		"format": "wp-scripts format",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
-		"packages-update": "wp-scripts packages-update",
+		"packages-update": "pnpm up --latest",
 		"start": "wp-scripts start"
 	}
 }

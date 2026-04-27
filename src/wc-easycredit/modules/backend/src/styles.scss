@@ -1,3 +1,5 @@
+@use "sass:color";
+
 /* Breakpoints */
 $breakpoint-xs-max: 782px;
 
@@ -135,11 +137,11 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
             &:hover,
             &:active,
             &:focus {
-                background-color: darken($color-ec-secondary, 5%) !important;
+                background-color: color.adjust($color-ec-secondary, $lightness: -5%) !important;
                 color: $color-white !important;
 
                 &.btn-primary {
-                    background-color: darken($color-ec-primary, 5%) !important;
+                    background-color: color.adjust($color-ec-primary, $lightness: -5%) !important;
                 }
             }
             &:active,
@@ -208,6 +210,7 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
         display: flex;
         margin-top: 20px;
         margin-bottom: 30px;
+        margin-left: -16px !important;
         max-width: 100%;
         overflow: scroll;
 
@@ -224,7 +227,7 @@ $transition-timing: cubic-bezier(0.73, 0.32, 0.14, 0.99);
         text-decoration: none !important;
 
         &:first-child {
-            margin-left: -16px;
+            margin-left: 0;
         }
 
         &:not(.active) {

@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@playwright/test": "^1.58",
-    "@wordpress/env": "^10.3.5",
+    "@wordpress/env": "^11.4.0",
     "yaml": "^2.6.0"
   },
   "devDependencies": {

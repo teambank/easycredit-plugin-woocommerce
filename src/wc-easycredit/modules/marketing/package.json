@@ -5,11 +5,12 @@
 	"author": "NETZKOLLEKTIV <corporate@netzkollektiv.com>",
 	"license": "MIT",
 	"devDependencies": {
-		"@babel/runtime": "^7.28.4",
+		"@babel/runtime": "^7.29.2",
 		"@woocommerce/dependency-extraction-webpack-plugin": "^4.0.0",
-		"@wordpress/components": "^30.9.0",
-		"@wordpress/prettier-config": "^4.36.0",
-		"@wordpress/scripts": "^31.1.0",
+		"@wordpress/components": "^32.6.0",
+		"@wordpress/prettier-config": "^4.44.0",
+		"@wordpress/scripts": "^32.0.0",
+		"baseline-browser-mapping": "^2.10.23",
 		"clean-webpack-plugin": "^4.0.0",
 		"webpack-remove-empty-scripts": "^1.1.1"
 	},
@@ -18,7 +19,7 @@
 		"format": "wp-scripts format",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
-		"packages-update": "wp-scripts packages-update",
+		"packages-update": "pnpm up --latest",
 		"start": "wp-scripts start"
 	}
 }
