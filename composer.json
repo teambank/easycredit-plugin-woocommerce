@@ -34,7 +34,8 @@
   },
   "scripts": {
     "prefix-namespaces": [
-        "sh -c 'test -f ./bin/strauss.phar || curl -o bin/strauss.phar -L -C - https://github.com/BrianHenryIE/strauss/releases/download/0.21.1/strauss.phar'",
+        "sh -c 'test -f ./bin/strauss.phar || curl -o bin/strauss.phar -L -C - https://github.com/BrianHenryIE/strauss/releases/download/0.26.5/strauss.phar'",
+        "sh -c 'mkdir -p \"${COMPOSER_HOME:-$HOME/.composer}/src\"'",
         "@php bin/strauss.phar",
         "@php composer dump-autoload"
     ],
