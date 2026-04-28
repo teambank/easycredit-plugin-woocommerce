@@ -108,7 +108,34 @@ export const goThroughPaymentPage = async ({
 			await switchButton.click({ force: true });
 		}
 
-		await page.getByRole("button", { name: "Dateneingabe" }).click();
+		await page.getByRole("button", { name: "Weiter" }).click();
+
+		// Fill mobile number for sms tan
+		await page
+			.locator("#mobilfunknummer")
+			.getByRole("textbox")
+			.fill("1703404848");
+
+		await doWithRetry(async () => {
+			await page.getByRole("button", { name: "SMS-TAN senden" }).click();
+			await delay(500);
+			const mtanInput = page.locator("#mTAN").getByRole("textbox");
+			const canFillMtan =
+				(await mtanInput.isVisible()) && (await mtanInput.isEditable());
+			if (!canFillMtan) {
+				throw new Error("mTAN input is not fillable yet");
+			}
+		});
+
+		// Enter the code from the SMS (anything works)
+		await page
+			.locator("#mTAN")
+			.getByRole("textbox")
+			.fill("123456");
+
+		await doWithRetry(async () => {
+			await page.getByRole("button", { name: "Zur Dateneingabe" }).click();
+		});
 
 		if (express) {
 			await page.locator("#firstName").fill(randomize("Ralf"));
@@ -125,10 +152,6 @@ export const goThroughPaymentPage = async ({
 		}
 
 		await page
-			.locator("#mobilfunknummer")
-			.getByRole("textbox")
-			.fill("1703404848");
-		await page
 			.locator("app-ratenkauf-iban-input-dumb")
 			.getByRole("textbox")
 			.fill("DE12500105170648489890");
@@ -139,19 +162,14 @@ export const goThroughPaymentPage = async ({
 			await page.locator("#city").fill("Nürnberg");
 		}
 
-		// Retry clicking until checkbox is checked
-		const maxRetries = 3;
-		for (let i = 0; i < maxRetries; i++) {
-			await page.locator("#sepamandat tbk-svg-icon").click({force: true});
+		await doWithRetry(async () => {
+			await page.locator("#sepamandat tbk-svg-icon").click({ force: true });
 			await delay(500);
 			const isChecked = await page.locator("#agreeSepa").isChecked();
-			if (isChecked) {
-				break;
+			if (!isChecked) {
+				throw new Error("SEPA checkbox was not checked");
 			}
-			if (i === maxRetries - 1) {
-				throw new Error('SEPA checkbox was not checked after multiple attempts');
-			}
-		}
+		});
 		
 		await page.locator("#next-btn").click();
 
