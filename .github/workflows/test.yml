@@ -74,14 +74,8 @@ jobs:
     name: woo v${{ matrix.woocommerce-version }}, wp v${{ matrix.wordpress-version }} @ php v${{ matrix.php-version }}
 
     env:
-      WORDPRESS_DIR: /opt/wordpress
-      PLUGIN_DIR: /opt/wordpress/wp-content/plugins/wc-easycredit
-      WORDPRESS_DB_HOST: 127.0.0.1
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress
-      WORDPRESS_DB_NAME: wordpress
-      WORDPRESS_DEBUG: true
-      WP_CLI_ALLOW_ROOT: true
+      PLUGIN_DIR: ${{ github.workspace }}/src/wc-easycredit
+      BASE_URL: http://localhost:8888
  
     steps:
       - name: Checkout
@@ -90,6 +84,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: pnpm
       - name: Install wp-env
         shell: bash
         run: npm -g i @wordpress/env
@@ -99,7 +94,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           extensions: json, curl, dom, mbstring, intl, xml, zip, apcu, opcache
           tools: composer:2.1.5
-          coverage: xdebug
+          coverage: none
           ini-values: error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT"
       - name: Debug
         run: |
@@ -109,8 +104,8 @@ jobs:
           node -v
       - name: Install Dependencies
         run: |
-          npm install --global pnpm
-          npm install --frozen-lockfile
+          corepack enable
+          pnpm install --frozen-lockfile
       - name: Install Wordpress & wooCommerce
         run: | 
           node -e 'console.log(JSON.stringify({"core": "WordPress/WordPress#${{ matrix.wordpress-version }}", "phpVersion": "${{ matrix.php-version }}", "lifecycleScripts":{}}, null, 2));' > .wp-env.override.json
@@ -134,27 +129,30 @@ jobs:
           cd $PLUGIN_DIR
           php vendor/bin/phpstan analyze .
       - name: Setup Playwright
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Playwright E2E Tests
         run: |
           cd $GITHUB_WORKSPACE
 
-          VERSION=${{ matrix.woocommerce-version }} BASE_URL=http://localhost:8888 npx playwright test -c tests/
+          VERSION=${{ matrix.woocommerce-version }} npx playwright test -c tests/
       - name: Save Logs for Debugging
         if: always()
         run: |
           LOG_DIR="playwright-report/logs"
+          WP_CONTENT_DIR="/var/www/html/wp-content"
 
           mkdir -p "$LOG_DIR"
           > "$LOG_DIR/index.html"
 
-          if [ -f "$WORDPRESS_DIR/wp-content/debug.log" ]; then
-            cp "$WORDPRESS_DIR/wp-content/debug.log" "$LOG_DIR/"
+          if wp-env run cli -- sh -lc "test -f \"$WP_CONTENT_DIR/debug.log\""; then
+            wp-env run cli -- sh -lc "cat \"$WP_CONTENT_DIR/debug.log\"" > "$LOG_DIR/debug.log"
           fi
 
-          if [ -d "$WORDPRESS_DIR/wp-content/uploads/wc-logs" ]; then
-            cp "$WORDPRESS_DIR/wp-content/uploads/wc-logs/"*.log "$LOG_DIR/" 2>/dev/null
-          fi
+          while IFS= read -r remote_log; do
+            [ -n "$remote_log" ] || continue
+            log_name=$(basename "$remote_log")
+            wp-env run cli -- sh -lc "cat \"$remote_log\"" > "$LOG_DIR/$log_name" || true
+          done < <(wp-env run cli -- sh -lc "ls -1 \"$WP_CONTENT_DIR/uploads/wc-logs\"/*.log 2>/dev/null || true")
 
           for i in "$LOG_DIR"/*; do
             [ -f "$i" ] || continue
