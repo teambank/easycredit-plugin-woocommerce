@@ -12,5 +12,6 @@
   "mappings": {
     "/scripts": "./scripts",
     "wp-content/plugins/wc-easycredit": "./src/wc-easycredit"
-  }
+  },
+  "testsEnvironment": false
 }
