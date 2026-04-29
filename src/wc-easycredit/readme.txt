@@ -1,16 +1,16 @@
 === Invoice and Partial Payments for Woocommerce – easyCredit Business Services ===
-Contributors: easycredit, ratenkaufbyeasycredit, netzkollektiv, easycredit-ratenkauf, easycredit-rechnung
-Tags: payment, woocommerce, ratenkauf, pay by installments, easycredit, pay later, bill payment
+Contributors: ratenkaufbyeasycredit, netzkollektiv
+Tags: payment, woocommerce, ratenkauf, pay by installments, easycredit
 Requires at least: 4.4
 Tested up to: 6.9
 Requires PHP: 7.1
 WC requires at least: 3.9
-WC tested up to: 10.6.0
+WC tested up to: 10.7.0
 Stable tag: 3.1.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
-Business Services from easyCredit - your partner for invoice and installment purchase. We offer your customers flexible, transparent and secure payment options. You get access to a leading range of installment and invoice options that boost your sales and increase customer satisfaction. Awarded as “Leader Payment” by OMR Reviews in Q1/25.
+Offer easyCredit installment and invoice payments in WooCommerce for Germany with transparent terms, secure checkout, and improved conversion.
 
 Expand your payment offering with easyCredit-Ratenkauf and easyCredit-Rechnung in your German WooCommerce store. Rely on our many years of experience in liquidity management and the proven high level of customer satisfaction with easyCredit.
 

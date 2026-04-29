@@ -9,6 +9,14 @@ Changelog
 - die Ausrichtung der Marketing-Tabs im Backend wurde korrigiert (kein zu weit nach links versetzter erster Tab)
 - Anpassung zur Kompatibilität mit Divi-Template: Transaktion wird nicht invalidiert, wenn Checkout geladen wird.
 
+3.1.0
+-----
+
+- die Review Page wurde entfernt, der Kunde wird auf den Checkout zurückgeleitet
+- die Blocks‑Checkout‑Integration und Payment‑Requirements wurden konsolidiert/aufgeräumt, Tests und Checkout‑Flows (inkl. Review‑Page‑Entfernung) wurden an das neue Verhalten angepasst.
+- Tests und Build‑Konfiguration umfassend überarbeitet, zur Anpassung an den neuen Checkout‑Flow
+- Kompatibilität aktualisiert: getestet bis WordPress 6.9 und WooCommerce 10.6.0
+
 3.0.4
 -----
 
