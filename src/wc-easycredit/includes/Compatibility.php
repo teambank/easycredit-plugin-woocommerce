@@ -2,12 +2,16 @@
 
 namespace Netzkollektiv\EasyCredit;
 
+use Netzkollektiv\EasyCredit\Compatibility\GermanMarketInterestFeeCompatibility;
+
 class Compatibility {
     private const OLD_PLUGIN_PATH = 'woocommerce-gateway-ratenkaufbyeasycredit/woocommerce-gateway-ratenkaufbyeasycredit.php';
 
     public function __construct() {
         add_action('admin_init', [$this, 'checkOldPlugin']);
         add_action('admin_notices', [$this, 'displayOldPluginNotice']);
+
+        new GermanMarketInterestFeeCompatibility();
     }
 
     /**

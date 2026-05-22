@@ -15,6 +15,9 @@ class InterestFeeHandler
     /** Fee line item name for EasyCredit interest (untranslated). */
     const FEE_NAME_INTEREST = 'Interest';
 
+    /** Stable cart fee id (locale-independent). */
+    const FEE_ID = 'easycredit-interest';
+
     const TEXT_DOMAIN = 'wc-easycredit';
 
     /**
@@ -30,6 +33,49 @@ class InterestFeeHandler
         }
         $name = $fee_item->get_name();
 
+        return self::matches_interest_fee_name($name);
+    }
+
+    /**
+     * Whether a cart fee line (WC_Cart_Totals wrapper or fee props) is the interest fee.
+     *
+     * @param object $fee
+     */
+    public static function is_interest_cart_fee_line($fee): bool
+    {
+        if ($fee instanceof \WC_Order_Item_Fee) {
+            return self::is_interest_fee_item($fee);
+        }
+
+        if (isset($fee->id) && (string) $fee->id === self::FEE_ID) {
+            return true;
+        }
+
+        $props = isset($fee->object) ? $fee->object : $fee;
+
+        if (isset($props->id) && (string) $props->id === self::FEE_ID) {
+            return true;
+        }
+
+        $name = null;
+        if (isset($props->name)) {
+            $name = (string) $props->name;
+        } elseif (is_object($props) && is_callable([$props, 'get_name'])) {
+            $name = (string) $props->get_name();
+        }
+
+        if ($name !== null) {
+            return self::matches_interest_fee_name($name);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $name
+     */
+    public static function matches_interest_fee_name(string $name): bool
+    {
         return $name === self::get_interest_fee_name() || $name === self::FEE_NAME_INTEREST;
     }
 
@@ -61,8 +107,11 @@ class InterestFeeHandler
         $item_fee->set_name(self::get_interest_fee_name());
         $item_fee->set_amount($interest_amount);
         $item_fee->set_total($interest_amount);
+        $item_fee->set_total_tax(0);
+        $item_fee->set_taxes(['total' => []]);
         $order->add_item($item_fee);
         $order->calculate_totals();
+        self::clear_interest_fee_taxes_on_order($order);
         $order->save();
     }
 
@@ -79,11 +128,43 @@ class InterestFeeHandler
             return;
         }
 
-        WC()->cart->add_fee(
-            self::get_interest_fee_name(),
-            $interest_amount,
-            false
-        );
+        foreach (WC()->cart->get_fees() as $fee) {
+            if (self::is_interest_cart_fee_line($fee)) {
+                return;
+            }
+        }
+
+        WC()->cart->fees_api()->add_fee([
+            'id' => self::FEE_ID,
+            'name' => self::get_interest_fee_name(),
+            'amount' => $interest_amount,
+            'taxable' => false,
+        ]);
+    }
+
+    /**
+     * Strip split taxes German Market may have applied to the interest fee line.
+     */
+    public static function clear_interest_fee_taxes_on_order(\WC_Order $order): void
+    {
+        $changed = false;
+
+        foreach ($order->get_items('fee') as $fee_item) {
+            if (!self::is_interest_fee_item($fee_item)) {
+                continue;
+            }
+
+            if ((float) $fee_item->get_total_tax() !== 0.0) {
+                $fee_item->set_total_tax(0);
+                $fee_item->set_taxes(['total' => []]);
+                $fee_item->save();
+                $changed = true;
+            }
+        }
+
+        if ($changed) {
+            $order->calculate_totals();
+        }
     }
 
     /**
