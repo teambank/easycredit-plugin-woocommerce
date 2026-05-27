@@ -1,3 +1,8 @@
+= 3.1.2 =
+
+- Kompatibilitätsfix für German Market: Steuern können bei Zins-/Gebührenpositionen korrekt behandelt werden (auch wenn einzelne Fee-Items nicht steuerbar sind)
+- Dokumentation und Ressourcen für das WordPress-Plugin-Verzeichnis aktualisiert
+
 = 3.1.1 =
 
 - die Zahlungsartenbeschreibungen für easyCredit-Ratenkauf und easyCredit-Rechnung werden im WooCommerce-Backend wieder korrekt in der Zahlartenliste angezeigt

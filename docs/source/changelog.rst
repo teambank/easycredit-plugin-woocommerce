@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.1.2
+-----
+
+- Kompatibilität mit German Market: zusätzliche Ausnahme von Umsatzssteuer für nicht steuerbare Zins-Position
+
 3.1.1
 -----
 
