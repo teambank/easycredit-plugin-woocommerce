@@ -1,5 +1,10 @@
 import { test, expect } from "@playwright/test";
 import { delay, randomize, doWithRetry } from "./utils";
+import {
+	goThroughPaymentPageViaApi,
+	resolvePaymentPageMode,
+	PAYMENT_SANDBOX,
+} from "../api/payment-api";
 import { PaymentTypes } from "./types";
 
 export const goToCart = async (page) => {
@@ -16,8 +21,8 @@ export const goToProduct = async (page, sku = "regular") => {
 
 export const addCurrentProductToCart = async (page) => {
 	await test.step(`Add current product to cart and go to checkout`, async () => {
-		await page.getByRole('button', { name: 'In den Warenkorb' }).first().click();
-		await page.goto('index.php/checkout/');
+		await page.getByRole("button", { name: "In den Warenkorb" }).first().click();
+		await page.goto("index.php/checkout/");
 	});
 };
 
@@ -34,12 +39,12 @@ export const fillClassicCheckout = async (page) => {
 	await page
 		.getByLabel("E-Mail-Adresse *")
 		.fill("ralf.ratenkauf@teambank.de");
-}
+};
 
 export const fillBlocksCheckout = async (page, scope?: any) => {
 	const root = scope ?? page;
 
-	if (scope === undefined) { // only for the main form, not for the billing-fields
+	if (scope === undefined) {
 		await page.getByLabel("E-Mail-Adresse").fill("ralf.ratenkauf@teambank.de");
 	}
 
@@ -87,13 +92,24 @@ export const goThroughPaymentPage = async ({
 	paymentType,
 	express = false,
 	switchPaymentType = false,
+	viaApi,
 }: {
 	page: any;
 	paymentType: PaymentTypes;
 	express?: boolean;
 	switchPaymentType?: boolean;
+	/** Use payment-page API instead of hosted UI. Defaults to EASYCREDIT_PAYMENT_API env. */
+	viaApi?: boolean;
 }) => {
-	await test.step(`easyCredit Payment (${paymentType})`, async () => {
+	const mode = resolvePaymentPageMode(viaApi);
+
+	if (mode === "api") {
+		return test.step(`easyCredit Payment via API (${paymentType})`, async () => {
+			await goThroughPaymentPageViaApi({ page, paymentType, express });
+		});
+	}
+
+	return test.step(`easyCredit Payment (${paymentType})`, async () => {
 		await page.getByTestId("uc-deny-all-button").click();
 
 		if (switchPaymentType) {
@@ -110,11 +126,10 @@ export const goThroughPaymentPage = async ({
 
 		await page.getByRole("button", { name: "Weiter" }).click();
 
-		// Fill mobile number for sms tan
 		await page
 			.locator("#mobilfunknummer")
 			.getByRole("textbox")
-			.fill("1703404848");
+			.fill(PAYMENT_SANDBOX.phone);
 
 		await doWithRetry(async () => {
 			await page.getByRole("button", { name: "SMS-TAN senden" }).click();
@@ -127,11 +142,10 @@ export const goThroughPaymentPage = async ({
 			}
 		});
 
-		// Enter the code from the SMS (anything works)
 		await page
 			.locator("#mTAN")
 			.getByRole("textbox")
-			.fill("123456");
+			.fill(PAYMENT_SANDBOX.tan);
 
 		await doWithRetry(async () => {
 			await page.getByRole("button", { name: "Zur Dateneingabe" }).click();
@@ -148,18 +162,18 @@ export const goThroughPaymentPage = async ({
 			await page
 				.locator("#email")
 				.getByRole("textbox")
-				.fill("ralf.ratenkauf@teambank.de");
+				.fill(PAYMENT_SANDBOX.expressEmail);
 		}
 
 		await page
 			.locator("app-ratenkauf-iban-input-dumb")
 			.getByRole("textbox")
-			.fill("DE12500105170648489890");
+			.fill(PAYMENT_SANDBOX.iban);
 
 		if (express) {
-			await page.locator("#streetAndNumber").fill("Beuthener Str. 25");
-			await page.locator("#postalCode").fill("90402");
-			await page.locator("#city").fill("Nürnberg");
+			await page.locator("#streetAndNumber").fill(PAYMENT_SANDBOX.street);
+			await page.locator("#postalCode").fill(PAYMENT_SANDBOX.postalCode);
+			await page.locator("#city").fill(PAYMENT_SANDBOX.city);
 		}
 
 		await doWithRetry(async () => {
@@ -170,7 +184,7 @@ export const goThroughPaymentPage = async ({
 				throw new Error("SEPA checkbox was not checked");
 			}
 		});
-		
+
 		await page.locator("#next-btn").click();
 
 		await delay(500);
@@ -181,46 +195,48 @@ export const goThroughPaymentPage = async ({
 };
 
 export const selectAndProceed = async ({
-  page,
-  paymentType,
-  selectOnly = false,
+	page,
+	paymentType,
+	selectOnly = false,
 }: {
-  page: any;
-  paymentType: PaymentTypes;
-  selectOnly?: boolean;
+	page: any;
+	paymentType: PaymentTypes;
+	selectOnly?: boolean;
 }) => {
-  await test.step(`Start standard checkout (${paymentType})`, async () => {
-    await page.waitForTimeout(2000);
+	await test.step(`Start standard checkout (${paymentType})`, async () => {
+		await page.waitForTimeout(2000);
 
-	if (paymentType === PaymentTypes.INSTALLMENT) {
-      await page
-        .locator("easycredit-checkout-label[payment-type=INSTALLMENT]")
-        .click();
-      if (!selectOnly) {
-        await page.locator("easycredit-checkout")
-          .getByRole("button", { name: "Weiter zu easyCredit-Ratenkauf" })
-          .click();
-      }
-      return;
-    }
-    if (paymentType === PaymentTypes.BILL) {
-      await page
-        .locator("easycredit-checkout-label[payment-type=BILL]")
-        .click();
-	  if (!selectOnly) {
-        await page.locator("easycredit-checkout")
-          .getByRole("button", { name: "auf Rechnung zahlen" })
-          .click();
-      }
-      return;
-    }
-  });
-}
+		if (paymentType === PaymentTypes.INSTALLMENT) {
+			await page
+				.locator("easycredit-checkout-label[payment-type=INSTALLMENT]")
+				.click();
+			if (!selectOnly) {
+				await page
+					.locator("easycredit-checkout")
+					.getByRole("button", { name: "Weiter zu easyCredit-Ratenkauf" })
+					.click();
+			}
+			return;
+		}
+		if (paymentType === PaymentTypes.BILL) {
+			await page
+				.locator("easycredit-checkout-label[payment-type=BILL]")
+				.click();
+			if (!selectOnly) {
+				await page
+					.locator("easycredit-checkout")
+					.getByRole("button", { name: "auf Rechnung zahlen" })
+					.click();
+			}
+			return;
+		}
+	});
+};
 
 export const confirmOrder = async ({
 	page,
 	paymentType,
-	isClassicCheckout
+	isClassicCheckout,
 }: {
 	page: any;
 	paymentType: PaymentTypes;
@@ -228,12 +244,12 @@ export const confirmOrder = async ({
 }) => {
 	await test.step(`Confirm order`, async () => {
 		await expect(page.locator("easycredit-checkout-label")).toContainText(
-			paymentType === PaymentTypes.INSTALLMENT
-				? "Ratenkauf"
-				: "Rechnung"
+			paymentType === PaymentTypes.INSTALLMENT ? "Ratenkauf" : "Rechnung"
 		);
 
-		const orderSummaryBlock = isClassicCheckout ? page.locator(".woocommerce-checkout-review-order-table") : page.locator(".wp-block-woocommerce-checkout-totals-block");
+		const orderSummaryBlock = isClassicCheckout
+			? page.locator(".woocommerce-checkout-review-order-table")
+			: page.locator(".wp-block-woocommerce-checkout-totals-block");
 		if (paymentType === PaymentTypes.INSTALLMENT) {
 			await expect
 				.soft(orderSummaryBlock)
@@ -244,55 +260,61 @@ export const confirmOrder = async ({
 				.not.toContainText(/Zinsen für Ratenzahlung|Interest/);
 		}
 
-		await page.getByRole("button", { name: /Kostenpflichtig bestellen|Bestellung aufgeben/ }).click();
+		await page
+			.getByRole("button", { name: /Kostenpflichtig bestellen|Bestellung aufgeben/ })
+			.click();
 
-		/* Success Page */
 		await expect(page).toHaveURL(/order-received/);
 	});
 };
 
 export const checkAmountInvalidation = async (page) => {
 	await test.step(`Check amount change invalidates payment`, async () => {
-		// Wait for checkout to be loaded
-		await page.locator("easycredit-checkout").waitFor({ state: 'visible' });
+		await page.locator("easycredit-checkout").waitFor({ state: "visible" });
 
-		// Go to cart and change quantity to invalidate the payment
-		await page.goto('index.php/cart/');
-		const quantityInput = page.locator('.wc-block-components-quantity-selector input').first();
-		await quantityInput.fill('2');
-		
-		// Wait for the relevant API request to complete after changing quantity
-		await page.waitForResponse((response) =>
-			response.url().includes('wp-json/wc/store/v1/batch') ||
-			response.url().includes('wp-json/wc/store/v1/cart/update-item')
+		await page.goto("index.php/cart/");
+		const quantityInput = page
+			.locator(".wc-block-components-quantity-selector input")
+			.first();
+		await quantityInput.fill("2");
+
+		await page.waitForResponse(
+			(response) =>
+				response.url().includes("wp-json/wc/store/v1/batch") ||
+				response.url().includes("wp-json/wc/store/v1/cart/update-item")
 		);
-		
-		// Go back to checkout and wait for it to be loaded
-		await page.goto('index.php/checkout/');
-		// Verify payment is invalidated - payment-plan attribute should not be set
-		await expect(page.locator("easycredit-checkout")).not.toHaveAttribute('payment-plan');
+
+		await page.goto("index.php/checkout/");
+		await expect(page.locator("easycredit-checkout")).not.toHaveAttribute(
+			"payment-plan"
+		);
 	});
 };
 
 export const checkAddressInvalidation = async (page) => {
 	await test.step(`Check address change invalidates payment`, async () => {
-		// Wait for checkout to be loaded
-		await page.locator("easycredit-checkout").waitFor({ state: 'visible' });
+		await page.locator("easycredit-checkout").waitFor({ state: "visible" });
 
-		// Change address to invalidate the payment
 		await page
-			.locator('[aria-label="Lieferadresse bearbeiten"], [aria-label="Rechnungsadresse bearbeiten"], [aria-label="Adresse bearbeiten"]')
-		 .first()
-		 .click();
+			.locator(
+				'[aria-label="Lieferadresse bearbeiten"], [aria-label="Rechnungsadresse bearbeiten"], [aria-label="Adresse bearbeiten"]'
+			)
+			.first()
+			.click();
 
-		const addressField = page.getByRole("textbox", { name: "Postleitzahl", exact: true });
+		const addressField = page.getByRole("textbox", {
+			name: "Postleitzahl",
+			exact: true,
+		});
 		await addressField.fill("90403");
 		await addressField.blur();
 
-		await page.waitForResponse(response => 
-			response.url().includes('wp-json/wc/store/v1/batch')
+		await page.waitForResponse((response) =>
+			response.url().includes("wp-json/wc/store/v1/batch")
 		);
 
-		await expect(page.locator("easycredit-checkout")).not.toHaveAttribute('payment-plan');
+		await expect(page.locator("easycredit-checkout")).not.toHaveAttribute(
+			"payment-plan"
+		);
 	});
 };

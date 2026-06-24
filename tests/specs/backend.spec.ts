@@ -1,30 +1,28 @@
 import { test, expect } from "@playwright/test";
-import { takeScreenshot, scaleDown, delay, greaterOrEqualsThan } from "./utils";
+import { takeScreenshot, scaleDown, delay, greaterOrEqualsThan } from "../helpers/utils";
 
 test.beforeEach(scaleDown);
 test.afterEach(takeScreenshot);
 
 const goToOrderList = async (page) => {
 	await page.goto("/wp-admin/admin.php?page=wc-orders&status=wc-processing");
-}
+};
 
 const goToPluginSettings = async (page) => {
 	await page.goto(
 		"/wp-admin/admin.php?page=wc-settings&tab=checkout&section=easycredit"
 	);
-}
+};
 
 test("settingsCheck", async ({ page }) => {
-	await goToPluginSettings(page)
+	await goToPluginSettings(page);
 
 	page.on("dialog", async (dialog) => {
 		expect(dialog.message()).toContain("Die Zugangsdaten sind korrekt");
 		await dialog.accept();
 	});
 
-    await page
-		.locator("#woocommerce_easycredit_api_verify_credentials")
-		.click();
+	await page.locator("#woocommerce_easycredit_api_verify_credentials").click();
 });
 
 test.describe("Check order listing page for merchant widget", () => {
@@ -41,9 +39,7 @@ test.describe("Check order listing page for merchant widget", () => {
 		await test.step("check for merchant status widget in listing view", async () => {
 			expect(
 				page
-					.locator(
-						"table easycredit-merchant-status-widget.hydrated"
-					)
+					.locator("table easycredit-merchant-status-widget.hydrated")
 					.first()
 			).toBeVisible();
 		});
@@ -59,7 +55,6 @@ test.describe("Check order detail page for merchant widget, manager & prevent sh
 
 		await goToOrderList(page);
 
-		// go to first order
 		await page.locator("table .order-view").first().click();
 
 		await delay(1000);

@@ -13,15 +13,12 @@ export const randomize = (name, num = 3): string => {
 
 export const takeScreenshot = async ({ page }, testInfo): Promise<void> => {
 	if (testInfo.status !== testInfo.expectedStatus) {
-		// Get a unique place for the screenshot.
 		const screenshotPath = testInfo.outputPath(`failure.png`);
-		// Add it to the report.
 		testInfo.attachments.push({
 			name: "screenshot",
 			path: screenshotPath,
 			contentType: "image/png",
 		});
-		// Take the screenshot itself.
 		await page.screenshot({ path: screenshotPath, timeout: 5000 });
 	}
 };
@@ -41,26 +38,26 @@ export const seconds = (sec: number) => {
 };
 
 export const greaterOrEqualsThan = (v) => {
-  return (
-    v.localeCompare(process.env.VERSION.replace(/^v/, ""), undefined, {
-      numeric: true,
-      sensitivity: "base",
-    }) <= 0
-  );
+	return (
+		v.localeCompare(process.env.VERSION.replace(/^v/, ""), undefined, {
+			numeric: true,
+			sensitivity: "base",
+		}) <= 0
+	);
 };
 
 export async function doWithRetry(action: () => Promise<void>, maxRetries = 3) {
-  let attempt = 0;
-  while (attempt < maxRetries) {
-    try {
-      await action();
-      return;
-    } catch (e) {
-      console.error(`Action failed on attempt ${attempt + 1}: ${e.message}`);
-      attempt++;
-      if (attempt === maxRetries) {
-        throw new Error(`Max retries reached, action failed: ${e.message}`);
-      }
-    }
-  }
-};
+	let attempt = 0;
+	while (attempt < maxRetries) {
+		try {
+			await action();
+			return;
+		} catch (e) {
+			console.error(`Action failed on attempt ${attempt + 1}: ${e.message}`);
+			attempt++;
+			if (attempt === maxRetries) {
+				throw new Error(`Max retries reached, action failed: ${e.message}`);
+			}
+		}
+	}
+}

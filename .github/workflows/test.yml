@@ -77,6 +77,7 @@ jobs:
       PLUGIN_DIR: ${{ github.workspace }}/src/wc-easycredit
       BASE_URL: http://localhost:8888
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      EASYCREDIT_PAYMENT_API: true
  
     steps:
       - name: Checkout
@@ -102,6 +103,7 @@ jobs:
           php -i
           env
           node -v
+          echo "EASYCREDIT_PAYMENT_API=${EASYCREDIT_PAYMENT_API:-unset}"
       - name: Install Dependencies
         run: |
           npm install --global pnpm
@@ -131,6 +133,8 @@ jobs:
       - name: Setup Playwright
         run: npx playwright install chromium
       - name: Playwright E2E Tests
+        env:
+          EASYCREDIT_PAYMENT_API: true
         run: |
           cd $GITHUB_WORKSPACE
 
