@@ -117,6 +117,9 @@ try {
 		'wp wc product create --name="Regular" --slug="regular" --type="simple" --sku="regular" --regular_price="201" --status="publish" --user="admin"'
 	);
 	run(
+		'wp wc product create --name="LastOne" --slug="lastone" --type="simple" --sku="lastone" --regular_price="201" --status="publish" --manage_stock=true --stock_quantity=1 --user="admin"'
+	);
+	run(
 		'wp wc product create --name="Below50" --slug="below50" --type="simple" --sku="below50" --regular_price="49" --status="publish" --user="admin"'
 	);
 	run(
