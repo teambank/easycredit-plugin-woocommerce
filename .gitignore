@@ -24,3 +24,5 @@ bin/strauss.phar
 /docker-compose.override.yml
 /wp-cli.local.yml
 /wordpress
+playwright-report/
+test-results/

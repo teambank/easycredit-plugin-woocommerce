@@ -169,10 +169,68 @@ jobs:
             f=$(basename "$i")
             echo "<a href=\"$f\">$f</a><br />" >> "$LOG_DIR/index.html"
           done
-      - name: Deploy Report
+      - name: Upload Playwright report
         if: always()
-        uses: cloudflare/wrangler-action@v3
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.woocommerce-version }}
+          path: playwright-report/
+          if-no-files-found: warn
+
+  deploy-report:
+    name: Deploy Playwright reports
+    needs: [resolve-matrix, ci-current]
+    if: ${{ always() && needs.ci-current.result != 'cancelled' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all Playwright reports
+        id: download-reports
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-report-*
+          path: artifacts
+          merge-multiple: true
+      - name: Build combined report site
+        id: build-site
+        run: |
+          shopt -s nullglob
+          mkdir -p site
+
+          if [ ! -d artifacts ] || [ -z "$(ls -A artifacts 2>/dev/null)" ]; then
+            echo "No Playwright reports found to deploy."
+            exit 0
+          fi
+
+          for report_dir in artifacts/playwright-report-*; do
+            version="${report_dir#artifacts/playwright-report-}"
+            cp -R "$report_dir" "site/$version"
+          done
+
+          if [ ! "$(ls -A site)" ]; then
+            echo "No Playwright reports found to deploy."
+            exit 0
+          fi
+
+          echo "has_reports=true" >> "$GITHUB_OUTPUT"
+
+          {
+            echo '<!DOCTYPE html>'
+            echo '<html lang="en"><head><meta charset="utf-8">'
+            echo '<title>easyCredit Playwright Reports</title>'
+            echo '<style>body{font-family:sans-serif;max-width:48rem;margin:2rem auto;padding:0 1rem}'
+            echo 'ul{line-height:1.8}</style></head><body>'
+            echo '<h1>easyCredit Playwright Reports</h1><ul>'
+            for version_dir in site/*/; do
+              version="$(basename "$version_dir")"
+              echo "<li><a href=\"$version/\">WooCommerce $version</a></li>"
+            done
+            echo '</ul></body></html>'
+          } > site/index.html
+      - name: Deploy Report
+        if: steps.build-site.outputs.has_reports == 'true'
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy playwright-report/ --project-name=easycredit-playwright-reports
+          command: pages deploy site/ --project-name=easycredit-playwright-reports
