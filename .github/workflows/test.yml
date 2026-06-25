@@ -91,7 +91,7 @@ jobs:
       - name: Setup NodeJs
         uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 24
       - name: Install wp-env
         shell: bash
         run: npm -g i @wordpress/env
@@ -190,7 +190,6 @@ jobs:
         with:
           pattern: playwright-report-*
           path: artifacts
-          merge-multiple: true
       - name: Build combined report site
         id: build-site
         run: |
