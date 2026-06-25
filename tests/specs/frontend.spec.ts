@@ -9,7 +9,9 @@ test.describe("Widget should be visible @product", () => {
 	test("widgetProduct", async ({ page }) => {
 		await goToProduct(page);
 		await expect(
-			page.locator(".product .price").getByText(/Finanzieren ab.+?Monat/)
+			page
+				.locator(".product .summary")
+				.getByText(/Finanzieren ab.+?Monat/)
 		).toBeVisible();
 	});
 });
@@ -18,7 +20,9 @@ test.describe("Widget should be visible outside amount constraint @product", () 
 	test("widgetProductOutsideAmount", async ({ page }) => {
 		await goToProduct(page, "below50");
 		await expect(
-			page.locator(".product .price").getByText(/Finanzieren ab.+?Bestellwert/)
+			page
+				.locator(".product .summary")
+				.getByText(/Finanzieren ab.+?Bestellwert/)
 		).toBeVisible();
 	});
 });
