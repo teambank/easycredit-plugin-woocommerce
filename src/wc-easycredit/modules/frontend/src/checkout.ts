@@ -55,14 +55,19 @@ export const handleCheckout = (checkout) => {
 		if (
 			target instanceof Element &&
 			(target.closest(".woocommerce-billing-fields") ||
-				target.matches("#billing_company"))
+				target.closest(".woocommerce-shipping-fields") ||
+				target.matches("#billing_company") ||
+				target.matches("#shipping_company"))
 		) {
 			jQuery(target).trigger("update_checkout");
 		}
 	});
 	checkout.addEventListener("input", (event) => {
 		const target = event.target;
-		if (target instanceof Element && target.matches("#billing_company")) {
+		if (
+			target instanceof Element &&
+			(target.matches("#billing_company") || target.matches("#shipping_company"))
+		) {
 			jQuery(target).trigger("update_checkout");
 		}
 	});

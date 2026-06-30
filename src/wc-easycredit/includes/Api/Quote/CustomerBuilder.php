@@ -50,8 +50,42 @@ class CustomerBuilder
 
     public function getCompany()
     {
-        $address = $this->getBillingAddress();
-        return $address['company'] ?? '';
+        $billing = $this->getBillingAddress();
+        $company = trim((string) ($billing['company'] ?? ''));
+        if ($company !== '') {
+            return $company;
+        }
+
+        $shipping = $this->getShippingAddress();
+
+        return $shipping['company'] ?? '';
+    }
+
+    protected function getShippingAddress()
+    {
+        if ($this->quote instanceof \WC_Order) {
+            $address = $this->quote->get_address('shipping');
+            if (!empty(\array_filter($address))) {
+                return $address;
+            }
+
+            return $this->quote->get_address('billing');
+        } elseif ($this->quote instanceof \WC_Cart) {
+            if (WC()->customer) {
+                $address = WC()->customer->get_shipping();
+                if (!empty(\array_filter($address))) {
+                    return $address;
+                }
+            }
+            if ($this->isLoggedIn()) {
+                $address = $this->customer->get_shipping();
+                if (!empty(\array_filter($address))) {
+                    return $address;
+                }
+            }
+        }
+
+        return [];
     }
 
     public function getTelephone()

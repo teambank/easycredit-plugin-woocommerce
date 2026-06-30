@@ -85,6 +85,8 @@ class Plugin
             $integration
         );
 
+        new Api\CheckoutRestApi($integration);
+
         if (!is_admin()) {
             new Widget\Product(
                 $plugin,

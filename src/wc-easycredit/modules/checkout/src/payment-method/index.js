@@ -1,5 +1,6 @@
 import { createElement, useRef, useEffect, useState } from "@wordpress/element";
 import { useSelect } from "@wordpress/data";
+import apiFetch from "@wordpress/api-fetch";
 import { VALIDATION_STORE_KEY } from '@woocommerce/block-data';
 import { __ } from "@wordpress/i18n";
 import { decodeEntities } from "@wordpress/html-entities";
@@ -37,21 +38,18 @@ export const getMethodConfiguration = (name) => {
 			select(VALIDATION_STORE_KEY).hasValidationErrors()
 		);
 
-		const billingCompany = billing.billingAddress?.company ?? "";
-		const hasCompany = Boolean(billingCompany.trim());
-		const companyNotAllowedMessage = config.companyNotAllowedMessage ?? "";
+		const [validationMessage, setValidationMessage] = useState("");
 
 		const ecCheckout = useRef(null);
 		const [paymentPlan, setPaymentPlan] = useState(config.paymentPlan);
 		const privacyApproved = useRef(paymentPlan != null);
 		
-		// Create a hash from cart data (amount + addresses + company flag) to detect changes
-		const createCartHash = (amount, billingAddress, shippingAddress, hasCompany) => {
+		// Create a hash from cart data (amount + addresses) to detect changes
+		const createCartHash = (amount, billingAddress, shippingAddress) => {
 			return JSON.stringify({
 				amount,
 				billingAddress,
 				shippingAddress: shippingAddress || {},
-				hasCompany,
 			});
 		};
 		
@@ -59,8 +57,7 @@ export const getMethodConfiguration = (name) => {
 			createCartHash(
 				billing.cartTotal.value,
 				billing.billingAddress,
-				shippingData.shippingAddress,
-				hasCompany
+				shippingData.shippingAddress
 			)
 		);
 
@@ -91,8 +88,7 @@ export const getMethodConfiguration = (name) => {
 			const currentCartHash = createCartHash(
 				billing.cartTotal.value,
 				billing.billingAddress,
-				shippingData.shippingAddress,
-				hasCompany
+				shippingData.shippingAddress
 			);
 
 			if (prevCartHash.current !== currentCartHash) {
@@ -100,7 +96,41 @@ export const getMethodConfiguration = (name) => {
 				privacyApproved.current = false;
 				prevCartHash.current = currentCartHash;
 			}
-		}, [billing.cartTotal.value, billing.billingAddress, shippingData.shippingAddress, billingCompany]);
+		}, [billing.cartTotal.value, billing.billingAddress, shippingData.shippingAddress]);
+
+		useEffect(() => {
+			let cancelled = false;
+
+			const timeoutId = window.setTimeout(() => {
+				apiFetch({
+					path: "/easycredit/v1/checkout-validation",
+					method: "POST",
+					data: {
+						billing: billing.billingAddress,
+						shipping: shippingData.shippingAddress,
+					},
+				})
+					.then((response) => {
+						if (!cancelled) {
+							setValidationMessage(response.message || "");
+						}
+					})
+					.catch(() => {
+						if (!cancelled) {
+							setValidationMessage("");
+						}
+					});
+			}, 400);
+
+			return () => {
+				cancelled = true;
+				window.clearTimeout(timeoutId);
+			};
+		}, [
+			billing.billingAddress,
+			shippingData.shippingAddress,
+			billing.cartTotal.value,
+		]);
 
 		/*
 		 * submit checkout if easycredit-checkout triggers easycredit-submit event
@@ -126,10 +156,10 @@ export const getMethodConfiguration = (name) => {
 					return true;
 				}
 
-				if (hasCompany) {
+				if (validationMessage) {
 					return {
 						type: "error",
-						message: companyNotAllowedMessage,
+						message: validationMessage,
 					};
 				}
 
@@ -147,7 +177,7 @@ export const getMethodConfiguration = (name) => {
 				};
 			});
 			return unsubscribe;
-		}, [onCheckoutValidation, activePaymentMethod, privacyApproved, hasCompany]);
+		}, [onCheckoutValidation, activePaymentMethod, privacyApproved, validationMessage]);
 
 		useEffect(() => {
 			if (activePaymentMethod !== config.id) {
@@ -173,7 +203,7 @@ export const getMethodConfiguration = (name) => {
 				amount: billing.cartTotal.value / 100,
 				'payment-type': config.paymentType,
 				'payment-plan': paymentPlan,
-				alert: hasCompany ? companyNotAllowedMessage : "",
+				alert: validationMessage,
 			}),
 			// Keep hidden content so Woo does not collapse empty accordion body.
 			createElement('span', { style: { display: 'none' } }, 'Checkout Component')
