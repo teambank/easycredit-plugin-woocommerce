@@ -1,6 +1,6 @@
 import { createElement, useRef, useEffect, useState } from "@wordpress/element";
 import { useSelect } from "@wordpress/data";
-import { VALIDATION_STORE_KEY, CHECKOUT_STORE_KEY } from '@woocommerce/block-data';
+import { VALIDATION_STORE_KEY } from '@woocommerce/block-data';
 import { __ } from "@wordpress/i18n";
 import { decodeEntities } from "@wordpress/html-entities";
 import { getSetting } from "@woocommerce/settings";
@@ -37,9 +37,7 @@ export const getMethodConfiguration = (name) => {
 			select(VALIDATION_STORE_KEY).hasValidationErrors()
 		);
 
-		const billingCompany = useSelect((select) =>
-			select(CHECKOUT_STORE_KEY).getBillingAddress()?.company ?? ""
-		);
+		const billingCompany = billing.billingAddress?.company ?? "";
 		const hasCompany = Boolean(billingCompany.trim());
 
 		const ecCheckout = useRef(null);
@@ -101,7 +99,7 @@ export const getMethodConfiguration = (name) => {
 				privacyApproved.current = false;
 				prevCartHash.current = currentCartHash;
 			}
-		}, [billing.cartTotal.value, billing.billingAddress, shippingData.shippingAddress, hasCompany]);
+		}, [billing.cartTotal.value, billing.billingAddress, shippingData.shippingAddress, billingCompany]);
 
 		/*
 		 * submit checkout if easycredit-checkout triggers easycredit-submit event
