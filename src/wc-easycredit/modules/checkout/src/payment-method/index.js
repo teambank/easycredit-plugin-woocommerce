@@ -5,9 +5,6 @@ import { __ } from "@wordpress/i18n";
 import { decodeEntities } from "@wordpress/html-entities";
 import { getSetting } from "@woocommerce/settings";
 
-const companyNotAllowedMessage =
-	"Die Zahlung mit easyCredit ist nur für Privatpersonen möglich.";
-
 export const getMethodConfiguration = (name) => {
 	const config = getSetting(name + "_data");
 
@@ -42,6 +39,7 @@ export const getMethodConfiguration = (name) => {
 
 		const billingCompany = billing.billingAddress?.company ?? "";
 		const hasCompany = Boolean(billingCompany.trim());
+		const companyNotAllowedMessage = config.companyNotAllowedMessage ?? "";
 
 		const ecCheckout = useRef(null);
 		const [paymentPlan, setPaymentPlan] = useState(config.paymentPlan);

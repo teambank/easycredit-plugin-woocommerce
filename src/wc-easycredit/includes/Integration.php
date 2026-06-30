@@ -78,7 +78,7 @@ class Integration
             $transactionApi,
             $installmentPlanApi,
             $this->storage(),
-            new ApiV3\Integration\Util\AddressValidator(),
+            new \Netzkollektiv\EasyCredit\Api\AddressValidator(),
             new ApiV3\Integration\Util\PrefixConverter(),
             $this->logger()
         );

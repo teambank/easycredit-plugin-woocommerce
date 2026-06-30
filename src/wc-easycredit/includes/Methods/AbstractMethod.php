@@ -3,6 +3,7 @@
 namespace Netzkollektiv\EasyCredit\Methods;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
+use Netzkollektiv\EasyCredit\Api\AddressValidator;
 
 defined('ABSPATH') || exit;
 
@@ -75,7 +76,8 @@ class AbstractMethod extends AbstractPaymentMethodType
             'enabled'     => $this->is_active(),
             'apiKey'      => $this->settings['api_key'],
             'expressUrl'  => get_site_url(null, 'easycredit/express'),
-            'placeOrderButtonLabel' => $this->place_order_button_label
+            'placeOrderButtonLabel' => $this->place_order_button_label,
+            'companyNotAllowedMessage' => AddressValidator::COMPANY_NOT_ALLOWED_MESSAGE,
         ];
 
         $payment_plan = $this->integration ? $this->integration->storage()->get('summary') : null;
