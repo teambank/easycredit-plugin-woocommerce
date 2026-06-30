@@ -5,6 +5,9 @@ import { __ } from "@wordpress/i18n";
 import { decodeEntities } from "@wordpress/html-entities";
 import { getSetting } from "@woocommerce/settings";
 
+const companyNotAllowedMessage =
+	"Die Zahlung mit easyCredit ist nur für Privatpersonen möglich.";
+
 export const getMethodConfiguration = (name) => {
 	const config = getSetting(name + "_data");
 
@@ -124,6 +127,14 @@ export const getMethodConfiguration = (name) => {
 				if (!ecCheckout.current) {
 					return true;
 				}
+
+				if (hasCompany) {
+					return {
+						type: "error",
+						message: companyNotAllowedMessage,
+					};
+				}
+
 				if (
 					privacyApproved.current ||
 					name !== "easycredit_ratenkauf"
@@ -138,7 +149,7 @@ export const getMethodConfiguration = (name) => {
 				};
 			});
 			return unsubscribe;
-		}, [onCheckoutValidation, activePaymentMethod, privacyApproved]);
+		}, [onCheckoutValidation, activePaymentMethod, privacyApproved, hasCompany]);
 
 		useEffect(() => {
 			if (activePaymentMethod !== config.id) {
@@ -164,6 +175,7 @@ export const getMethodConfiguration = (name) => {
 				amount: billing.cartTotal.value / 100,
 				'payment-type': config.paymentType,
 				'payment-plan': paymentPlan,
+				alert: hasCompany ? companyNotAllowedMessage : "",
 			}),
 			// Keep hidden content so Woo does not collapse empty accordion body.
 			createElement('span', { style: { display: 'none' } }, 'Checkout Component')

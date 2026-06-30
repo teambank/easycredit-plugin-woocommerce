@@ -340,6 +340,11 @@ export const checkCompanyInvalidation = async (page) => {
 		await companyField.fill("Test GmbH");
 		await companyField.blur();
 
+		await expect(page.locator("easycredit-checkout")).toHaveAttribute(
+			"alert",
+			/nur für Privatpersonen möglich/i
+		);
+
 		await page.waitForResponse((response) =>
 			response.url().includes("wp-json/wc/store/v1/batch")
 		);

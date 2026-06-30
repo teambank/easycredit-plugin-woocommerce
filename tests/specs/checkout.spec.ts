@@ -128,6 +128,11 @@ test.describe("company should not be able to pay @bill @installment", () => {
 		await fillBlocksCheckout(page);
 		await page.getByRole("textbox", { name: "Unternehmen" }).fill("Test GmbH");
 
+		await expect(page.locator("easycredit-checkout")).toHaveAttribute(
+			"alert",
+			/nur für Privatpersonen möglich/i
+		);
+
 		await selectAndProceed({ page, paymentType: PaymentTypes.INSTALLMENT });
 
 		await expect(page.locator("body")).toContainText(
