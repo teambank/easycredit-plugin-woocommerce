@@ -37,16 +37,22 @@ export const getMethodConfiguration = (name) => {
 			select(VALIDATION_STORE_KEY).hasValidationErrors()
 		);
 
+		const billingCompany = useSelect((select) =>
+			select(CHECKOUT_STORE_KEY).getBillingAddress()?.company ?? ""
+		);
+		const hasCompany = Boolean(billingCompany.trim());
+
 		const ecCheckout = useRef(null);
 		const [paymentPlan, setPaymentPlan] = useState(config.paymentPlan);
 		const privacyApproved = useRef(paymentPlan != null);
 		
-		// Create a hash from cart data (amount + addresses) to detect changes
-		const createCartHash = (amount, billingAddress, shippingAddress) => {
+		// Create a hash from cart data (amount + addresses + company flag) to detect changes
+		const createCartHash = (amount, billingAddress, shippingAddress, hasCompany) => {
 			return JSON.stringify({
 				amount,
 				billingAddress,
-				shippingAddress: shippingAddress || {}
+				shippingAddress: shippingAddress || {},
+				hasCompany,
 			});
 		};
 		
@@ -54,7 +60,8 @@ export const getMethodConfiguration = (name) => {
 			createCartHash(
 				billing.cartTotal.value,
 				billing.billingAddress,
-				shippingData.shippingAddress
+				shippingData.shippingAddress,
+				hasCompany
 			)
 		);
 
@@ -85,7 +92,8 @@ export const getMethodConfiguration = (name) => {
 			const currentCartHash = createCartHash(
 				billing.cartTotal.value,
 				billing.billingAddress,
-				shippingData.shippingAddress
+				shippingData.shippingAddress,
+				hasCompany
 			);
 
 			if (prevCartHash.current !== currentCartHash) {
@@ -93,7 +101,7 @@ export const getMethodConfiguration = (name) => {
 				privacyApproved.current = false;
 				prevCartHash.current = currentCartHash;
 			}
-		}, [billing.cartTotal.value, billing.billingAddress, shippingData.shippingAddress]);
+		}, [billing.cartTotal.value, billing.billingAddress, shippingData.shippingAddress, hasCompany]);
 
 		/*
 		 * submit checkout if easycredit-checkout triggers easycredit-submit event

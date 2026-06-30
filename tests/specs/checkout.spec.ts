@@ -17,6 +17,7 @@ import {
 	addCurrentProductToCart,
 	checkAddressInvalidation,
 	checkAmountInvalidation,
+	checkCompanyInvalidation,
 } from "../helpers/common";
 import { PaymentTypes } from "../helpers/types";
 import { setProductStock } from "../api/woocommerce-api";
@@ -172,6 +173,28 @@ test.describe("address change should invalidate payment @installment", () => {
 		});
 
 		await checkAddressInvalidation(page);
+	});
+});
+
+test.describe("company change should invalidate payment @installment", () => {
+	test("checkoutCompanyChange", async ({ page }) => {
+		test.skip(!greaterOrEqualsThan("9.6.0"), "Requires WooCommerce 9.6.0+");
+
+		await goToProduct(page);
+
+		await addCurrentProductToCart(page);
+
+		await page.goto("index.php/checkout/");
+		await fillBlocksCheckout(page);
+
+		await selectAndProceed({ page, paymentType: PaymentTypes.INSTALLMENT });
+
+		await goThroughPaymentPage({
+			page: page,
+			paymentType: PaymentTypes.INSTALLMENT,
+		});
+
+		await checkCompanyInvalidation(page);
 	});
 });
 

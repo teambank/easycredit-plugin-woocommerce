@@ -318,3 +318,21 @@ export const checkAddressInvalidation = async (page) => {
 		);
 	});
 };
+
+export const checkCompanyInvalidation = async (page) => {
+	await test.step(`Check company change invalidates payment`, async () => {
+		await page.locator("easycredit-checkout").waitFor({ state: "visible" });
+
+		const companyField = page.getByRole("textbox", { name: "Unternehmen" });
+		await companyField.fill("Test GmbH");
+		await companyField.blur();
+
+		await page.waitForResponse((response) =>
+			response.url().includes("wp-json/wc/store/v1/batch")
+		);
+
+		await expect(page.locator("easycredit-checkout")).not.toHaveAttribute(
+			"payment-plan"
+		);
+	});
+};

@@ -51,13 +51,19 @@ export const handleCheckout = (checkout) => {
 		true,
 	);
 	checkout.addEventListener("change", (event) => {
-		const billingCompany = event.target;
+		const target = event.target;
 		if (
-			billingCompany instanceof Element &&
-			billingCompany &&
-			billingCompany.closest(".woocommerce-billing-fields")
+			target instanceof Element &&
+			(target.closest(".woocommerce-billing-fields") ||
+				target.matches("#billing_company"))
 		) {
-			jQuery(billingCompany).trigger("update_checkout");
+			jQuery(target).trigger("update_checkout");
+		}
+	});
+	checkout.addEventListener("input", (event) => {
+		const target = event.target;
+		if (target instanceof Element && target.matches("#billing_company")) {
+			jQuery(target).trigger("update_checkout");
 		}
 	});
 }
