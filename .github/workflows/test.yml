@@ -222,7 +222,7 @@ jobs:
             echo '<h1>easyCredit Playwright Reports</h1><ul>'
             for version_dir in site/*/; do
               version="$(basename "$version_dir")"
-              echo "<li><a href=\"$version/\">WooCommerce $version</a></li>"
+              echo "<li><a href=\"/$version/\">WooCommerce $version</a></li>"
             done
             echo '</ul></body></html>'
           } > site/index.html
