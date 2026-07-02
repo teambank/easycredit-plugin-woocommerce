@@ -3,15 +3,20 @@
 namespace Netzkollektiv\EasyCredit;
 
 use Netzkollektiv\EasyCredit\Compatibility\GermanMarketInterestFeeCompatibility;
+use Netzkollektiv\EasyCredit\Compatibility\GermanizedCompatibility;
 
 class Compatibility {
     private const OLD_PLUGIN_PATH = 'woocommerce-gateway-ratenkaufbyeasycredit/woocommerce-gateway-ratenkaufbyeasycredit.php';
 
-    public function __construct() {
+    public function __construct(Plugin $plugin) {
         add_action('admin_init', [$this, 'checkOldPlugin']);
         add_action('admin_notices', [$this, 'displayOldPluginNotice']);
 
         new GermanMarketInterestFeeCompatibility();
+
+        if (function_exists('wc_gzd_send_instant_order_confirmation')) {
+            new GermanizedCompatibility($plugin);
+        }
     }
 
     /**
@@ -38,4 +43,4 @@ class Compatibility {
             echo '</p></div>';
         }
     }
-} 
+}

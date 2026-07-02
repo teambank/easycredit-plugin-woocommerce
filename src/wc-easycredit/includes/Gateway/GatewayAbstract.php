@@ -19,6 +19,8 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         'easycredit_rechnung' => false
     ];
 
+    private static $pending_order_hooks_registered = false;
+
     protected $integration;
     protected $fieldProvider;
     public $plugin;
@@ -66,6 +68,11 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
                 'woocommerce_cart_calculate_fees',
                 [$this, 'add_interest_fee']
             );
+
+            if (!self::$pending_order_hooks_registered) {
+                self::$pending_order_hooks_registered = true;
+                add_filter('woocommerce_product_is_in_stock', [self::class, 'treat_reserved_stock_as_in_stock'], 10, 2);
+            }
         }
 
         if (is_admin()) {
@@ -356,8 +363,7 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
             throw new \Exception(__('Could not initialize easycredit payment', 'wc-easycredit'));
         }
 
-        $storage = $this->integration->storage();
-        $storage->set('order_id', $order_id);
+        $this->persist_draft_order_before_redirect((int) $order_id);
 
         $paymentPageUrl = $checkout->getRedirectUrl();
 
@@ -410,6 +416,114 @@ abstract class GatewayAbstract extends \WC_Payment_Gateway
         ob_end_clean();
 
         return true;
+    }
+
+    /**
+     * Re-affirm the block-checkout draft order before redirecting to easyCredit.
+     * Order-pay uses order_awaiting_payment, which WooCommerce sets before gateways run.
+     */
+    protected function persist_draft_order_before_redirect(int $order_id): void
+    {
+        if ($order_id <= 0 || !WC()->session) {
+            return;
+        }
+
+        global $wp;
+        if (isset($wp->query_vars['order-pay'])) {
+            return;
+        }
+
+        $current_draft_id = (int) WC()->session->get('store_api_draft_order', 0);
+        if ($current_draft_id === $order_id) {
+            return;
+        }
+
+        WC()->session->set('store_api_draft_order', $order_id);
+        WC()->session->save_data();
+    }
+
+    /**
+     * Pending order id while the customer is finishing easyCredit financing.
+     */
+    public static function get_pending_order_id(): int
+    {
+        if (!function_exists('WC') || !WC()->session) {
+            return 0;
+        }
+
+        $order_id = (int) WC()->session->get('store_api_draft_order', 0);
+        if ($order_id <= 0 && isset(WC()->session->order_awaiting_payment)) {
+            $order_id = (int) WC()->session->order_awaiting_payment;
+        }
+
+        if ($order_id <= 0) {
+            return 0;
+        }
+
+        $order = wc_get_order($order_id);
+        if (!$order || !$order->needs_payment()) {
+            return 0;
+        }
+
+        return $order_id;
+    }
+
+    /**
+     * Safety net when stock was reduced before payment completed (e.g. Germanized).
+     *
+     * @param bool $in_stock
+     * @param \WC_Product $product
+     */
+    public static function treat_reserved_stock_as_in_stock($in_stock, $product)
+    {
+        if ($in_stock || !$product instanceof \WC_Product || !WC()->cart || WC()->cart->is_empty()) {
+            return $in_stock;
+        }
+
+        $order_id = self::get_pending_order_id();
+        if (!$order_id) {
+            return $in_stock;
+        }
+
+        $order = wc_get_order($order_id);
+        if (!$order) {
+            return $in_stock;
+        }
+
+        $product_id = (int) $product->get_stock_managed_by_id();
+        if (!self::is_product_in_cart($product_id) || !self::is_product_in_order($order, $product_id)) {
+            return $in_stock;
+        }
+
+        return true;
+    }
+
+    private static function is_product_in_cart(int $product_id): bool
+    {
+        foreach (WC()->cart->get_cart() as $cart_item) {
+            $cart_product = $cart_item['data'] ?? null;
+            if ($cart_product instanceof \WC_Product && (int) $cart_product->get_stock_managed_by_id() === $product_id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function is_product_in_order(\WC_Order $order, int $product_id): bool
+    {
+        foreach ($order->get_items() as $item) {
+            if (!$item instanceof \WC_Order_Item_Product) {
+                continue;
+            }
+
+            $line_product = $item->get_product();
+            if ($line_product && (int) $line_product->get_stock_managed_by_id() === $product_id) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -17,7 +17,10 @@
     "fix-cs": "export $(cat .env | xargs) && cd $PLUGIN_DIR && vendor/bin/ecs check --fix --config=../../ecs.php",
     "wp-env": "wp-env",
     "wp-env:select": "node ./scripts/generate-wp-env-from-test-yml.js",
-    "start": "node ./scripts/start-from-override.js"
+    "start": "node ./scripts/start-from-override.js",
+    "test:compat": "node scripts/compat/run.js",
+    "test:compat:germanized": "COMPAT_STACK=germanized node scripts/compat/run.js",
+    "test:compat:german-market": "COMPAT_STACK=german-market node scripts/compat/run.js"
   },
   "dependencies": {
     "@playwright/test": "^1.58",

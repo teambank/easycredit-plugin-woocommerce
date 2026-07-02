@@ -1,0 +1,17 @@
+{
+  "stacks": [
+    {
+      "id": "germanized",
+      "label": "Germanized",
+      "runOnLatest": true,
+      "plugins": [
+        "woocommerce-germanized"
+      ],
+      "options": {
+        "woocommerce_gzd_checkout_stop_order_cancellation": "yes",
+        "woocommerce_gzd_disable_instant_order_confirmation": "no"
+      },
+      "spec": "compat/specs/germanized-stock.spec.ts"
+    }
+  ]
+}

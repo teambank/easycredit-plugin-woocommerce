@@ -55,12 +55,12 @@ class Plugin
 
         $plugin = $this;
 
-        // Initialize compatibility checks
-        new Compatibility();
-
         $this->integration = $integration = new Integration(
             $plugin
         );
+
+        // Initialize compatibility checks
+        new Compatibility($plugin);
         $fieldProvider = new Config\FieldProvider();
 
         $this->paymentGateways = [];
@@ -472,7 +472,7 @@ class Plugin
             $interest_amount = $this->integration->storage()->get('interest_amount');
             if ($interest_amount !== null && (float) $interest_amount > 0) {
                 if ($is_order_pay) {
-                    $order_id = $this->integration->storage()->get('order_id');
+                    $order_id = Gateway\GatewayAbstract::get_pending_order_id();
                     if ($order_id) {
                         $order = wc_get_order($order_id);
                         if ($order) {

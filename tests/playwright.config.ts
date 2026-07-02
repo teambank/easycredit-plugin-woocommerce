@@ -5,6 +5,11 @@ import {
 	devices,
 } from "@playwright/test";
 import { seconds } from "./helpers/utils";
+import {
+	compatProjectName,
+	getCompatStack,
+	loadCompatStacks,
+} from "./compat/stacks";
 
 const isBlocksCheckout = (): boolean => {
 	if (!process.env.VERSION) {
@@ -53,6 +58,24 @@ if (isBlocksCheckout()) {
 		testMatch: "specs/frontend.spec.ts",
 	});
 });
+
+if (process.env.COMPAT_TESTS === "1") {
+	const stacks = process.env.COMPAT_STACK
+		? [getCompatStack(process.env.COMPAT_STACK)]
+		: loadCompatStacks();
+
+	["Desktop Chrome"].forEach((device) => {
+		for (const stack of stacks) {
+			projects.push({
+				name: compatProjectName(stack.id, device),
+				use: {
+					...devices[device],
+				},
+				testMatch: stack.spec,
+			});
+		}
+	});
+}
 
 let config: PlaywrightTestConfig = {
 	outputDir: "../test-results/" + process.env.VERSION + "/",
