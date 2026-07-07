@@ -1,6 +1,100 @@
 /* eslint-env jquery */
 import { getEasycreditCheckoutFromEvent } from "./utils";
 
+const ADDRESS_FIELDS = [
+	"first_name",
+	"last_name",
+	"company",
+	"address_1",
+	"address_2",
+	"city",
+	"state",
+	"postcode",
+	"country",
+	"email",
+	"phone",
+] as const;
+
+const getFormFieldValue = (form: HTMLFormElement, name: string): string => {
+	const field = form.elements.namedItem(name);
+
+	if (field instanceof RadioNodeList) {
+		return field.value ?? "";
+	}
+
+	if (
+		field instanceof HTMLInputElement ||
+		field instanceof HTMLSelectElement ||
+		field instanceof HTMLTextAreaElement
+	) {
+		return field.value ?? "";
+	}
+
+	return "";
+};
+
+const collectCheckoutAddresses = (form: HTMLFormElement) => {
+	const billing: Record<string, string> = {};
+	const shipping: Record<string, string> = {};
+	const shipToDifferent = (
+		form.querySelector("#ship-to-different-address-checkbox") as HTMLInputElement | null
+	)?.checked;
+
+	for (const field of ADDRESS_FIELDS) {
+		billing[field] = getFormFieldValue(form, `billing_${field}`);
+
+		if (shipToDifferent) {
+			shipping[field] = getFormFieldValue(form, `shipping_${field}`);
+		}
+	}
+
+	if (!shipToDifferent) {
+		for (const field of ADDRESS_FIELDS) {
+			if (field === "email" || field === "phone") {
+				continue;
+			}
+			shipping[field] = billing[field] ?? "";
+		}
+	}
+
+	return { billing, shipping };
+};
+
+const applyValidationResponse = (
+	message: string,
+	invalidated: boolean,
+): void => {
+	document.querySelectorAll("easycredit-checkout").forEach((element) => {
+		if (!(element instanceof HTMLElement)) {
+			return;
+		}
+
+		element.setAttribute("alert", message);
+		(element as HTMLElement & { alert?: string }).alert = message;
+
+		if (message || invalidated) {
+			element.removeAttribute("payment-plan");
+		}
+	});
+};
+
+const fetchCheckoutValidation = async (form: HTMLFormElement) => {
+	const { billing, shipping } = collectCheckoutAddresses(form);
+	const response = await fetch("/wp-json/easycredit/v1/checkout-validation", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ billing, shipping }),
+	});
+
+	if (!response.ok) {
+		return { message: "", invalidated: false };
+	}
+
+	return response.json();
+};
+
 const validateCheckoutForm = (form: HTMLFormElement): boolean => {
 	const $form = jQuery(form);
 	let hasError = false;
@@ -63,7 +157,7 @@ const validateCheckoutForm = (form: HTMLFormElement): boolean => {
 	return !hasError;
 };
 
-const submitCheckoutForm = (component: HTMLElement, e: CustomEvent) => {
+const submitCheckoutForm = async (component: HTMLElement, e: CustomEvent) => {
 	const form = component.closest("form");
 	if (!(form instanceof HTMLFormElement)) {
 		return;
@@ -72,6 +166,21 @@ const submitCheckoutForm = (component: HTMLElement, e: CustomEvent) => {
 	if (!validateCheckoutForm(form)) {
 		component.dispatchEvent(new Event("closeModal"));
 		return;
+	}
+
+	try {
+		const validation = await fetchCheckoutValidation(form);
+		applyValidationResponse(
+			validation.message || "",
+			Boolean(validation.invalidated),
+		);
+
+		if (validation.message || validation.invalidated) {
+			component.dispatchEvent(new Event("closeModal"));
+			return;
+		}
+	} catch {
+		// Fall back to server-side validation on submit.
 	}
 
 	const inputs = [
@@ -105,6 +214,42 @@ const getComponent = (paymentType) => {
 };
 
 export const handleCheckout = (checkout) => {
+	let validationTimeout: number | undefined;
+	let validationRequest = 0;
+
+	const scheduleValidation = (form: HTMLFormElement) => {
+		window.clearTimeout(validationTimeout);
+		validationTimeout = window.setTimeout(async () => {
+			const requestId = ++validationRequest;
+
+			try {
+				const validation = await fetchCheckoutValidation(form);
+				if (requestId !== validationRequest) {
+					return;
+				}
+
+				applyValidationResponse(
+					validation.message || "",
+					Boolean(validation.invalidated),
+				);
+			} catch {
+				if (requestId === validationRequest) {
+					applyValidationResponse("", false);
+				}
+			}
+		}, 400);
+	};
+
+	const shouldValidateAddressField = (target: Element): boolean => {
+		return (
+			target.closest(".woocommerce-billing-fields") !== null ||
+			target.closest(".woocommerce-shipping-fields") !== null ||
+			target.matches("#billing_company") ||
+			target.matches("#shipping_company") ||
+			target.matches("#ship-to-different-address-checkbox")
+		);
+	};
+
 	document.addEventListener(
 		"easycredit-submit",
 		(e) => {
@@ -114,29 +259,33 @@ export const handleCheckout = (checkout) => {
 			}
 
 			e.preventDefault();
-			submitCheckoutForm(component, e);
+			void submitCheckoutForm(component, e);
 		},
 		true,
 	);
 	checkout.addEventListener("change", (event) => {
 		const target = event.target;
-		if (
-			target instanceof Element &&
-			(target.closest(".woocommerce-billing-fields") ||
-				target.closest(".woocommerce-shipping-fields") ||
-				target.matches("#billing_company") ||
-				target.matches("#shipping_company"))
-		) {
-			jQuery(target).trigger("update_checkout");
+		if (!(target instanceof Element) || !(checkout instanceof HTMLFormElement)) {
+			return;
+		}
+
+		if (shouldValidateAddressField(target)) {
+			scheduleValidation(checkout);
 		}
 	});
 	checkout.addEventListener("input", (event) => {
 		const target = event.target;
+		if (!(target instanceof Element) || !(checkout instanceof HTMLFormElement)) {
+			return;
+		}
+
 		if (
-			target instanceof Element &&
-			(target.matches("#billing_company") || target.matches("#shipping_company"))
+			target.matches("#billing_company") ||
+			target.matches("#shipping_company") ||
+			target.closest(".woocommerce-billing-fields") ||
+			target.closest(".woocommerce-shipping-fields")
 		) {
-			jQuery(target).trigger("update_checkout");
+			scheduleValidation(checkout);
 		}
 	});
 }

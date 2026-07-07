@@ -17,6 +17,7 @@ import {
 	addCurrentProductToCart,
 	checkAddressInvalidation,
 	checkAmountInvalidation,
+	checkCompanyInvalidation,
 } from "../helpers/common";
 import { PaymentTypes } from "../helpers/types";
 import { setProductStock } from "../api/woocommerce-api";
@@ -125,12 +126,14 @@ test.describe("company should not be able to pay @bill @installment", () => {
 
 		await page.goto("index.php/checkout/");
 		await fillBlocksCheckout(page);
-		await page.getByRole("textbox", { name: "Unternehmen" }).fill("Test GmbH");
 
-		await selectAndProceed({ page, paymentType: PaymentTypes.INSTALLMENT });
+		const companyField = page.getByRole("textbox", { name: "Unternehmen" });
+		await companyField.fill("Test GmbH");
+		await companyField.blur();
 
-		await expect(page.locator("body")).toContainText(
-			"nur für Privatpersonen möglich"
+		await expect(page.locator("easycredit-checkout")).toHaveAttribute(
+			"alert",
+			/nur für Privatpersonen möglich/i
 		);
 	});
 });
@@ -172,6 +175,28 @@ test.describe("address change should invalidate payment @installment", () => {
 		});
 
 		await checkAddressInvalidation(page);
+	});
+});
+
+test.describe("company change should invalidate payment @installment", () => {
+	test("checkoutCompanyChange", async ({ page }) => {
+		test.skip(!greaterOrEqualsThan("9.6.0"), "Requires WooCommerce 9.6.0+");
+
+		await goToProduct(page);
+
+		await addCurrentProductToCart(page);
+
+		await page.goto("index.php/checkout/");
+		await fillBlocksCheckout(page);
+
+		await selectAndProceed({ page, paymentType: PaymentTypes.INSTALLMENT });
+
+		await goThroughPaymentPage({
+			page: page,
+			paymentType: PaymentTypes.INSTALLMENT,
+		});
+
+		await checkCompanyInvalidation(page);
 	});
 });
 
@@ -232,11 +257,6 @@ test.describe("shipping address must equal billing address for easyCredit", () =
 		await billingFields
 			.getByRole("textbox", { name: "Postleitzahl" })
 			.fill("12345");
-
-		await selectAndProceed({
-			page,
-			paymentType: PaymentTypes.INSTALLMENT,
-		});
 
 		await expect(page.locator("body")).toContainText(
 			"Zur Zahlung mit easyCredit muss die Rechnungsadresse mit der Lieferadresse übereinstimmen."

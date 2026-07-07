@@ -5,6 +5,85 @@ import { PaymentTypes } from "../helpers/types";
 
 export const PAYMENT_API_HOST = "https://ratenkauf.easycredit.de";
 
+/** Must stay below the Playwright test timeout (60s) so failures surface in-step. */
+export const PAYMENT_REDIRECT_TIMEOUT_MS = 25_000;
+export const PAYMENT_RETURN_TIMEOUT_MS = 25_000;
+
+const PAYMENT_URL_PATTERN = /ratenkauf\.easycredit\.de/i;
+const RETURN_URL_PATTERN = /easycredit\/return|checkout/i;
+
+const CHECKOUT_FAILURE_PATTERNS: Array<{ pattern: RegExp; message: string }> = [
+	{
+		pattern: /ist ausverkauft und kann nicht gekauft werden/i,
+		message: "Product is sold out on checkout",
+	},
+	{
+		pattern: /No event handler handled the submit event/i,
+		message: "easyCredit checkout widget submit was not handled",
+	},
+];
+
+async function collectCheckoutFailureReason(page: any): Promise<string | null> {
+	const bodyText = await page.locator("body").innerText().catch(() => "");
+	for (const { pattern, message } of CHECKOUT_FAILURE_PATTERNS) {
+		if (pattern.test(bodyText)) {
+			return message;
+		}
+	}
+
+	const wcErrors = await page
+		.locator(".woocommerce-error li")
+		.allTextContents()
+		.catch(() => []);
+	if (wcErrors.length > 0) {
+		return `WooCommerce checkout errors: ${wcErrors.join("; ")}`;
+	}
+
+	return null;
+}
+
+async function waitForPaymentRedirect(
+	page: any,
+	timeout = PAYMENT_REDIRECT_TIMEOUT_MS
+): Promise<void> {
+	const deadline = Date.now() + timeout;
+
+	while (Date.now() < deadline) {
+		if (PAYMENT_URL_PATTERN.test(page.url())) {
+			return;
+		}
+
+		const failureReason = await collectCheckoutFailureReason(page);
+		if (failureReason) {
+			throw new Error(
+				`Payment redirect failed (${failureReason}). URL: ${page.url()}`
+			);
+		}
+
+		await page.waitForTimeout(250);
+	}
+
+	const failureReason = await collectCheckoutFailureReason(page);
+	throw new Error(
+		`Timed out after ${timeout}ms waiting for redirect to easyCredit payment page. URL: ${page.url()}${
+			failureReason ? `. ${failureReason}` : ""
+		}`
+	);
+}
+
+async function waitForPaymentReturn(
+	page: any,
+	timeout = PAYMENT_RETURN_TIMEOUT_MS
+): Promise<void> {
+	try {
+		await page.waitForURL(RETURN_URL_PATTERN, { timeout });
+	} catch {
+		throw new Error(
+			`Timed out after ${timeout}ms waiting to return from easyCredit payment. URL: ${page.url()}`
+		);
+	}
+}
+
 export const PAYMENT_SANDBOX = {
 	phone: "1703404848",
 	phoneE164: "+491703404848",
@@ -107,7 +186,7 @@ export async function goThroughPaymentPageViaApi({
 	paymentType: PaymentTypes;
 	express?: boolean;
 }) {
-	await page.waitForURL(/ratenkauf\.easycredit\.de/i, { timeout: 90000 });
+	await waitForPaymentRedirect(page);
 
 	const technicalTransactionId = extractTechnicalTransactionId(page.url());
 	if (!technicalTransactionId) {
@@ -245,9 +324,7 @@ export async function goThroughPaymentPageViaApi({
 
 	const returnUrl = vorgang.ruecksprungAdressen?.erfolgUrl ?? "/easycredit/return";
 	await page.goto(returnUrl);
-	await page.waitForURL(/easycredit\/return|checkout/i, {
-		timeout: 90000,
-	});
+	await waitForPaymentReturn(page);
 
-	await expect(page).not.toHaveURL(/ratenkauf\.easycredit\.de/i);
+	await expect(page).not.toHaveURL(PAYMENT_URL_PATTERN);
 }

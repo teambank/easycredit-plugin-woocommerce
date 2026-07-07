@@ -68,9 +68,11 @@ class CheckoutValidation
 
         if (function_exists('wc_load_cart') && null === WC()->cart) {
             wc_load_cart();
+        } elseif (null === WC()->session && method_exists(WC(), 'initialize_session')) {
+            WC()->initialize_session();
         }
 
-        if (!WC()->customer || !WC()->cart) {
+        if (!WC()->customer || !WC()->cart || !WC()->session) {
             return ['message' => '', 'invalidated' => false];
         }
 

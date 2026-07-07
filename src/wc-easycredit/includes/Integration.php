@@ -30,6 +30,14 @@ class Integration
     public function storage()
     {
         if ($this->storage == null) {
+            if (function_exists('WC')) {
+                if (function_exists('wc_load_cart') && null === WC()->cart) {
+                    wc_load_cart();
+                } elseif (null === WC()->session && method_exists(WC(), 'initialize_session')) {
+                    WC()->initialize_session();
+                }
+            }
+
             $this->storage = new \Netzkollektiv\EasyCredit\Api\Storage(
                 WC()->session,
                 $this->logger()

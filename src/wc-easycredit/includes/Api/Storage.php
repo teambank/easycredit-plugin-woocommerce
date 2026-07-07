@@ -25,6 +25,10 @@ class Storage implements \Teambank\EasyCreditApiV3\Integration\StorageInterface
 
     public function set($key, $value): self
     {
+        if (!$this->session) {
+            return $this;
+        }
+
         $this->logger->debug('storage::set ' . $key . ' = ' . $value);
 
         $data = $this->session->get($this->key);
@@ -51,6 +55,10 @@ class Storage implements \Teambank\EasyCreditApiV3\Integration\StorageInterface
 
     public function clear(): self
     {
+        if (!$this->session) {
+            return $this;
+        }
+
         $backtrace = \debug_backtrace();
         $levels = array_map(function ($level) {
             return ($level['class'] ?? '') . '::' . ($level['function'] ?? '');

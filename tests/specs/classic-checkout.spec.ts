@@ -7,6 +7,9 @@ import {
 	confirmOrder,
 	selectAndProceed,
 	startExpress,
+	checkClassicCompanyBlocked,
+	checkClassicCompanyInvalidation,
+	checkClassicShippingDiffersFromBilling,
 } from "../helpers/common";
 import { PaymentTypes } from "../helpers/types";
 import { setProductStock } from "../api/woocommerce-api";
@@ -165,5 +168,49 @@ test.describe("Go through @express @installment with variable product ", () => {
 			paymentType: PaymentTypes.INSTALLMENT,
 			isClassicCheckout: true,
 		});
+	});
+});
+
+test.describe("company should not be able to pay @bill @installment", () => {
+	test("companyBlocked", async ({ page }) => {
+		await goToProduct(page);
+
+		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.goto("index.php/checkout/");
+
+		await fillClassicCheckout(page);
+		await checkClassicCompanyBlocked(page);
+	});
+});
+
+test.describe("company change should invalidate payment @installment", () => {
+	test("checkoutCompanyChange", async ({ page }) => {
+		await goToProduct(page);
+
+		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.goto("index.php/checkout/");
+
+		await fillClassicCheckout(page);
+
+		await selectAndProceed({ page, paymentType: PaymentTypes.INSTALLMENT });
+
+		await goThroughPaymentPage({
+			page: page,
+			paymentType: PaymentTypes.INSTALLMENT,
+		});
+
+		await checkClassicCompanyInvalidation(page);
+	});
+});
+
+test.describe("shipping address must equal billing address for easyCredit", () => {
+	test("classicCheckoutShippingDiffersFromBillingShowsError", async ({ page }) => {
+		await goToProduct(page);
+
+		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.goto("index.php/checkout/");
+
+		await fillClassicCheckout(page);
+		await checkClassicShippingDiffersFromBilling(page);
 	});
 });

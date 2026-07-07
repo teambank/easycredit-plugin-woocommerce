@@ -7,6 +7,11 @@ import {
 } from "../api/payment-api";
 import { PaymentTypes } from "./types";
 
+export const easycreditCheckoutLocator = (
+	page,
+	paymentType: PaymentTypes = PaymentTypes.INSTALLMENT,
+) => page.locator(`easycredit-checkout[payment-type="${paymentType}"]`);
+
 export const goToCart = async (page) => {
 	await test.step(`Go to cart`, async () => {
 		await page.goto(`/index.php/cart/`);
@@ -39,6 +44,79 @@ export const fillClassicCheckout = async (page) => {
 	await page
 		.getByLabel("E-Mail-Adresse *")
 		.fill("ralf.ratenkauf@teambank.de");
+};
+
+export const fillClassicShippingAddress = async (
+	page,
+	{
+		postcode = "12345",
+		city = "Berlin",
+		street = "Andere Str. 1",
+	}: {
+		postcode?: string;
+		city?: string;
+		street?: string;
+	} = {},
+) => {
+	const shippingFields = page.locator(".woocommerce-shipping-fields");
+
+	await page.getByLabel(/Lieferung an eine andere Adresse/i).check();
+	await shippingFields.getByRole("textbox", { name: "Vorname *" }).fill("Ralf");
+	await shippingFields.getByRole("textbox", { name: "Nachname *" }).fill("Ratenkauf");
+	await shippingFields.getByRole("textbox", { name: "Straße *" }).fill(street);
+	await shippingFields.getByRole("textbox", { name: "Postleitzahl *" }).fill(postcode);
+	await shippingFields.getByRole("textbox", { name: "Ort / Stadt *" }).fill(city);
+	await shippingFields.getByRole("textbox", { name: "Postleitzahl *" }).blur();
+};
+
+export const checkClassicCompanyBlocked = async (page) => {
+	await test.step(`Check company blocks easyCredit on classic checkout`, async () => {
+		const widget = easycreditCheckoutLocator(page);
+		await widget.waitFor({ state: "visible" });
+
+		const companyField = page.getByRole("textbox", { name: /Firmenname/i }).first();
+		await companyField.fill("Test GmbH");
+		await companyField.blur();
+
+		await expect(widget).toHaveAttribute(
+			"alert",
+			/nur für Privatpersonen möglich/i,
+			{ timeout: 5_000 },
+		);
+	});
+};
+
+export const checkClassicCompanyInvalidation = async (page) => {
+	await test.step(`Check company change invalidates payment on classic checkout`, async () => {
+		const widget = easycreditCheckoutLocator(page);
+		await widget.waitFor({ state: "visible" });
+
+		const companyField = page.getByRole("textbox", { name: /Firmenname/i }).first();
+		await companyField.fill("Test GmbH");
+		await companyField.blur();
+
+		await expect(widget).toHaveAttribute(
+			"alert",
+			/nur für Privatpersonen möglich/i,
+			{ timeout: 5_000 },
+		);
+
+		await expect(widget).not.toHaveAttribute("payment-plan");
+	});
+};
+
+export const checkClassicShippingDiffersFromBilling = async (page) => {
+	await test.step(`Check differing shipping address shows validation error`, async () => {
+		const widget = easycreditCheckoutLocator(page);
+		await widget.waitFor({ state: "visible" });
+		await fillClassicShippingAddress(page);
+
+		await expect(widget).toHaveAttribute(
+			"alert",
+			/Rechnungsadresse mit der Lieferadresse übereinstimmen/i,
+			{ timeout: 5_000 },
+		);
+	});
 };
 
 export const fillBlocksCheckout = async (page, scope?: any) => {
@@ -291,16 +369,27 @@ export const checkAmountInvalidation = async (page) => {
 	});
 };
 
+export const openBlocksCheckoutAddressForEditing = async (page) => {
+	const editButtons = [
+		'[aria-label="Lieferadresse bearbeiten"]',
+		'[aria-label="Rechnungsadresse bearbeiten"]',
+		'[aria-label="Adresse bearbeiten"]',
+	];
+
+	for (const selector of editButtons) {
+		const button = page.locator(selector).first();
+		if ((await button.count()) > 0 && (await button.isVisible())) {
+			await button.click();
+			return;
+		}
+	}
+};
+
 export const checkAddressInvalidation = async (page) => {
 	await test.step(`Check address change invalidates payment`, async () => {
 		await page.locator("easycredit-checkout").waitFor({ state: "visible" });
 
-		await page
-			.locator(
-				'[aria-label="Lieferadresse bearbeiten"], [aria-label="Rechnungsadresse bearbeiten"], [aria-label="Adresse bearbeiten"]'
-			)
-			.first()
-			.click();
+		await openBlocksCheckoutAddressForEditing(page);
 
 		const addressField = page.getByRole("textbox", {
 			name: "Postleitzahl",
@@ -309,8 +398,25 @@ export const checkAddressInvalidation = async (page) => {
 		await addressField.fill("90403");
 		await addressField.blur();
 
-		await page.waitForResponse((response) =>
-			response.url().includes("wp-json/wc/store/v1/batch")
+		await expect(page.locator("easycredit-checkout")).not.toHaveAttribute(
+			"payment-plan"
+		);
+	});
+};
+
+export const checkCompanyInvalidation = async (page) => {
+	await test.step(`Check company change invalidates payment`, async () => {
+		await page.locator("easycredit-checkout").waitFor({ state: "visible" });
+
+		await openBlocksCheckoutAddressForEditing(page);
+
+		const companyField = page.getByRole("textbox", { name: "Unternehmen" });
+		await companyField.fill("Test GmbH");
+		await companyField.blur();
+
+		await expect(page.locator("easycredit-checkout")).toHaveAttribute(
+			"alert",
+			/nur für Privatpersonen möglich/i
 		);
 
 		await expect(page.locator("easycredit-checkout")).not.toHaveAttribute(
