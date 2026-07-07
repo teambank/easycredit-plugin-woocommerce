@@ -19,6 +19,8 @@ class Integration
 
     protected $config;
 
+    protected $checkout_validation;
+
     public function __construct(
         Plugin $plugin
     ) {
@@ -82,6 +84,15 @@ class Integration
             new ApiV3\Integration\Util\PrefixConverter(),
             $this->logger()
         );
+    }
+
+    public function checkout_validation()
+    {
+        if ($this->checkout_validation == null) {
+            $this->checkout_validation = new \Netzkollektiv\EasyCredit\Api\CheckoutValidation($this);
+        }
+
+        return $this->checkout_validation;
     }
 
     public function quote_builder()
