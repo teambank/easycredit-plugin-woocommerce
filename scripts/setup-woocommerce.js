@@ -44,6 +44,9 @@ try {
 	);
 	run("wp plugin activate wc-easycredit");
 
+	run('wp option update woocommerce_easycredit_ratenkauf_settings \'{"enabled":"yes"}\' --format=json');
+	run('wp option update woocommerce_easycredit_rechnung_settings \'{"enabled":"yes"}\' --format=json');
+
 	// Install and activate Storefront theme
 	run("wp theme install storefront --activate");
 
