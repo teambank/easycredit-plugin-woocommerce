@@ -291,16 +291,27 @@ export const checkAmountInvalidation = async (page) => {
 	});
 };
 
+export const openBlocksCheckoutAddressForEditing = async (page) => {
+	const editButtons = [
+		'[aria-label="Lieferadresse bearbeiten"]',
+		'[aria-label="Rechnungsadresse bearbeiten"]',
+		'[aria-label="Adresse bearbeiten"]',
+	];
+
+	for (const selector of editButtons) {
+		const button = page.locator(selector).first();
+		if ((await button.count()) > 0 && (await button.isVisible())) {
+			await button.click();
+			return;
+		}
+	}
+};
+
 export const checkAddressInvalidation = async (page) => {
 	await test.step(`Check address change invalidates payment`, async () => {
 		await page.locator("easycredit-checkout").waitFor({ state: "visible" });
 
-		await page
-			.locator(
-				'[aria-label="Lieferadresse bearbeiten"], [aria-label="Rechnungsadresse bearbeiten"], [aria-label="Adresse bearbeiten"]'
-			)
-			.first()
-			.click();
+		await openBlocksCheckoutAddressForEditing(page);
 
 		const addressField = page.getByRole("textbox", {
 			name: "Postleitzahl",
@@ -309,8 +320,25 @@ export const checkAddressInvalidation = async (page) => {
 		await addressField.fill("90403");
 		await addressField.blur();
 
-		await page.waitForResponse((response) =>
-			response.url().includes("wp-json/wc/store/v1/batch")
+		await expect(page.locator("easycredit-checkout")).not.toHaveAttribute(
+			"payment-plan"
+		);
+	});
+};
+
+export const checkCompanyInvalidation = async (page) => {
+	await test.step(`Check company change invalidates payment`, async () => {
+		await page.locator("easycredit-checkout").waitFor({ state: "visible" });
+
+		await openBlocksCheckoutAddressForEditing(page);
+
+		const companyField = page.getByRole("textbox", { name: "Unternehmen" });
+		await companyField.fill("Test GmbH");
+		await companyField.blur();
+
+		await expect(page.locator("easycredit-checkout")).toHaveAttribute(
+			"alert",
+			/nur für Privatpersonen möglich/i
 		);
 
 		await expect(page.locator("easycredit-checkout")).not.toHaveAttribute(
