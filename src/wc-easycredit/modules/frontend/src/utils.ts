@@ -37,9 +37,30 @@ export const replicateForm = (
 };
 
 export const waitForLoadEvent = (): Promise<void> => {
+	if (document.readyState === "complete") {
+		return Promise.resolve();
+	}
+
 	return new Promise((resolve) => {
-		window.addEventListener("load", () => {
-			resolve();
-		});
+		window.addEventListener("load", () => resolve(), { once: true });
 	});
+};
+
+export const getEasycreditCheckoutFromEvent = (
+	event: Event,
+): HTMLElement | null => {
+	if (!(event instanceof CustomEvent)) {
+		return null;
+	}
+
+	const path =
+		typeof event.composedPath === "function" ? event.composedPath() : [event.target];
+
+	for (const node of path) {
+		if (node instanceof HTMLElement && node.tagName === "EASYCREDIT-CHECKOUT") {
+			return node;
+		}
+	}
+
+	return null;
 };

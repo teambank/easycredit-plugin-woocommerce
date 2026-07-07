@@ -15,4 +15,4 @@ $id = esc_attr($easyCredit->id); ?>
     <?php if (isset($easyCreditPaymentPlan) && $easyCreditPaymentPlan): ?>
     payment-plan="<?php echo htmlentities($easyCreditPaymentPlan, ENT_QUOTES, 'UTF-8'); ?>"
     <?php endif; ?>
-    is-active="true" />
+    is-active="true"></easycredit-checkout>

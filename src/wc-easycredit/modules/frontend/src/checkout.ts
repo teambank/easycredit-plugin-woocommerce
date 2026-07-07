@@ -1,7 +1,76 @@
 /* eslint-env jquery */
-const submitCheckoutForm = (e: CustomEvent) => {
-	const form = (e.target as HTMLElement).closest("form");
+import { getEasycreditCheckoutFromEvent } from "./utils";
+
+const validateCheckoutForm = (form: HTMLFormElement): boolean => {
+	const $form = jQuery(form);
+	let hasError = false;
+	const $termsCheckbox = $form.find('input[name="terms"]:visible');
+
+	if ($termsCheckbox.length) {
+		$termsCheckbox.closest(".form-row").removeClass("woocommerce-invalid");
+	}
+
+	$form.find(".input-text, select, input:checkbox").trigger("validate");
+
+	if ($termsCheckbox.length) {
+		$termsCheckbox.closest(".form-row").removeClass("woocommerce-invalid");
+	}
+
+	if (
+		$form
+			.find(".woocommerce-invalid:visible")
+			.not($termsCheckbox.closest(".form-row"))
+			.length > 0
+	) {
+		hasError = true;
+	}
+
+	$form.find(".validate-required:visible").each(function () {
+		const $field = jQuery(this);
+		const $input = $field.find("input.input-text, select, input:checkbox");
+
+		if (!$input.length) {
+			return;
+		}
+
+		// Terms are accepted programmatically on easyCredit submit (see submitCheckoutForm).
+		if ($input.is('input[name="terms"]')) {
+			return;
+		}
+
+		const isEmpty = $input.is(":checkbox")
+			? !$input.is(":checked")
+			: $input.val() === "" || $input.val() === null;
+
+		if (isEmpty) {
+			hasError = true;
+			$field.addClass("woocommerce-invalid woocommerce-invalid-required-field");
+		}
+	});
+
+	if (hasError) {
+		const $firstInvalidField = $form.find(".woocommerce-invalid:visible").first();
+		if ($firstInvalidField.length) {
+			jQuery("html, body").animate(
+				{
+					scrollTop: $firstInvalidField.offset().top - 100,
+				},
+				500,
+			);
+		}
+	}
+
+	return !hasError;
+};
+
+const submitCheckoutForm = (component: HTMLElement, e: CustomEvent) => {
+	const form = component.closest("form");
 	if (!(form instanceof HTMLFormElement)) {
+		return;
+	}
+
+	if (!validateCheckoutForm(form)) {
+		component.dispatchEvent(new Event("closeModal"));
 		return;
 	}
 
@@ -39,25 +108,35 @@ export const handleCheckout = (checkout) => {
 	document.addEventListener(
 		"easycredit-submit",
 		(e) => {
-			if (
-				e instanceof CustomEvent &&
-				e.target &&
-				(e.target as HTMLElement).tagName === "EASYCREDIT-CHECKOUT"
-			) {
-				e.preventDefault();
-				submitCheckoutForm(e);
+			const component = getEasycreditCheckoutFromEvent(e);
+			if (!component || !(e instanceof CustomEvent)) {
+				return;
 			}
+
+			e.preventDefault();
+			submitCheckoutForm(component, e);
 		},
 		true,
 	);
 	checkout.addEventListener("change", (event) => {
-		const billingCompany = event.target;
+		const target = event.target;
 		if (
-			billingCompany instanceof Element &&
-			billingCompany &&
-			billingCompany.closest(".woocommerce-billing-fields")
+			target instanceof Element &&
+			(target.closest(".woocommerce-billing-fields") ||
+				target.closest(".woocommerce-shipping-fields") ||
+				target.matches("#billing_company") ||
+				target.matches("#shipping_company"))
 		) {
-			jQuery(billingCompany).trigger("update_checkout");
+			jQuery(target).trigger("update_checkout");
+		}
+	});
+	checkout.addEventListener("input", (event) => {
+		const target = event.target;
+		if (
+			target instanceof Element &&
+			(target.matches("#billing_company") || target.matches("#shipping_company"))
+		) {
+			jQuery(target).trigger("update_checkout");
 		}
 	});
 }

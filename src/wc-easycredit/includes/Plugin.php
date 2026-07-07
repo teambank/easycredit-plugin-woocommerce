@@ -85,6 +85,8 @@ class Plugin
             $integration
         );
 
+        new Api\CheckoutRestApi($integration);
+
         if (!is_admin()) {
             new Widget\Product(
                 $plugin,
@@ -571,7 +573,8 @@ class Plugin
             'wc_easycredit_js',
             $this->plugin_url . 'modules/frontend/build/index.js',
             ['jquery'],
-            '2.1'
+            '2.1',
+            true
         );
         wp_enqueue_style(
             'wc_easycredit_css',
