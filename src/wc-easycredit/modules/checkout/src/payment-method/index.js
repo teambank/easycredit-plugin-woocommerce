@@ -1,41 +1,40 @@
 import { createElement, useRef, useEffect, useState } from "@wordpress/element";
-import { useSelect } from "@wordpress/data";
-import { VALIDATION_STORE_KEY, CHECKOUT_STORE_KEY } from '@woocommerce/block-data';
-import { __ } from "@wordpress/i18n";
+import apiFetch from "@wordpress/api-fetch";
 import { decodeEntities } from "@wordpress/html-entities";
 import { getSetting } from "@woocommerce/settings";
+
+const PRIVACY_VALIDATION_ERROR = {
+	type: "error",
+	message: "Bitte stimmen Sie der Datenübermittlung zu.",
+};
+
+const emulateSubmitCheckout = async () => {
+	let button;
+	do {
+		const selector = ".wc-block-components-checkout-place-order-button";
+		button = document.querySelector(selector);
+		if (!button) {
+			console.error(
+				`Could not submit order. Submit button with selector "$(selector)" was not found`,
+			);
+			return;
+		}
+		await new Promise((r) => setTimeout(r, 100));
+	} while (button.disabled);
+
+	button.dispatchEvent(
+		new window.MouseEvent("click", { bubbles: true }),
+	);
+};
 
 export const getMethodConfiguration = (name) => {
 	const config = getSetting(name + "_data");
 
-	let currentHandler = null; // Store reference to current handler
-
-	const handleSubmit = (privacyApproved, hasValidationErrors, emulateSubmitCheckout) => {
-		currentHandler = (e) => {
-			if (!e.target.matches('easycredit-checkout') ||
-				e.target.getAttribute('payment-type') !== config.paymentType
-			) {
-				return;
-			}
-
-			if (hasValidationErrors) {
-				// checkout will not submit => reset submit button loading animation
-				e.target.dispatchEvent(new Event("closeModal"));
-				return;
-			}
-
-			privacyApproved.current = true;
-			emulateSubmitCheckout();
-		};
-		return currentHandler;
-	}
-
 	const Checkout = ({ billing, shippingData, eventRegistration, activePaymentMethod }) => {
 		const { onCheckoutFail, onCheckoutValidation } = eventRegistration;
 
-		const hasValidationErrors = useSelect((select) =>
-			select(VALIDATION_STORE_KEY).hasValidationErrors()
-		);
+		const [validationMessage, setValidationMessage] = useState("");
+		const validationMessageRef = useRef("");
 
 		const ecCheckout = useRef(null);
 		const [paymentPlan, setPaymentPlan] = useState(config.paymentPlan);
@@ -46,7 +45,7 @@ export const getMethodConfiguration = (name) => {
 			return JSON.stringify({
 				amount,
 				billingAddress,
-				shippingAddress: shippingAddress || {}
+				shippingAddress: shippingAddress || {},
 			});
 		};
 		
@@ -58,25 +57,32 @@ export const getMethodConfiguration = (name) => {
 			)
 		);
 
-		const emulateSubmitCheckout = async () => {
-			let button;
-			do {
-				const selector =
-					".wc-block-components-checkout-place-order-button";
-				button = document.querySelector(selector);
-				if (!button) {
-					console.error(
-						`Could not submit order. Submit button with selector "$(selector)" was not found`,
-					);
-					return;
-				}
-				await new Promise((r) => setTimeout(r, 100));
-			} while (button.disabled);
+		const billingRef = useRef(billing.billingAddress);
+		const shippingRef = useRef(shippingData.shippingAddress);
 
-			button.dispatchEvent(
-				new window.MouseEvent("click", { bubbles: true }),
-			);
+		const applyValidationResponse = (response) => {
+			const message = response?.message || "";
+			const invalidated = Boolean(response?.invalidated);
+
+			setValidationMessage(message);
+
+			if (message || invalidated) {
+				setPaymentPlan(null);
+				privacyApproved.current = false;
+			}
 		};
+
+		useEffect(() => {
+			validationMessageRef.current = validationMessage;
+		}, [validationMessage]);
+
+		useEffect(() => {
+			billingRef.current = billing.billingAddress;
+		}, [billing.billingAddress]);
+
+		useEffect(() => {
+			shippingRef.current = shippingData.shippingAddress;
+		}, [shippingData.shippingAddress]);
 
 		/*
 		 * reset payment plan if amount or address changes (using cart hash)
@@ -95,29 +101,109 @@ export const getMethodConfiguration = (name) => {
 			}
 		}, [billing.cartTotal.value, billing.billingAddress, shippingData.shippingAddress]);
 
+		useEffect(() => {
+			let cancelled = false;
+
+			const timeoutId = window.setTimeout(() => {
+				apiFetch({
+					path: "/easycredit/v1/checkout-validation",
+					method: "POST",
+					data: {
+						billing: billing.billingAddress,
+						shipping: shippingData.shippingAddress,
+					},
+				})
+					.then((response) => {
+						if (!cancelled) {
+							applyValidationResponse(response);
+						}
+					})
+					.catch(() => {
+						if (!cancelled) {
+							applyValidationResponse({ message: "", invalidated: false });
+						}
+					});
+			}, 400);
+
+			return () => {
+				cancelled = true;
+				window.clearTimeout(timeoutId);
+			};
+		}, [
+			billing.billingAddress,
+			shippingData.shippingAddress,
+			billing.cartTotal.value,
+		]);
+
 		/*
 		 * submit checkout if easycredit-checkout triggers easycredit-submit event
 		 */
 		useEffect(() => {
-			if (currentHandler) {
-				document.removeEventListener('easycredit-submit', currentHandler);
-			}
-			const handler = handleSubmit(privacyApproved, hasValidationErrors, emulateSubmitCheckout);
-			document.addEventListener('easycredit-submit', handler);
-		}, [hasValidationErrors]);
+			const handler = async (e) => {
+				if (
+					!e.target.matches('easycredit-checkout') ||
+					e.target.getAttribute('payment-type') !== config.paymentType
+				) {
+					return;
+				}
+
+				e.preventDefault();
+
+				let message = validationMessageRef.current;
+				let invalidated = false;
+				try {
+					const response = await apiFetch({
+						path: "/easycredit/v1/checkout-validation",
+						method: "POST",
+						data: {
+							billing: billingRef.current,
+							shipping: shippingRef.current,
+						},
+					});
+					applyValidationResponse(response);
+					message = response.message || "";
+					invalidated = Boolean(response.invalidated);
+				} catch {
+					message = "";
+					invalidated = false;
+				}
+
+				if (message || invalidated) {
+					e.target.dispatchEvent(new Event("closeModal"));
+					return;
+				}
+
+				privacyApproved.current = true;
+				await emulateSubmitCheckout();
+			};
+
+			document.addEventListener('easycredit-submit', handler, true);
+			return () => {
+				document.removeEventListener('easycredit-submit', handler, true);
+			};
+		}, []);
 
 		/*
 		 * open privacy approval modal if main checkout submit button is clicked
 		 */
 		useEffect(() => {
 			if (activePaymentMethod !== config.id) {
-				return true;
+				return undefined;
 			}
 
 			const unsubscribe = onCheckoutValidation(() => {
 				if (!ecCheckout.current) {
 					return true;
 				}
+
+				const message = validationMessageRef.current;
+				if (message) {
+					return {
+						type: "error",
+						message,
+					};
+				}
+
 				if (
 					privacyApproved.current ||
 					name !== "easycredit_ratenkauf"
@@ -126,17 +212,14 @@ export const getMethodConfiguration = (name) => {
 				}
 
 				ecCheckout.current.dispatchEvent(new Event("openModal"));
-				return {
-					type: 'error',
-					message: "Bitte stimmen Sie der Datenübermittlung zu.",
-				};
+				return PRIVACY_VALIDATION_ERROR;
 			});
 			return unsubscribe;
-		}, [onCheckoutValidation, activePaymentMethod, privacyApproved]);
+		}, [onCheckoutValidation, activePaymentMethod]);
 
 		useEffect(() => {
 			if (activePaymentMethod !== config.id) {
-				return true;
+				return undefined;
 			}
 
 			const unsubscribe = onCheckoutFail(() => {
@@ -158,6 +241,7 @@ export const getMethodConfiguration = (name) => {
 				amount: billing.cartTotal.value / 100,
 				'payment-type': config.paymentType,
 				'payment-plan': paymentPlan,
+				alert: validationMessage,
 			}),
 			// Keep hidden content so Woo does not collapse empty accordion body.
 			createElement('span', { style: { display: 'none' } }, 'Checkout Component')

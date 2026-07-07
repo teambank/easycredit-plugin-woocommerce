@@ -75,7 +75,7 @@ class AbstractMethod extends AbstractPaymentMethodType
             'enabled'     => $this->is_active(),
             'apiKey'      => $this->settings['api_key'],
             'expressUrl'  => get_site_url(null, 'easycredit/express'),
-            'placeOrderButtonLabel' => $this->place_order_button_label
+            'placeOrderButtonLabel' => $this->place_order_button_label,
         ];
 
         $payment_plan = $this->integration ? $this->integration->storage()->get('summary') : null;
