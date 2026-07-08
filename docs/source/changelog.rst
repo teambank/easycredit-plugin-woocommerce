@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.1.3
+-----
+
+- die Checkout-Validierung wurde überarbeitet und erfolgt nun serverseitig (Firmenname, abweichende Adresse)
+- Kompatibilitätsfix für Germanized: Lagerbestandsreduzierung und Bestellbestätigung erfolgen erst nach erfolgreicher easyCredit-Zahlung
+
 3.1.2
 -----
 
