@@ -43,7 +43,8 @@ jobs:
             {"php-version":"8.4","wordpress-version":"6.9","woocommerce-version":"10.3.6"},
             {"php-version":"8.4","wordpress-version":"6.9","woocommerce-version":"10.4.3"},
             {"php-version":"8.5","wordpress-version":"6.9","woocommerce-version":"10.5.3"},
-            {"php-version":"8.5","wordpress-version":"6.9","woocommerce-version":"10.6.0","latest":true}
+            {"php-version":"8.5","wordpress-version":"6.9","woocommerce-version":"10.6.2"},
+            {"php-version":"8.5","wordpress-version":"7.0","woocommerce-version":"10.9.2","latest":true}
           ]'
           REDUCED_VERSIONS='[
             {"php-version":"8.0","wordpress-version":"5.9.5","woocommerce-version":"6.9.4"},
@@ -51,7 +52,8 @@ jobs:
             {"php-version":"8.2","wordpress-version":"6.3","woocommerce-version":"8.1.0"},
             {"php-version":"8.3","wordpress-version":"6.6","woocommerce-version":"9.1.0"},
             {"php-version":"8.4","wordpress-version":"6.8","woocommerce-version":"10.0.2"},
-            {"php-version":"8.5","wordpress-version":"6.9","woocommerce-version":"10.6.0","latest":true}
+            {"php-version":"8.5","wordpress-version":"6.9","woocommerce-version":"10.6.2"},
+            {"php-version":"8.5","wordpress-version":"7.0","woocommerce-version":"10.9.2","latest":true}
           ]'
 
           if [ "${{ github.event_name }}" = "push" ] && [[ "${{ github.ref }}" == refs/tags/* ]]; then
@@ -119,8 +121,10 @@ jobs:
           node -e 'console.log(JSON.stringify({"core": "WordPress/WordPress#${{ matrix.wordpress-version }}", "phpVersion": "${{ matrix.php-version }}", "lifecycleScripts":{}}, null, 2));' > .wp-env.override.json
           wp-env start
 
+          WORDPRESS_STUBS_VERSION="$(node scripts/resolve-composer-stub-versions.js "${{ matrix.wordpress-version }}")"
+
           composer require \
-            php-stubs/wordpress-stubs:v${{ matrix.wordpress-version }} \
+            php-stubs/wordpress-stubs:v${WORDPRESS_STUBS_VERSION} \
             php-stubs/woocommerce-stubs:v${{ matrix.woocommerce-version }}
 
           composer install -n

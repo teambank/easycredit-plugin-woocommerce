@@ -67,7 +67,9 @@ try {
 	run("wp option update woocommerce_task_list_prompt_shown 1");
 	run('wp option update woocommerce_show_marketplace_suggestions "no"');
 	run('wp option update woocommerce_allow_tracking "no"');
-	run('wp option update woocommerce_task_list_complete "yes"');
+	run(
+		'wp option update woocommerce_task_list_completed_lists \'["setup"]\' --format=json'
+	);
 	run('wp option update woocommerce_task_list_welcome_modal_dismissed "yes"');
 	run('wp option update woocommerce_default_country "DE:DE-BY"');
 	run('wp option update woocommerce_currency "EUR"');
