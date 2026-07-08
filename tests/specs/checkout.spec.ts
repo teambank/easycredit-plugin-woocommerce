@@ -127,7 +127,7 @@ test.describe("company should not be able to pay @bill @installment", () => {
 		await page.goto("index.php/checkout/");
 		await fillBlocksCheckout(page);
 
-		const companyField = page.getByRole("textbox", { name: "Unternehmen" });
+		const companyField = page.getByRole("textbox", { name: /Unternehmen|Firma/i });
 		await companyField.fill("Test GmbH");
 		await companyField.blur();
 

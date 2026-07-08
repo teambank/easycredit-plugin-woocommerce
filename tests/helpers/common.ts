@@ -311,6 +311,35 @@ export const selectAndProceed = async ({
 	});
 };
 
+export const acceptBlocksLegalCheckboxes = async (page) => {
+	await test.step("Accept legal checkboxes", async () => {
+		const checkboxes = page.locator(
+			".wc-gzd-block-checkout-checkboxes input[type='checkbox']:not(:checked), #checkbox-legal:not(:checked)",
+		);
+		const count = await checkboxes.count();
+
+		for (let i = 0; i < count; i++) {
+			await checkboxes.nth(i).check({ force: true });
+		}
+
+		if (count > 0) {
+			await delay(500);
+		}
+	});
+};
+
+export const acceptEasycreditPrivacyModal = async (page) => {
+	await test.step("Accept easyCredit privacy modal", async () => {
+		const akzeptieren = page.getByRole("button", { name: "Akzeptieren" });
+		try {
+			await akzeptieren.waitFor({ state: "visible", timeout: 3_000 });
+			await akzeptieren.click({ force: true });
+		} catch {
+			// Privacy already approved or not required (e.g. bill payment).
+		}
+	});
+};
+
 export const confirmOrder = async ({
 	page,
 	paymentType,
@@ -338,9 +367,11 @@ export const confirmOrder = async ({
 				.not.toContainText(/Zinsen für Ratenzahlung|Interest/);
 		}
 
-		await page
-			.getByRole("button", { name: /Kostenpflichtig bestellen|Bestellung aufgeben/ })
-			.click();
+		const placeOrderButton = page.getByRole("button", {
+			name: /jetzt kaufen|pflichtig bestellen|Bestellung aufgeben/i,
+		});
+
+		await placeOrderButton.click();
 
 		await expect(page).toHaveURL(/order-received/);
 	});
@@ -410,7 +441,7 @@ export const checkCompanyInvalidation = async (page) => {
 
 		await openBlocksCheckoutAddressForEditing(page);
 
-		const companyField = page.getByRole("textbox", { name: "Unternehmen" });
+		const companyField = page.getByRole("textbox", { name: /Unternehmen|Firma/i });
 		await companyField.fill("Test GmbH");
 		await companyField.blur();
 
