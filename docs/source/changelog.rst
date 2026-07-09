@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.1.4
+-----
+
+- Anpassung der Kompatibilitätsangaben: getestet bis WordPress 7.0 und WooCommerce 10.9.4
+
 3.1.3
 -----
 
