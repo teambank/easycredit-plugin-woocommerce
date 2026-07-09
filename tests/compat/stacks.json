@@ -4,6 +4,9 @@
       "id": "germanized",
       "label": "Germanized",
       "runOnLatest": true,
+      "localPlugins": [
+        "woocommerce-germanized"
+      ],
       "plugins": [
         "woocommerce-germanized"
       ],
@@ -11,7 +14,8 @@
         "woocommerce_gzd_checkout_stop_order_cancellation": "yes",
         "woocommerce_gzd_disable_instant_order_confirmation": "no"
       },
-      "spec": "compat/specs/germanized-stock.spec.ts"
+      "setupGermanizedLegal": true,
+      "spec": "compat/specs/germanized*.spec.ts"
     }
   ]
 }

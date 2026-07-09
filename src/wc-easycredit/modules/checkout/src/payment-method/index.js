@@ -2,10 +2,98 @@ import { createElement, useRef, useEffect, useState } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import { decodeEntities } from "@wordpress/html-entities";
 import { getSetting } from "@woocommerce/settings";
+import { dispatch, select, subscribe } from "@wordpress/data";
+import {
+	CHECKOUT_STORE_KEY,
+	VALIDATION_STORE_KEY,
+} from "@woocommerce/block-data";
 
 const PRIVACY_VALIDATION_ERROR = {
 	type: "error",
 	message: "Bitte stimmen Sie der Datenübermittlung zu.",
+};
+
+const clearDeferredLegalValidationErrors = () => {
+	const store = select(VALIDATION_STORE_KEY);
+	const errors = store?.getValidationErrors?.() ?? {};
+
+	Object.keys(errors).forEach((key) => {
+		if (isDeferredLegalValidationErrorKey(key)) {
+			dispatch(VALIDATION_STORE_KEY).clearValidationError(key);
+		}
+	});
+};
+
+const shouldDeferNativeTermsValidation = (paymentPlan) => paymentPlan == null;
+
+const isDeferredLegalValidationErrorKey = (key) =>
+	key.startsWith("terms-and-conditions-") || key.startsWith("checkbox-");
+
+const hasNonDeferredLegalValidationErrors = () => {
+	const errors =
+		select(VALIDATION_STORE_KEY)?.getValidationErrors?.() ?? {};
+
+	return Object.keys(errors).some(
+		(key) => !isDeferredLegalValidationErrorKey(key),
+	);
+};
+
+const hasDeferredLegalValidationErrors = () => {
+	const errors =
+		select(VALIDATION_STORE_KEY)?.getValidationErrors?.() ?? {};
+
+	return Object.keys(errors).some((key) =>
+		isDeferredLegalValidationErrorKey(key),
+	);
+};
+
+const DEFERRED_LEGAL_CHECKBOX_SELECTORS = [
+	'.wp-block-woocommerce-checkout-terms-block input#terms-and-conditions[type="checkbox"]',
+	".wp-block-woocommerce-germanized-checkout-checkboxes input[type='checkbox']",
+	".wc-gzd-checkboxes input[type='checkbox']",
+].join(", ");
+
+/*
+ * WC 9.x blocks checkout gates the Store API on hasValidationErrors(), which
+ * counts hidden terms/checkbox errors. For the financing redirect we only need
+ * to pass client validation; legal consent is collected after approval.
+ */
+const temporarilyBypassDeferredLegalCheckboxes = () => {
+	document
+		.querySelectorAll(DEFERRED_LEGAL_CHECKBOX_SELECTORS)
+		.forEach((input) => {
+			if (input instanceof HTMLInputElement && !input.checked) {
+				input.click();
+			}
+		});
+};
+
+const suppressDeferredLegalValidationDuring = async (callback) => {
+	const unsubscribe = subscribe(() => {
+		clearDeferredLegalValidationErrors();
+	});
+
+	try {
+		await callback();
+	} finally {
+		unsubscribe();
+	}
+};
+
+const waitForCheckoutRedirect = async (timeoutMs = 5000) => {
+	const deadline = Date.now() + timeoutMs;
+
+	while (Date.now() < deadline) {
+		const redirectUrl = select(CHECKOUT_STORE_KEY)?.getRedirectUrl?.();
+
+		if (redirectUrl || /ratenkauf\.easycredit\.de/i.test(window.location.href)) {
+			return true;
+		}
+
+		await new Promise((resolve) => setTimeout(resolve, 100));
+	}
+
+	return false;
 };
 
 const emulateSubmitCheckout = async () => {
@@ -38,7 +126,20 @@ export const getMethodConfiguration = (name) => {
 
 		const ecCheckout = useRef(null);
 		const [paymentPlan, setPaymentPlan] = useState(config.paymentPlan);
+		const paymentPlanRef = useRef(paymentPlan);
 		const privacyApproved = useRef(paymentPlan != null);
+		const [checkoutInstanceKey, setCheckoutInstanceKey] = useState(0);
+		const resetCheckoutInstanceKeyRef = useRef(() => {
+			setCheckoutInstanceKey((key) => key + 1);
+		});
+
+		const releaseEasycreditCheckoutComponent = (component) => {
+			if (component instanceof HTMLElement) {
+				component.dispatchEvent(new Event("closeModal"));
+			}
+
+			resetCheckoutInstanceKeyRef.current();
+		};
 		
 		// Create a hash from cart data (amount + addresses) to detect changes
 		const createCartHash = (amount, billingAddress, shippingAddress) => {
@@ -75,6 +176,10 @@ export const getMethodConfiguration = (name) => {
 		useEffect(() => {
 			validationMessageRef.current = validationMessage;
 		}, [validationMessage]);
+
+		useEffect(() => {
+			paymentPlanRef.current = paymentPlan;
+		}, [paymentPlan]);
 
 		useEffect(() => {
 			billingRef.current = billing.billingAddress;
@@ -149,6 +254,8 @@ export const getMethodConfiguration = (name) => {
 
 				e.preventDefault();
 
+				const component = e.target;
+
 				let message = validationMessageRef.current;
 				let invalidated = false;
 				try {
@@ -169,12 +276,43 @@ export const getMethodConfiguration = (name) => {
 				}
 
 				if (message || invalidated) {
-					e.target.dispatchEvent(new Event("closeModal"));
+					releaseEasycreditCheckoutComponent(component);
 					return;
 				}
 
 				privacyApproved.current = true;
-				await emulateSubmitCheckout();
+
+				if (shouldDeferNativeTermsValidation(paymentPlanRef.current)) {
+					await suppressDeferredLegalValidationDuring(async () => {
+						clearDeferredLegalValidationErrors();
+						temporarilyBypassDeferredLegalCheckboxes();
+						clearDeferredLegalValidationErrors();
+						await emulateSubmitCheckout();
+						await waitForCheckoutRedirect();
+					});
+				} else {
+					await emulateSubmitCheckout();
+				}
+
+				// emulateSubmitCheckout does not trigger onCheckoutFail for client-side errors.
+				await new Promise((resolve) => setTimeout(resolve, 250));
+
+				if (
+					/ratenkauf\.easycredit\.de/i.test(window.location.href) ||
+					select(CHECKOUT_STORE_KEY)?.getRedirectUrl?.()
+				) {
+					return;
+				}
+
+				if (hasNonDeferredLegalValidationErrors()) {
+					dispatch(VALIDATION_STORE_KEY).showAllValidationErrors();
+					releaseEasycreditCheckoutComponent(component);
+					return;
+				}
+
+				if (hasDeferredLegalValidationErrors()) {
+					releaseEasycreditCheckoutComponent(component);
+				}
 			};
 
 			document.addEventListener('easycredit-submit', handler, true);
@@ -194,6 +332,10 @@ export const getMethodConfiguration = (name) => {
 			const unsubscribe = onCheckoutValidation(() => {
 				if (!ecCheckout.current) {
 					return true;
+				}
+
+				if (shouldDeferNativeTermsValidation(paymentPlanRef.current)) {
+					clearDeferredLegalValidationErrors();
 				}
 
 				const message = validationMessageRef.current;
@@ -227,7 +369,7 @@ export const getMethodConfiguration = (name) => {
 					return;
 				}
 
-				ecCheckout.current.dispatchEvent(new Event("closeModal"));
+				releaseEasycreditCheckoutComponent(ecCheckout.current);
 			});
 			return unsubscribe;
 		}, [onCheckoutFail, activePaymentMethod]);
@@ -236,6 +378,7 @@ export const getMethodConfiguration = (name) => {
 			'div',
 			null,
 			createElement('easycredit-checkout', {
+				key: checkoutInstanceKey,
 				ref: ecCheckout,
 				'webshop-id': decodeEntities(config.apiKey),
 				amount: billing.cartTotal.value / 100,

@@ -1,6 +1,10 @@
 const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const {
+	enableBlocksCheckoutTermsCheckbox,
+	usesBlocksCheckout,
+} = require("./enable-blocks-checkout-terms-checkbox");
 
 // Set DEBUG=true to see verbose output
 const DEBUG = process.env.DEBUG === "true";
@@ -76,6 +80,29 @@ try {
 	run('wp option update woocommerce_checkout_phone_field "optional"');
 	run('wp option update woocommerce_checkout_company_field "optional"');
 	run('wp option update woocommerce_calc_shipping "yes"');
+
+	// Terms page required for WooCommerce's native checkout checkbox in E2E tests.
+	const TERMS_PAGE_ID = run(
+		'wp post create --post_type=page --post_title="AGB" --post_name="agb" --post_status=publish --post_content="Test AGB." --porcelain'
+	)
+		.toString()
+		.trim();
+	if (TERMS_PAGE_ID) {
+		run(`wp option update woocommerce_terms_page_id ${TERMS_PAGE_ID}`);
+	}
+
+	if (usesBlocksCheckout(VERSION)) {
+		enableBlocksCheckoutTermsCheckbox(run);
+	} else {
+		const checkoutPageId = run("wp option get woocommerce_checkout_page_id")
+			.toString()
+			.trim();
+		if (checkoutPageId) {
+			run(
+				`wp post update ${checkoutPageId} --post_content='[woocommerce_checkout]'`,
+			);
+		}
+	}
 
 	// Configure flat rate shipping method "Shipping" with price 5.90 in default zone (zone 0)
 	const SHIPPING_METHOD_ID = run(

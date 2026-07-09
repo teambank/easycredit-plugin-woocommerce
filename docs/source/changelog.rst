@@ -5,6 +5,7 @@ Changelog
 -----
 
 - Anpassung der Kompatibilitätsangaben: getestet bis WordPress 7.0 und WooCommerce 10.9.4
+- Germanized-Rechtstexte und WooCommerce-AGB-Checkbox: Zustimmung wird erst nach Rückkehr vom Ratenkauf verlangt, nicht beim Redirect zur Payment Page
 
 3.1.3
 -----

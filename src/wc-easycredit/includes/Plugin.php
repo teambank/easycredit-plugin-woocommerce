@@ -726,4 +726,9 @@ class Plugin
     {
         return strncmp($method, $this->id, strlen($this->id)) === 0;
     }
+
+    public function integration(): Integration
+    {
+        return $this->integration;
+    }
 }

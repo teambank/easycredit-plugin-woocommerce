@@ -14,13 +14,14 @@ import {
 	goThroughPaymentPage,
 	startExpress,
 	confirmOrder,
+	blocksPlaceOrderButtonLocator,
 	addCurrentProductToCart,
 	checkAddressInvalidation,
 	checkAmountInvalidation,
 	checkCompanyInvalidation,
 } from "../helpers/common";
 import { PaymentTypes } from "../helpers/types";
-import { setProductStock } from "../api/woocommerce-api";
+import { setProductStock, isWpEnvCliAvailable, WP_ENV_CLI_SKIP_REASON } from "../api/woocommerce-api";
 
 const LAST_STOCK_SKU = "lastone";
 
@@ -304,6 +305,7 @@ test.describe("product above amount constraint should not be buyable @bill @inst
 
 test.describe("last item in stock can be purchased @installment", () => {
 	test.beforeEach(() => {
+		test.skip(!isWpEnvCliAvailable(), WP_ENV_CLI_SKIP_REASON);
 		setProductStock(LAST_STOCK_SKU, 1);
 	});
 
@@ -349,7 +351,7 @@ test.describe("order without authorization should not be possible", () => {
 
 		await delay(1000);
 
-		await page.locator(".wc-block-components-checkout-place-order-button").click();
+		await blocksPlaceOrderButtonLocator(page).click();
 		await page.getByRole("button", { name: "Akzeptieren" }).click({ force: true });
 
 		await expect(page.locator("body")).toContainText("Weiter");
