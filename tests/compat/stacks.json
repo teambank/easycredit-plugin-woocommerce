@@ -4,14 +4,18 @@
       "id": "germanized",
       "label": "Germanized",
       "runOnLatest": true,
-      "plugins": [
+      "localPlugins": [
         "woocommerce-germanized"
+      ],
+      "plugins": [
+        "https://github.com/vendidero/woocommerce-germanized/archive/refs/heads/master.zip"
       ],
       "options": {
         "woocommerce_gzd_checkout_stop_order_cancellation": "yes",
         "woocommerce_gzd_disable_instant_order_confirmation": "no"
       },
-      "spec": "compat/specs/germanized-stock.spec.ts"
+      "setupGermanizedLegal": true,
+      "spec": "compat/specs/germanized*.spec.ts"
     }
   ]
 }

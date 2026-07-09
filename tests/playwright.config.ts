@@ -34,7 +34,7 @@ if (isBlocksCheckout()) {
 			use: {
 				...devices[device],
 			},
-			testMatch: "specs/checkout.spec.ts",
+			testMatch: ["specs/checkout.spec.ts", "specs/native-terms.spec.ts"],
 		});
 	});
 } else {
@@ -44,7 +44,7 @@ if (isBlocksCheckout()) {
 			use: {
 				...devices[device],
 			},
-			testMatch: "specs/classic-checkout.spec.ts",
+			testMatch: ["specs/classic-checkout.spec.ts", "specs/native-terms.spec.ts"],
 		});
 	});
 }

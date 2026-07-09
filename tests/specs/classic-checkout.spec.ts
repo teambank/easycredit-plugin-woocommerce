@@ -12,7 +12,7 @@ import {
 	checkClassicShippingDiffersFromBilling,
 } from "../helpers/common";
 import { PaymentTypes } from "../helpers/types";
-import { setProductStock } from "../api/woocommerce-api";
+import { setProductStock, isWpEnvCliAvailable, WP_ENV_CLI_SKIP_REASON } from "../api/woocommerce-api";
 
 const LAST_STOCK_SKU = "lastone";
 
@@ -111,6 +111,7 @@ test.describe("go through @express @bill", () => {
 
 test.describe("last item in stock can be purchased @installment", () => {
 	test.beforeEach(() => {
+		test.skip(!isWpEnvCliAvailable(), WP_ENV_CLI_SKIP_REASON);
 		setProductStock(LAST_STOCK_SKU, 1);
 	});
 

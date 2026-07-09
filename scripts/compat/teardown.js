@@ -11,7 +11,11 @@ const stack = getStack(stackId);
 
 console.log(`=== Compat teardown: ${stack.label} (${stack.id}) ===`);
 
-for (const plugin of stack.plugins) {
+for (const plugin of stack.plugins || []) {
+	runWpCli(`wp plugin deactivate ${plugin} || true`);
+}
+
+for (const plugin of stack.localPlugins || []) {
 	runWpCli(`wp plugin deactivate ${plugin} || true`);
 }
 

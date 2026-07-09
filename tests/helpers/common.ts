@@ -4,6 +4,8 @@ import {
 	goThroughPaymentPageViaApi,
 	resolvePaymentPageMode,
 	PAYMENT_SANDBOX,
+	NATIVE_TERMS_VALIDATION_PATTERN,
+	blocksNativeTermsFailureLocator,
 } from "../api/payment-api";
 import { PaymentTypes } from "./types";
 
@@ -33,16 +35,18 @@ export const addCurrentProductToCart = async (page) => {
 
 export const fillClassicCheckout = async (page) => {
 	await page
-		.getByRole("textbox", { name: "Vorname *" })
+		.getByRole("textbox", { name: /^Vorname/ })
 		.fill(randomize("Ralf"));
-	await page.getByRole("textbox", { name: "Nachname *" }).fill("Ratenkauf");
+	await page.getByRole("textbox", { name: /^Nachname/ }).fill("Ratenkauf");
 	await page
-		.getByRole("textbox", { name: "Straße *" })
+		.getByRole("textbox", { name: /^(Straße|Adresse)/ })
 		.fill("Beuthener Str. 25");
-	await page.getByRole("textbox", { name: "Postleitzahl *" }).fill("90471");
-	await page.getByRole("textbox", { name: "Ort / Stadt *" }).fill("Nürnberg");
+	await page.getByRole("textbox", { name: /^Postleitzahl/ }).fill("90471");
 	await page
-		.getByLabel("E-Mail-Adresse *")
+		.getByRole("textbox", { name: /^(Ort \/ Stadt|Stadt)/ })
+		.fill("Nürnberg");
+	await page
+		.getByLabel(/^E-Mail-Adresse/)
 		.fill("ralf.ratenkauf@teambank.de");
 };
 
@@ -61,12 +65,16 @@ export const fillClassicShippingAddress = async (
 	const shippingFields = page.locator(".woocommerce-shipping-fields");
 
 	await page.getByLabel(/Lieferung an eine andere Adresse/i).check();
-	await shippingFields.getByRole("textbox", { name: "Vorname *" }).fill("Ralf");
-	await shippingFields.getByRole("textbox", { name: "Nachname *" }).fill("Ratenkauf");
-	await shippingFields.getByRole("textbox", { name: "Straße *" }).fill(street);
-	await shippingFields.getByRole("textbox", { name: "Postleitzahl *" }).fill(postcode);
-	await shippingFields.getByRole("textbox", { name: "Ort / Stadt *" }).fill(city);
-	await shippingFields.getByRole("textbox", { name: "Postleitzahl *" }).blur();
+	await shippingFields.getByRole("textbox", { name: /^Vorname/ }).fill("Ralf");
+	await shippingFields.getByRole("textbox", { name: /^Nachname/ }).fill("Ratenkauf");
+	await shippingFields
+		.getByRole("textbox", { name: /^(Straße|Adresse)/ })
+		.fill(street);
+	await shippingFields.getByRole("textbox", { name: /^Postleitzahl/ }).fill(postcode);
+	await shippingFields
+		.getByRole("textbox", { name: /^(Ort \/ Stadt|Stadt)/ })
+		.fill(city);
+	await shippingFields.getByRole("textbox", { name: /^Postleitzahl/ }).blur();
 };
 
 export const checkClassicCompanyBlocked = async (page) => {
@@ -328,6 +336,113 @@ export const acceptBlocksLegalCheckboxes = async (page) => {
 	});
 };
 
+export const acceptGermanizedLegalCheckboxes = async (page) => {
+	await test.step("Accept Germanized legal checkboxes", async () => {
+		const checkboxes = page.locator(
+			".wc-gzd-block-checkout-checkboxes input[type='checkbox']:visible, #checkbox-legal:visible, input[name='legal']:visible, .wc-gzd-checkbox input[type='checkbox']:visible",
+		);
+		const count = await checkboxes.count();
+
+		for (let i = 0; i < count; i++) {
+			const checkbox = checkboxes.nth(i);
+			if (!(await checkbox.isChecked())) {
+				await checkbox.check({ force: true });
+			}
+		}
+
+		if (count > 0) {
+			await delay(500);
+		}
+	});
+};
+
+export const acceptNativeTermsCheckbox = async (
+	page,
+	{ isClassicCheckout = false }: { isClassicCheckout?: boolean } = {},
+) => {
+	await test.step("Accept native WooCommerce terms", async () => {
+		const terms = isClassicCheckout
+			? page.locator('input[name="terms"]:visible')
+			: page.locator(
+					'#terms-and-conditions:visible, .wp-block-woocommerce-checkout-terms-block input[type="checkbox"]:visible',
+				);
+
+		if ((await terms.count()) === 0 || (await terms.isChecked())) {
+			return;
+		}
+
+		const label = isClassicCheckout
+			? page.locator('label[for="terms"]:visible, label:has(input[name="terms"]:visible)')
+			: page.locator(
+					'label[for="terms-and-conditions"]:visible, .wp-block-woocommerce-checkout-terms-block label:has(input[type="checkbox"])',
+				);
+
+		if (await label.count()) {
+			await label.first().click();
+		}
+
+		if (!(await terms.isChecked())) {
+			await terms.evaluate((el) => {
+				const input = el as HTMLInputElement;
+				input.checked = true;
+				input.dispatchEvent(new Event("change", { bubbles: true }));
+				input.dispatchEvent(new Event("input", { bubbles: true }));
+			});
+		}
+
+		await expect(terms).toBeChecked();
+	});
+};
+
+export const expectNativeTermsCheckbox = async (
+	page,
+	{
+		isClassicCheckout = false,
+		checked = false,
+	}: { isClassicCheckout?: boolean; checked?: boolean } = {},
+) => {
+	await test.step("Verify native WooCommerce terms checkbox", async () => {
+		const terms = isClassicCheckout
+			? page.locator('input[name="terms"]:visible')
+			: page.locator(
+					'#terms-and-conditions:visible, .wp-block-woocommerce-checkout-terms-block input[type="checkbox"]:visible',
+				);
+
+		await expect(terms).toBeVisible();
+		if (checked) {
+			await expect(terms).toBeChecked();
+		} else {
+			await expect(terms).not.toBeChecked();
+		}
+	});
+};
+
+export const expectNativeTermsValidationError = async (
+	page,
+	{ isClassicCheckout = false }: { isClassicCheckout?: boolean } = {},
+) => {
+	await test.step("Verify native WooCommerce terms validation error", async () => {
+		if (isClassicCheckout) {
+			await expect(page.locator(".woocommerce-error")).toContainText(
+				NATIVE_TERMS_VALIDATION_PATTERN,
+			);
+			return;
+		}
+
+		const termsFailure = blocksNativeTermsFailureLocator(page);
+		await expect(termsFailure).toBeVisible();
+
+		const legacyValidationError = page.locator(
+			".wp-block-woocommerce-checkout-terms-block .wc-block-components-validation-error",
+		);
+		if ((await legacyValidationError.count()) > 0) {
+			await expect(legacyValidationError).toContainText(
+				NATIVE_TERMS_VALIDATION_PATTERN,
+			);
+		}
+	});
+};
+
 export const acceptEasycreditPrivacyModal = async (page) => {
 	await test.step("Accept easyCredit privacy modal", async () => {
 		const akzeptieren = page.getByRole("button", { name: "Akzeptieren" });
@@ -370,6 +485,10 @@ export const confirmOrder = async ({
 		const placeOrderButton = page.getByRole("button", {
 			name: /jetzt kaufen|pflichtig bestellen|Bestellung aufgeben/i,
 		});
+
+		await acceptNativeTermsCheckbox(page, { isClassicCheckout });
+		await acceptGermanizedLegalCheckboxes(page);
+		await acceptBlocksLegalCheckboxes(page);
 
 		await placeOrderButton.click();
 

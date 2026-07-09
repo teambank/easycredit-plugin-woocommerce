@@ -1,10 +1,10 @@
 const fs = require("fs");
 const path = require("path");
 
-const STACKS_PATH = path.join(__dirname, "../../tests/compat/stacks.json");
-
 function loadStacks() {
-	const config = JSON.parse(fs.readFileSync(STACKS_PATH, "utf8"));
+	const config = JSON.parse(
+		fs.readFileSync(path.join(__dirname, "../../tests/compat/stacks.json"), "utf8"),
+	);
 	return config.stacks;
 }
 
@@ -23,4 +23,4 @@ function getLatestStacks() {
 	return loadStacks().filter((stack) => stack.runOnLatest);
 }
 
-module.exports = { loadStacks, getStack, getLatestStacks, STACKS_PATH };
+module.exports = { loadStacks, getStack, getLatestStacks };

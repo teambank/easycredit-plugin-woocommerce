@@ -2,11 +2,26 @@ import { createElement, useRef, useEffect, useState } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import { decodeEntities } from "@wordpress/html-entities";
 import { getSetting } from "@woocommerce/settings";
+import { dispatch, select } from "@wordpress/data";
+import { VALIDATION_STORE_KEY } from "@woocommerce/block-data";
 
 const PRIVACY_VALIDATION_ERROR = {
 	type: "error",
 	message: "Bitte stimmen Sie der Datenübermittlung zu.",
 };
+
+const clearNativeTermsValidationErrors = () => {
+	const store = select(VALIDATION_STORE_KEY);
+	const errors = store?.getValidationErrors?.() ?? {};
+
+	Object.keys(errors).forEach((key) => {
+		if (key.startsWith("terms-and-conditions-")) {
+			dispatch(VALIDATION_STORE_KEY).clearValidationError(key);
+		}
+	});
+};
+
+const shouldDeferNativeTermsValidation = (paymentPlan) => paymentPlan == null;
 
 const emulateSubmitCheckout = async () => {
 	let button;
@@ -38,6 +53,7 @@ export const getMethodConfiguration = (name) => {
 
 		const ecCheckout = useRef(null);
 		const [paymentPlan, setPaymentPlan] = useState(config.paymentPlan);
+		const paymentPlanRef = useRef(paymentPlan);
 		const privacyApproved = useRef(paymentPlan != null);
 		
 		// Create a hash from cart data (amount + addresses) to detect changes
@@ -75,6 +91,10 @@ export const getMethodConfiguration = (name) => {
 		useEffect(() => {
 			validationMessageRef.current = validationMessage;
 		}, [validationMessage]);
+
+		useEffect(() => {
+			paymentPlanRef.current = paymentPlan;
+		}, [paymentPlan]);
 
 		useEffect(() => {
 			billingRef.current = billing.billingAddress;
@@ -173,6 +193,10 @@ export const getMethodConfiguration = (name) => {
 					return;
 				}
 
+				if (shouldDeferNativeTermsValidation(paymentPlanRef.current)) {
+					clearNativeTermsValidationErrors();
+				}
+
 				privacyApproved.current = true;
 				await emulateSubmitCheckout();
 			};
@@ -194,6 +218,10 @@ export const getMethodConfiguration = (name) => {
 			const unsubscribe = onCheckoutValidation(() => {
 				if (!ecCheckout.current) {
 					return true;
+				}
+
+				if (shouldDeferNativeTermsValidation(paymentPlanRef.current)) {
+					clearNativeTermsValidationErrors();
 				}
 
 				const message = validationMessageRef.current;

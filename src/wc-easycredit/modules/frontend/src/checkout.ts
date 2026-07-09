@@ -1,6 +1,15 @@
 /* eslint-env jquery */
 import { getEasycreditCheckoutFromEvent } from "./utils";
 
+const hasActiveEasycreditPaymentPlan = (component: HTMLElement): boolean => {
+	const attributePlan = component.getAttribute("payment-plan");
+	const propertyPlan = (component as HTMLElement & { paymentPlan?: string })
+		.paymentPlan;
+	const plan = attributePlan ?? propertyPlan;
+
+	return Boolean(plan && String(plan).trim() !== "");
+};
+
 const ADDRESS_FIELDS = [
 	"first_name",
 	"last_name",
@@ -95,7 +104,26 @@ const fetchCheckoutValidation = async (form: HTMLFormElement) => {
 	return response.json();
 };
 
-const validateCheckoutForm = (form: HTMLFormElement): boolean => {
+const isDeferredLegalInput = (
+	$input: JQuery,
+	deferLegalCheckboxes: boolean,
+): boolean => {
+	if (!deferLegalCheckboxes) {
+		return false;
+	}
+
+	return (
+		$input.is('input[name="legal"]') ||
+		$input.is('input[name="terms"]') ||
+		$input.closest("p.legal, .wc-gzd-checkbox, .wc-gzd-checkboxes, [data-checkbox]")
+			.length > 0
+	);
+};
+
+const validateCheckoutForm = (
+	form: HTMLFormElement,
+	deferLegalCheckboxes = false,
+): boolean => {
 	const $form = jQuery(form);
 	let hasError = false;
 	const $termsCheckbox = $form.find('input[name="terms"]:visible');
@@ -104,7 +132,21 @@ const validateCheckoutForm = (form: HTMLFormElement): boolean => {
 		$termsCheckbox.closest(".form-row").removeClass("woocommerce-invalid");
 	}
 
-	$form.find(".input-text, select, input:checkbox").trigger("validate");
+	$form
+		.find(".input-text, select, input:checkbox")
+		.filter((_index, element) => {
+			return !isDeferredLegalInput(jQuery(element), deferLegalCheckboxes);
+		})
+		.trigger("validate");
+
+	if (deferLegalCheckboxes) {
+		$form
+			.find(
+				'input[name="legal"], input[name="terms"], p.legal input[type="checkbox"], .wc-gzd-checkbox input[type="checkbox"], .wc-gzd-checkboxes input[type="checkbox"], [data-checkbox] input[type="checkbox"]',
+			)
+			.closest(".form-row, p.legal, .wc-gzd-checkbox, .wc-gzd-checkboxes, [data-checkbox]")
+			.removeClass("woocommerce-invalid woocommerce-invalid-required-field");
+	}
 
 	if ($termsCheckbox.length) {
 		$termsCheckbox.closest(".form-row").removeClass("woocommerce-invalid");
@@ -114,6 +156,9 @@ const validateCheckoutForm = (form: HTMLFormElement): boolean => {
 		$form
 			.find(".woocommerce-invalid:visible")
 			.not($termsCheckbox.closest(".form-row"))
+			.filter((_index, element) => {
+				return !isDeferredLegalInput(jQuery(element).find("input, select").first(), deferLegalCheckboxes);
+			})
 			.length > 0
 	) {
 		hasError = true;
@@ -127,8 +172,7 @@ const validateCheckoutForm = (form: HTMLFormElement): boolean => {
 			return;
 		}
 
-		// Terms are accepted programmatically on easyCredit submit (see submitCheckoutForm).
-		if ($input.is('input[name="terms"]')) {
+		if (isDeferredLegalInput($input, deferLegalCheckboxes)) {
 			return;
 		}
 
@@ -163,7 +207,9 @@ const submitCheckoutForm = async (component: HTMLElement, e: CustomEvent) => {
 		return;
 	}
 
-	if (!validateCheckoutForm(form)) {
+	const isFinalSubmit = hasActiveEasycreditPaymentPlan(component);
+
+	if (!validateCheckoutForm(form, !isFinalSubmit)) {
 		component.dispatchEvent(new Event("closeModal"));
 		return;
 	}
@@ -183,11 +229,11 @@ const submitCheckoutForm = async (component: HTMLElement, e: CustomEvent) => {
 		// Fall back to server-side validation on submit.
 	}
 
-	const inputs = [
-		{ name: "easycredit[submit]", value: "1" },
-		{ name: "terms", value: "On" },
-		{ name: "legal", value: "On" },
-	];
+	const inputs: Array<{ name: string; value: string }> = [];
+
+	if (!isFinalSubmit) {
+		inputs.push({ name: "easycredit[submit]", value: "1" });
+	}
 
 	if (e.detail && e.detail.numberOfInstallments) {
 		inputs.push({

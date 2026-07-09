@@ -5,7 +5,9 @@ export type CompatStack = {
 	id: string;
 	label: string;
 	runOnLatest: boolean;
-	plugins: string[];
+	plugins?: string[];
+	localPlugins?: string[];
+	setupGermanizedLegal?: boolean;
 	options?: Record<string, string>;
 	spec: string;
 };
