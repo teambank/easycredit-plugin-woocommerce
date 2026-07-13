@@ -93,6 +93,15 @@ try {
 
 	if (usesBlocksCheckout(VERSION)) {
 		enableBlocksCheckoutTermsCheckbox(run);
+
+		const { ensureClassicCheckoutPage } = require("./ensure-classic-checkout-page");
+		const classicCheckoutResult = ensureClassicCheckoutPage((command) =>
+			run(command)?.toString(),
+		);
+		console.log(`Classic checkout page: ${classicCheckoutResult}`);
+		if (classicCheckoutResult === "classic_checkout_failed") {
+			throw new Error("Failed to ensure classic checkout page during WooCommerce setup");
+		}
 	} else {
 		const checkoutPageId = run("wp option get woocommerce_checkout_page_id")
 			.toString()

@@ -4,11 +4,12 @@ import {
 	defineConfig,
 	devices,
 } from "@playwright/test";
+import { existsSync } from "fs";
 import { seconds } from "./helpers/utils";
 import {
 	compatProjectName,
 	getCompatStack,
-	loadCompatStacks,
+	loadAutomatedCompatStacks,
 } from "./compat/stacks";
 
 const isBlocksCheckout = (): boolean => {
@@ -62,7 +63,7 @@ if (isBlocksCheckout()) {
 if (process.env.COMPAT_TESTS === "1") {
 	const stacks = process.env.COMPAT_STACK
 		? [getCompatStack(process.env.COMPAT_STACK)]
-		: loadCompatStacks();
+		: loadAutomatedCompatStacks();
 
 	["Desktop Chrome"].forEach((device) => {
 		for (const stack of stacks) {
@@ -83,6 +84,13 @@ let config: PlaywrightTestConfig = {
 		baseURL: process.env.BASE_URL ?? "http://localhost/",
 		trace: "retain-on-failure",
 		locale: "de-DE",
+		...(existsSync("/.dockerenv")
+			? {
+					launchOptions: {
+						args: ["--no-sandbox", "--disable-dev-shm-usage"],
+					},
+				}
+			: {}),
 	},
 	retries: process.env.CI ? 2 : 0,
 	timeout: seconds(60),

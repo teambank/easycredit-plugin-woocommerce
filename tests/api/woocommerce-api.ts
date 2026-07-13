@@ -53,7 +53,10 @@ function parseWpCliOutput(output: string): string {
 
 function runWpCli(command: string): string {
 	return parseWpCliOutput(
-		execSync(`npm exec wp-env run cli -- ${command}`, { encoding: "utf8" }),
+		execSync(
+			`npm exec wp-env run cli -- sh -c '${command.replace(/'/g, "'\\''")}'`,
+			{ encoding: "utf8" },
+		),
 	);
 }
 
@@ -78,6 +81,32 @@ export function setProductStock(sku: string, quantity: number): void {
 	runWpCli(
 		`wp wc product update ${productId} --manage_stock=true --stock_quantity=${quantity} --user=admin`,
 	);
+}
+
+export function ensureClassicCheckoutPage(): void {
+	const { ensureClassicCheckoutPage: ensureClassicCheckoutPageScript } =
+		require("../../scripts/ensure-classic-checkout-page") as typeof import("../../scripts/ensure-classic-checkout-page");
+
+	const runWpCli = (command: string) => {
+		try {
+			return parseWpCliOutput(
+				execSync(
+					`npm exec wp-env run cli -- sh -c '${command.replace(/'/g, "'\\''")}'`,
+					{ encoding: "utf8" },
+				),
+			);
+		} catch {
+			return "";
+		}
+	};
+
+	const result = ensureClassicCheckoutPageScript((command: string) =>
+		runWpCli(command),
+	);
+
+	if (result === "classic_checkout_failed") {
+		throw new Error("Failed to ensure classic checkout page for E2E tests");
+	}
 }
 
 export function ensureNativeTermsPage(): void {

@@ -49,5 +49,8 @@
   // Sets up WordPress on container start.
   // "postCreateCommand": ".devcontainer/wp-setup.sh",
   "remoteUser": "vscode",
+  "containerEnv": {
+    "PLAYWRIGHT_HOST_PLATFORM_OVERRIDE": "ubuntu24.04-arm64"
+  },
   "postStartCommand": "pnpm install --frozen-lockfile --force && node ./scripts/generate-wp-env-from-test-yml.js --latest && pnpm start && ln -s $(pnpm exec wp-env install-path)/wordpress ${containerWorkspaceFolder}/wordpress"
 }
