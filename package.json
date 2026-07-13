@@ -20,7 +20,8 @@
     "start": "node ./scripts/start-from-override.js",
     "install:germanized": "node scripts/install-germanized.js",
     "test:compat": "node scripts/compat/run.js",
-    "test:compat:germanized": "COMPAT_STACK=germanized node scripts/compat/run.js"
+    "test:compat:germanized": "COMPAT_STACK=germanized node scripts/compat/run.js",
+    "test:compat:german-market": "COMPAT_STACK=german-market node scripts/compat/run.js"
   },
   "dependencies": {
     "@playwright/test": "^1.58",

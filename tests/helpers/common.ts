@@ -41,6 +41,18 @@ export const addCurrentProductToCart = async (page) => {
 	});
 };
 
+export const CLASSIC_CHECKOUT_PATH = "index.php/classic-checkout/";
+
+export const addCurrentProductToClassicCart = async (
+	page,
+	checkoutPath: string = CLASSIC_CHECKOUT_PATH,
+) => {
+	await test.step("Add current product to cart and go to classic checkout", async () => {
+		await page.locator("form.cart button.single_add_to_cart_button").click();
+		await page.goto(checkoutPath);
+	});
+};
+
 export const fillClassicCheckout = async (page) => {
 	await page
 		.getByRole("textbox", { name: /^Vorname/ })
@@ -279,7 +291,9 @@ export const goThroughPaymentPage = async ({
 			}
 		});
 
-		await page.locator("#next-btn").click();
+		await page
+			.getByRole("button", { name: "Zahlungswunsch prüfen" })
+			.click();
 
 		await delay(500);
 		await doWithRetry(async () => {
@@ -360,6 +374,88 @@ export const acceptBlocksLegalCheckboxes = async (page) => {
 export const acceptGermanizedLegalCheckboxes = async (page) => {
 	await test.step("Accept Germanized legal checkboxes", async () => {
 		const checkboxes = germanizedLegalCheckboxLocator(page);
+		const count = await checkboxes.count();
+
+		for (let i = 0; i < count; i++) {
+			const checkbox = checkboxes.nth(i);
+			if (!(await checkbox.isChecked())) {
+				await checkbox.check({ force: true });
+			}
+		}
+
+		if (count > 0) {
+			await delay(500);
+		}
+	});
+};
+
+export const germanMarketLegalCheckboxLocator = (page: any) =>
+	page.locator(
+		".german-market-block-checkout-checkboxes input[type='checkbox']:visible",
+	);
+
+export const germanMarketClassicLegalCheckboxLocator = (page: any) =>
+	page.locator(
+		"form.checkout #terms:visible, form.checkout .german-market-checkbox-p input[type='checkbox']:visible",
+	);
+
+export const acceptGermanMarketClassicLegalCheckboxes = async (page) => {
+	await test.step("Accept German Market classic legal checkboxes", async () => {
+		const checkboxes = germanMarketClassicLegalCheckboxLocator(page);
+		const count = await checkboxes.count();
+
+		for (let i = 0; i < count; i++) {
+			const checkbox = checkboxes.nth(i);
+			if (await checkbox.isChecked()) {
+				continue;
+			}
+
+			const checkboxId = await checkbox.getAttribute("id");
+			const label = checkboxId
+				? page.locator(`label[for="${checkboxId}"]:visible`)
+				: checkbox.locator("xpath=ancestor::label[1]");
+
+			if (await label.count()) {
+				await label.first().click();
+			}
+
+			if (!(await checkbox.isChecked())) {
+				await checkbox.evaluate((el) => {
+					const input = el as HTMLInputElement;
+					input.checked = true;
+					input.dispatchEvent(new Event("change", { bubbles: true }));
+					input.dispatchEvent(new Event("input", { bubbles: true }));
+				});
+			}
+
+			await expect(checkbox).toBeChecked();
+		}
+
+		if (count > 0) {
+			await delay(500);
+		}
+	});
+};
+
+export const expectGermanMarketLegalCheckboxes = async (
+	page: any,
+	{ isClassicCheckout = false }: { isClassicCheckout?: boolean } = {},
+) => {
+	await test.step("Verify German Market legal checkboxes are visible", async () => {
+		const checkboxes = isClassicCheckout
+			? germanMarketClassicLegalCheckboxLocator(page)
+			: germanMarketLegalCheckboxLocator(page);
+		await expect(checkboxes.first()).toBeVisible({ timeout: 15_000 });
+		expect(await checkboxes.count()).toBeGreaterThan(0);
+	});
+};
+
+export const expectGermanMarketClassicLegalCheckboxes = async (page: any) =>
+	expectGermanMarketLegalCheckboxes(page, { isClassicCheckout: true });
+
+export const acceptGermanMarketLegalCheckboxes = async (page) => {
+	await test.step("Accept German Market legal checkboxes", async () => {
+		const checkboxes = germanMarketLegalCheckboxLocator(page);
 		const count = await checkboxes.count();
 
 		for (let i = 0; i < count; i++) {

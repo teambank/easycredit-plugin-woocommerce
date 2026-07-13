@@ -1,6 +1,19 @@
 {
   "stacks": [
     {
+      "id": "german-market",
+      "label": "German Market",
+      "runOnLatest": false,
+      "manualOnly": true,
+      "localPlugins": [
+        "woocommerce-german-market"
+      ],
+      "plugins": [],
+      "options": {},
+      "setupGermanMarketLegal": true,
+      "spec": "compat/specs/german-market*.spec.ts"
+    },
+    {
       "id": "germanized",
       "label": "Germanized",
       "runOnLatest": true,

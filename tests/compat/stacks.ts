@@ -5,9 +5,11 @@ export type CompatStack = {
 	id: string;
 	label: string;
 	runOnLatest: boolean;
+	manualOnly?: boolean;
 	plugins?: string[];
 	localPlugins?: string[];
 	setupGermanizedLegal?: boolean;
+	setupGermanMarketLegal?: boolean;
 	options?: Record<string, string>;
 	spec: string;
 };
@@ -22,6 +24,10 @@ export function loadCompatStacks(): CompatStack[] {
 	const raw = fs.readFileSync(stacksPath, "utf8");
 	const config = JSON.parse(raw) as CompatStacksFile;
 	return config.stacks;
+}
+
+export function loadAutomatedCompatStacks(): CompatStack[] {
+	return loadCompatStacks().filter((stack) => !stack.manualOnly);
 }
 
 export function getCompatStack(stackId: string): CompatStack {

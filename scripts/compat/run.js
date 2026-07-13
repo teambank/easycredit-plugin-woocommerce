@@ -22,7 +22,7 @@ function runStack(stackId) {
 
 	try {
 		run(
-			`COMPAT_TESTS=1 COMPAT_STACK=${stackId} npx playwright test -c tests/ --project="${project}"`,
+			`COMPAT_TESTS=1 COMPAT_STACK=${stackId} npx playwright test -c tests/ --project="${project}" --workers=1`,
 			{ COMPAT_STACK: stackId, COMPAT_TESTS: "1" }
 		);
 	} finally {

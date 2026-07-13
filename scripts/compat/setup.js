@@ -1,10 +1,8 @@
-const fs = require("fs");
-const path = require("path");
 const { runWpCli, isPluginInstalledInWp } = require("./wp-cli");
 const { getStack } = require("./stacks");
 const { setupGermanizedLegal } = require("./setup-germanized-legal");
-
-const ROOT = path.join(__dirname, "../..");
+const { setupGermanMarketLegal } = require("./setup-german-market-legal");
+const { ensureLocalPluginInWp } = require("./ensure-local-plugin");
 
 const stackId = process.env.COMPAT_STACK;
 if (!stackId) {
@@ -16,18 +14,30 @@ const stack = getStack(stackId);
 
 console.log(`=== Compat setup: ${stack.label} (${stack.id}) ===`);
 
+if (stack.id === "german-market") {
+	for (const plugin of ["woocommerce-germanized", "woocommerce-germanized-pro"]) {
+		try {
+			runWpCli(`wp plugin deactivate ${plugin}`, { capture: true });
+		} catch {
+			// Plugin not installed.
+		}
+		try {
+			runWpCli(`wp plugin uninstall ${plugin} --deactivate`, { capture: true });
+		} catch {
+			// Plugin not installed.
+		}
+	}
+}
+
 let germanizedActivated = false;
 
 for (const plugin of stack.localPlugins || []) {
-	const pluginFile = path.join(
-		ROOT,
-		`src/plugins/${plugin}/${plugin}.php`,
-	);
-	if (!fs.existsSync(pluginFile) || !isPluginInstalledInWp(plugin)) {
+	const pluginEntry = ensureLocalPluginInWp(plugin);
+	if (!pluginEntry) {
 		continue;
 	}
 
-	runWpCli(`wp plugin activate ${plugin}`);
+	runWpCli(`wp plugin activate ${pluginEntry}`);
 	germanizedActivated = plugin === "woocommerce-germanized" || germanizedActivated;
 }
 
@@ -52,6 +62,18 @@ for (const [option, value] of Object.entries(stack.options || {})) {
 
 if (stack.setupGermanizedLegal) {
 	setupGermanizedLegal();
+}
+
+if (stack.setupGermanMarketLegal) {
+	const hasGermanMarket = (stack.localPlugins || []).some((plugin) =>
+		isPluginInstalledInWp(plugin),
+	);
+	if (!hasGermanMarket) {
+		throw new Error(
+			"German Market compat tests require woocommerce-german-market in src/plugins/.",
+		);
+	}
+	setupGermanMarketLegal();
 }
 
 console.log(`=== Compat setup complete: ${stack.id} ===`);
