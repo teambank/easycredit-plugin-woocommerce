@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.1
 WC requires at least: 3.9
 WC tested up to: 10.9.4
-Stable tag: 3.1.4
+Stable tag: 3.1.5
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 

@@ -1,10 +1,8 @@
 = 3.1.5 =
 
-- Kompatibilität mit wooCommerce Germanized: Pflicht-Rechtstexte im Checkout (Classic und Blocks) werden beim Redirect zur Finanzierungsseite nicht mehr abgefragt; die Zustimmung ist erst nach Rückkehr mit freigegebenem Finanzierungsplan erforderlich (in CI mit Germanized 4.0.9 unter WooCommerce 10.9.2 geprüft)
-- Kompatibilität mit WooCommerce German Market: dieselbe Verzögerung der Pflicht-Rechtstexte im Classic- und Blocks-Checkout (AGB/Datenschutz/Widerruf sowie Versanddienstleister); im Blocks-Checkout für den Checkbox-Block german-market/checkout-checkboxes und die Store-API-Validierung; im Classic-Checkout zusätzliche Client-Validierung für German-Market-Checkboxen; die Kompatibilitätsklasse wird zuverlässig registriert, auch wenn German Market erst nach easyCredit geladen wird (manuell mit German Market 3.60 unter WooCommerce 10.9.2 verifiziert)
-- Kompatibilität mit der nativen WooCommerce-AGB-Checkbox: dieselbe Verzögerung im Classic- und Blocks-Checkout
-- Blocks-Checkout: Weiterleitung zur easyCredit-Zahlungsseite funktioniert auch bei WooCommerce 9.x zuverlässig, wenn noch keine Rechtstext-Zustimmung vorliegt (kein dauerhaft blockierender Ladezustand mehr)
-- FAQ: Hinweise zur verzögerten Rechtstext-Abfrage für Germanized und German Market ergänzt
+- Kompatibilität wooCommerce Germanized: Bestätigung der AGB erst bei Bestellabschluss (Classic und Blocks)
+- Kompatibilität WooCommerce German Market: Bestätigung der AGB u. Versanddienstleister erst bei Bestellabschluss (Classic und Blocks)
+- Native WooCommerce-AGB-Checkbox: Bestätigung der AGB erst bei Bestellabschluss (Classic und Blocks)
 
 = 3.1.4 =
 
