@@ -2,98 +2,24 @@ import { createElement, useRef, useEffect, useState } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import { decodeEntities } from "@wordpress/html-entities";
 import { getSetting } from "@woocommerce/settings";
-import { dispatch, select, subscribe } from "@wordpress/data";
+import { dispatch, select } from "@wordpress/data";
 import {
 	CHECKOUT_STORE_KEY,
 	VALIDATION_STORE_KEY,
 } from "@woocommerce/block-data";
+import {
+	shouldDeferNativeTermsValidation,
+	clearDeferredLegalValidationErrors,
+	hasNonDeferredLegalValidationErrors,
+	hasDeferredLegalValidationErrors,
+	suppressDeferredLegalValidationDuring,
+	temporarilyBypassDeferredLegalCheckboxes,
+	waitForCheckoutRedirect,
+} from "./deferred-legal";
 
 const PRIVACY_VALIDATION_ERROR = {
 	type: "error",
 	message: "Bitte stimmen Sie der Datenübermittlung zu.",
-};
-
-const clearDeferredLegalValidationErrors = () => {
-	const store = select(VALIDATION_STORE_KEY);
-	const errors = store?.getValidationErrors?.() ?? {};
-
-	Object.keys(errors).forEach((key) => {
-		if (isDeferredLegalValidationErrorKey(key)) {
-			dispatch(VALIDATION_STORE_KEY).clearValidationError(key);
-		}
-	});
-};
-
-const shouldDeferNativeTermsValidation = (paymentPlan) => paymentPlan == null;
-
-const isDeferredLegalValidationErrorKey = (key) =>
-	key.startsWith("terms-and-conditions-") || key.startsWith("checkbox-");
-
-const hasNonDeferredLegalValidationErrors = () => {
-	const errors =
-		select(VALIDATION_STORE_KEY)?.getValidationErrors?.() ?? {};
-
-	return Object.keys(errors).some(
-		(key) => !isDeferredLegalValidationErrorKey(key),
-	);
-};
-
-const hasDeferredLegalValidationErrors = () => {
-	const errors =
-		select(VALIDATION_STORE_KEY)?.getValidationErrors?.() ?? {};
-
-	return Object.keys(errors).some((key) =>
-		isDeferredLegalValidationErrorKey(key),
-	);
-};
-
-const DEFERRED_LEGAL_CHECKBOX_SELECTORS = [
-	'.wp-block-woocommerce-checkout-terms-block input#terms-and-conditions[type="checkbox"]',
-	".wp-block-woocommerce-germanized-checkout-checkboxes input[type='checkbox']",
-	".wc-gzd-checkboxes input[type='checkbox']",
-].join(", ");
-
-/*
- * WC 9.x blocks checkout gates the Store API on hasValidationErrors(), which
- * counts hidden terms/checkbox errors. For the financing redirect we only need
- * to pass client validation; legal consent is collected after approval.
- */
-const temporarilyBypassDeferredLegalCheckboxes = () => {
-	document
-		.querySelectorAll(DEFERRED_LEGAL_CHECKBOX_SELECTORS)
-		.forEach((input) => {
-			if (input instanceof HTMLInputElement && !input.checked) {
-				input.click();
-			}
-		});
-};
-
-const suppressDeferredLegalValidationDuring = async (callback) => {
-	const unsubscribe = subscribe(() => {
-		clearDeferredLegalValidationErrors();
-	});
-
-	try {
-		await callback();
-	} finally {
-		unsubscribe();
-	}
-};
-
-const waitForCheckoutRedirect = async (timeoutMs = 5000) => {
-	const deadline = Date.now() + timeoutMs;
-
-	while (Date.now() < deadline) {
-		const redirectUrl = select(CHECKOUT_STORE_KEY)?.getRedirectUrl?.();
-
-		if (redirectUrl || /ratenkauf\.easycredit\.de/i.test(window.location.href)) {
-			return true;
-		}
-
-		await new Promise((resolve) => setTimeout(resolve, 100));
-	}
-
-	return false;
 };
 
 const emulateSubmitCheckout = async () => {
