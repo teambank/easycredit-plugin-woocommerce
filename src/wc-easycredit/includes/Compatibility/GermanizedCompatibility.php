@@ -12,6 +12,11 @@ use Netzkollektiv\EasyCredit\Plugin;
  *
  * Defers mandatory Germanized legal checkboxes during the initial financing redirect
  * and requires real checkbox confirmation after the customer returns with a plan.
+ *
+ * Verified in CI with:
+ * - WordPress 7.0
+ * - WooCommerce 10.9.2
+ * - Germanized 4.0.9
  */
 class GermanizedCompatibility
 {

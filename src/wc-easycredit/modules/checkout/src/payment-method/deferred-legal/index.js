@@ -8,17 +8,23 @@ import {
 	GERMANIZED_LEGAL_CHECKBOX_SELECTORS,
 	isGermanizedLegalValidationErrorKey,
 } from "../compat/germanized-legal";
+import {
+	isGermanMarketLegalValidationErrorKey,
+	GERMAN_MARKET_LEGAL_CHECKBOX_SELECTORS,
+} from "../compat/german-market-legal";
 
 const DEFERRED_LEGAL_CLICK_BYPASS_SELECTORS = [
 	NATIVE_TERMS_CHECKBOX_SELECTORS,
 	GERMANIZED_LEGAL_CHECKBOX_SELECTORS,
+	GERMAN_MARKET_LEGAL_CHECKBOX_SELECTORS,
 ]
 	.filter(Boolean)
 	.join(", ");
 
 const isDeferredLegalValidationErrorKey = (key) =>
 	isNativeTermsValidationErrorKey(key) ||
-	isGermanizedLegalValidationErrorKey(key);
+	isGermanizedLegalValidationErrorKey(key) ||
+	isGermanMarketLegalValidationErrorKey(key);
 
 const deferredLegalValidation = createDeferredLegalValidation({
 	isDeferredLegalValidationErrorKey,

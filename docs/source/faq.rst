@@ -4,17 +4,6 @@
 Häufige Fragen
 ============================
 
-Seit v2.0 wird die Transaktions-ID in der Bestellung nicht mehr gesetzt und der Bestellstatus bleibt auf "Zahlung ausstehend" stehen
--------------------------------------------------------------------------------------------------------------------------------------
-
-Ab dieser Version enthält das Plugin die sog. Zwei-Phasen Bestätigung. Dabei ist eine eine Zahlungstransaktion in wooCommerce nicht mehr mit der Bestätigung des Kunden abgeschlossen, sondern es erfolgt eine weitere Bestätigung seitens des easyCredit Servers. Der Server ruft im Anschluss der Bestellung die URL `/easycredit/authorize` auf. Bitte prüfen Sie die Logs Ihres Web-Servers auf den folgenden Aufruf, der kurz nach der Bestellung eingehen sollte. Enthält der Aufruf den Status-Code 200, ist die Transaktion auf "in Bearbeitung" umgestellt und die Transaktions-ID ist der Bestellung zugeordnet:
-
-.. code-block::
-
-    127.0.0.1 - - [11/Nov/2011:11:11:11 +0200] "GET /easycredit/authorize/secToken/{secToken}/?transactionId={txId}&orderId={orderId} HTTP/1.1" 200 - mein-woocommerce-shop.de "-" "Java/1.0.0" "-
-
-.. note:: Dieser Aufruf funktioniert möglicherweise nicht in Passwort-geschützten Staging- oder Entwicklungsumgebungen, wenn diese URL nicht explizit aus der Authentifizierung ausgeschlossen wird.
-
 Die Bestellbestätigungs E-Mail wird bereits bei Weiterleitung auf das Payment Terminal von easyCredit versendet. Lässt sich dies nach hinten verschieben?
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -23,30 +12,55 @@ Das Problem hängt möglicherweise mit einem der folgenden Plugins zusammen:
  * **wooCommerce Germanized**
  * **German Market**
 
-Die Plugins verändern den E-Mail Versand in wooCommerce derart, dass die E-Mail direkt nach Absenden des Checkouts versandt wird. Die E-Mail wird dabei unabhängig von der Zahlung versandt. 
+Die Plugins verändern den E-Mail Versand in wooCommerce derart, dass die E-Mail direkt nach Absenden des Checkouts versandt wird. Die E-Mail wird dabei unabhängig von der Zahlung versandt.
 
 Fehlerbehebung bei Verwendung von wooCommerce Germanized
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Das Problem ist im Forum des Plugins beschrieben: 
+Ab Plugin-Version **3.1.3** verzögert easyCredit den Versand der Germanized-Bestellbestätigung automatisch, bis die Zahlung abgeschlossen ist. Ein manueller Eingriff in der ``functions.php`` ist dafür nicht mehr nötig.
+
+Weitere Informationen zum ursprünglichen Verhalten finden Sie im Forum des Plugins:
 
 * https://wordpress.org/support/topic/order-receipt-sent-before-payment-confirmation/
-
-Als Lösung schlägt der Plugin Hersteller vor, die Funktion mittels Hook in der functions.php des verwendeten Themes zu deaktivieren:
-
-.. code-block:: php
-
-   add_filter( 'woocommerce_gzd_instant_order_confirmation', 
-      'my_child_disable_instant_order_confirmation', 1, 10 );
-
-   function my_child_disable_instant_order_confirmation( $disable ) {
-      return false;
-   }
 
 Fehlerbehebung bei Verwendung von German Market
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Im Plugin **German Market** hat der Hersteller die Funktion konfigurierbar gemacht. Das Verhalten kann unter Allgemein -> Emails -> Bestelleingangsbestätigungsmail konfiguriert werden.
+Im Plugin **German Market** hat der Hersteller die Funktion konfigurierbar gemacht. Das Verhalten kann unter **Allgemein → E-Mails → Bestelleingangsbestätigungsmail** konfiguriert werden. easyCredit verschiebt diese E-Mail bei German Market nicht automatisch.
+
+Rechtstexte oder AGB müssen vor der Weiterleitung zur Finanzierung bestätigt werden
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Beim easyCredit-Ratenkauf wählt der Kunde zunächst einen Finanzierungsplan und wird danach zur Zahlungsseite weitergeleitet. Pflicht-Rechtstexte und die WooCommerce-AGB-Checkbox sollen dabei erst nach Rückkehr mit freigegebenem Finanzierungsplan abgefragt werden, nicht schon beim ersten Klick auf „Weiter zur Ratenzahlung“.
+
+Ab Plugin-Version **3.1.5** übernimmt easyCredit das automatisch für:
+
+ * **wooCommerce Germanized** (Classic Checkout und Blocks Checkout)
+ * **WooCommerce German Market** (Classic Checkout und Blocks Checkout)
+ * die **native WooCommerce-AGB-Checkbox** (Classic Checkout und Blocks Checkout)
+
+Hinweise zu WooCommerce Germanized
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Ab Plugin-Version **3.1.3** verzögert easyCredit zusätzlich den Versand der Germanized-Bestellbestätigung automatisch, bis die Zahlung abgeschlossen ist.
+
+Die Classic- und Blocks-Checkout-Integration wurde in CI mit Germanized **4.0.9** unter WooCommerce **10.9.2** geprüft.
+
+Hinweise zu WooCommerce German Market
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Im **Blocks-Checkout** rendert German Market eigene Pflicht-Checkboxen über den Block ``german-market/checkout-checkboxes`` (z. B. AGB/Datenschutz/Widerruf und Versanddienstleister). easyCredit unterdrückt deren Validierung beim ersten Redirect zur Finanzierungsseite und fordert die Zustimmung erst nach Rückkehr mit freigegebenem Finanzierungsplan vor „Zahlungspflichtig bestellen“.
+
+Im **Classic Checkout** greifen die German-Market-Validierungshooks für dieselben Pflicht-Checkboxen, einschließlich der Versanddienstleister-Zustimmung. Auch dort werden die Checkboxen bis nach der Finanzierungsfreigabe nicht erzwungen; die Client-Validierung im Checkout berücksichtigt German-Market-Felder beim ersten Redirect ebenfalls nicht.
+
+Die Bestellbestätigungs-E-Mail verzögert easyCredit bei German Market **nicht** automatisch (siehe Abschnitt oben).
+
+Classic- und Blocks-Checkout wurden manuell mit German Market **3.60** unter WooCommerce **10.9.2** und WordPress **7.0** verifiziert.
+
+Steuern auf Zinsgebühren mit German Market
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**German Market** kann Umsatzsteuer auch auf nicht steuerbare Gebührenpositionen anwenden. Ab Plugin-Version **3.1.2** behandelt easyCredit die Zinsgebühr dabei automatisch korrekt, sodass keine falsche Steuer auf der Zinsposition ausgewiesen wird.
 
 Die Button-Bezeichnung im Checkout verändert sich nicht auf "Weiter zur Ratenzahlung" nach Auswahl von easyCredit. Woran liegt dies?
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -55,13 +69,15 @@ Das Problem hängt möglicherweise mit einem der folgenden Plugins zusammen:
 
  * **wooCommerce Germanized**
  * **German Market**
- 
-Leider haben beide Hersteller die Funktionalität nicht konfigurierbar gemacht. 
- 
+
+Leider haben beide Hersteller die Funktionalität nicht konfigurierbar gemacht.
+
+Im **Blocks Checkout** setzt easyCredit die Beschriftung über die Zahlungsart-Konfiguration (``placeOrderButtonLabel``). Dort sollte nach Auswahl von easyCredit-Ratenkauf „Weiter zur Ratenzahlung“ erscheinen.
+
 Fehlerbehebung bei Verwendung von wooCommerce Germanized
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bei Verwendung von **wooCommerce Germanized** kann das Standard-Verhalten mit dem folgenden Hook in der functions.php wiederhergestellt werden:
+Im **Classic Checkout** kann Germanized die Gateway-Beschriftung überschreiben. Bei Verwendung von **wooCommerce Germanized** kann das Standard-Verhalten mit dem folgenden Hook in der ``functions.php`` wiederhergestellt werden:
 
 .. code-block:: php
 
@@ -72,7 +88,7 @@ Bei Verwendung von **wooCommerce Germanized** kann das Standard-Verhalten mit de
          /**
             * By adding this property Germanized won't override the button text.
          */
-         if ($gateway->id === 'ratenkaufbyeasycredit') {
+         if ($gateway->id === 'easycredit_ratenkauf' || $gateway->id === 'easycredit_rechnung') {
             $gateway->force_order_button_text = false;
          }
       }
@@ -83,7 +99,7 @@ Bei Verwendung von **wooCommerce Germanized** kann das Standard-Verhalten mit de
 Fehlerbehebung bei Verwendung von German Market
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bei Verwendung von **German Market** kann das Standard-Verhalten mit dem folgenden Hook in der functions.php wiederhergestellt werden:
+Bei Verwendung von **German Market** kann das Standard-Verhalten im **Classic Checkout** mit dem folgenden Hook in der ``functions.php`` wiederhergestellt werden:
 
 .. code-block:: php
 

@@ -1,5 +1,10 @@
 /* eslint-env jquery */
 import { getEasycreditCheckoutFromEvent } from "./utils";
+import {
+	DEFERRED_LEGAL_CHECKBOX_SELECTORS,
+	DEFERRED_LEGAL_CONTAINER_SELECTORS,
+	isGermanMarketClassicLegalInput,
+} from "./compat/german-market-legal";
 
 const hasActiveEasycreditPaymentPlan = (component: HTMLElement): boolean => {
 	const attributePlan = component.getAttribute("payment-plan");
@@ -115,8 +120,8 @@ const isDeferredLegalInput = (
 	return (
 		$input.is('input[name="legal"]') ||
 		$input.is('input[name="terms"]') ||
-		$input.closest("p.legal, .wc-gzd-checkbox, .wc-gzd-checkboxes, [data-checkbox]")
-			.length > 0
+		isGermanMarketClassicLegalInput($input) ||
+		$input.closest(DEFERRED_LEGAL_CONTAINER_SELECTORS).length > 0
 	);
 };
 
@@ -141,10 +146,10 @@ const validateCheckoutForm = (
 
 	if (deferLegalCheckboxes) {
 		$form
-			.find(
-				'input[name="legal"], input[name="terms"], p.legal input[type="checkbox"], .wc-gzd-checkbox input[type="checkbox"], .wc-gzd-checkboxes input[type="checkbox"], [data-checkbox] input[type="checkbox"]',
+			.find(DEFERRED_LEGAL_CHECKBOX_SELECTORS)
+			.closest(
+				`.form-row, ${DEFERRED_LEGAL_CONTAINER_SELECTORS}`,
 			)
-			.closest(".form-row, p.legal, .wc-gzd-checkbox, .wc-gzd-checkboxes, [data-checkbox]")
 			.removeClass("woocommerce-invalid woocommerce-invalid-required-field");
 	}
 
