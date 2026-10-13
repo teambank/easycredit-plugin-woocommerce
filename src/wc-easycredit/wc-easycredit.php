@@ -10,18 +10,18 @@
  * License URI:     https://opensource.org/licenses/MIT
  * Text Domain:     wc-easycredit
  * Domain Path:     /languages
- * Version:         3.1.5
+ * Version:         3.1.6
  * Requires Plugins: woocommerce
  * Requires at least: 4.4
- * Tested up to: 7.0
+ * Tested up to: 7.1
  * WC requires at least: 3.0.0
- * WC tested up to: 10.9.4
+ * WC tested up to: 11.2.1
  *
  */
 
 defined('ABSPATH') or exit;
 
-define('WC_EASYCREDIT_VERSION', '3.1.5');
+define('WC_EASYCREDIT_VERSION', '3.1.6');
 define('WC_EASYCREDIT_ID', 'easycredit');
 
 use Netzkollektiv\EasyCredit\Plugin;
@@ -54,27 +54,32 @@ function wc_easycredit()
 
     return $plugin;
 }
-function is_woocommerce_plugin($plugin)
-{
-    $pattern = '/^woocommerce[\-\.0-9]*\/woocommerce.php$/';
+// Prefixed so we do not redeclare generic helpers other plugins already define.
+if (!function_exists('wc_easycredit_is_woocommerce_plugin')) {
+    function wc_easycredit_is_woocommerce_plugin($plugin)
+    {
+        $pattern = '/^woocommerce[\-\.0-9]*\/woocommerce.php$/';
 
-    if (!preg_match($pattern, $plugin)) {
-        return false;
+        if (!preg_match($pattern, $plugin)) {
+            return false;
+        }
+
+        return file_exists(WP_PLUGIN_DIR . '/' . $plugin);
     }
-
-    return file_exists(WP_PLUGIN_DIR . '/' . $plugin);
 }
 
-function is_woocommerce_active()
-{
-    $activePlugins = apply_filters('active_plugins', get_option('active_plugins', []));
-    $sitewidePlugins = get_site_option('active_sitewide_plugins', []);
+if (!function_exists('wc_easycredit_is_woocommerce_active')) {
+    function wc_easycredit_is_woocommerce_active()
+    {
+        $activePlugins = apply_filters('active_plugins', get_option('active_plugins', []));
+        $sitewidePlugins = get_site_option('active_sitewide_plugins', []);
 
-    $allActivePlugins = array_merge($activePlugins, array_keys($sitewidePlugins));
-    return !empty(array_filter($allActivePlugins, 'is_woocommerce_plugin', ARRAY_FILTER_USE_BOTH));
+        $allActivePlugins = array_merge($activePlugins, array_keys($sitewidePlugins));
+        return !empty(array_filter($allActivePlugins, 'wc_easycredit_is_woocommerce_plugin', ARRAY_FILTER_USE_BOTH));
+    }
 }
 
-if (!is_woocommerce_active()) {
+if (!wc_easycredit_is_woocommerce_active()) {
     return;
 }
 

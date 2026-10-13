@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.1.6
+-----
+
+- WooCommerce-Hilfsfunktionen werden mit Präfix deklariert, damit Namenskonflikte mit anderen Plugins ausbleiben
+- Kompatibilität aktualisiert: getestet bis WordPress 7.1 und WooCommerce 11.2.1
+
 3.1.5
 -----
 

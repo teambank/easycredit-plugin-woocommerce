@@ -2,11 +2,11 @@
 Contributors: ratenkaufbyeasycredit, netzkollektiv
 Tags: payment, woocommerce, ratenkauf, pay by installments, easycredit
 Requires at least: 4.4
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.1
 WC requires at least: 3.9
-WC tested up to: 10.9.4
-Stable tag: 3.1.5
+WC tested up to: 11.2.1
+Stable tag: 3.1.6
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
