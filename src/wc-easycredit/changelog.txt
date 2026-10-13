@@ -6,6 +6,10 @@
 - bei angemeldeten Kunden wird der Name aus der Rechnungsadresse verwendet
 - die Anzahl bisheriger Bestellungen stimmt auch mit den WooCommerce-Bestelltabellen (HPOS)
 - automatische Versandbestätigung und Erstattung finden die Transaktions-ID auch dann, wenn sie nur in den Bestelldaten von easyCredit steht
+- Capture und Refund im Backend verlangen die Berechtigung manage_woocommerce und das REST-Nonce
+- die Prüfung der API-Zugangsdaten erfolgt per POST mit Nonce und nur für Shop-Verwalter, die Zugangsdaten stehen nicht mehr in der URL
+- ein unbekannter Zahlungsart-Typ im Express-Checkout führt nicht mehr zu einem Fatal Error
+- Bestellungen ohne Erstellungsdatum lassen die Bestellliste nicht mehr abbrechen
 
 = 3.1.5 =
 

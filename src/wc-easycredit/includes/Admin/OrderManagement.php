@@ -76,6 +76,7 @@ class OrderManagement
             'request_config' => [
                 'headers' => [
                     'Content-Type' => 'application/json',
+                    'X-WP-Nonce' => wp_create_nonce('wp_rest'),
                 ],
             ],
         ];
@@ -135,21 +136,37 @@ class OrderManagement
     public function add_order_management_meta_box($post = null)
     {
         $order = $this->get_order($post);
+        if (!$order instanceof \WC_Order) {
+            return;
+        }
 ?>
-        <easycredit-merchant-manager tx-id="<?php echo $order->get_meta(Plugin::META_KEY_TRANSACTION_ID); ?>" date="<?php echo $order->get_date_created()->format('Y-m-d'); ?>" />
+        <easycredit-merchant-manager tx-id="<?php echo esc_attr($order->get_meta(Plugin::META_KEY_TRANSACTION_ID)); ?>" date="<?php echo esc_attr($this->format_order_created_date($order)); ?>" />
 <?php
     }
 
     public function get_order_status_icon($order)
     {
-        if (!$this->plugin->is_easycredit_method($order->get_payment_method())) {
+        if (!$order instanceof \WC_Order || !$this->plugin->is_easycredit_method($order->get_payment_method())) {
             return;
         }
 
         return '<easycredit-merchant-status-widget  
-            tx-id="' . $order->get_meta(Plugin::META_KEY_TRANSACTION_ID) . '" 
-            date="' . $order->get_date_created()->format('Y-m-d') . '" 
+            tx-id="' . esc_attr($order->get_meta(Plugin::META_KEY_TRANSACTION_ID)) . '" 
+            date="' . esc_attr($this->format_order_created_date($order)) . '" 
         ></easycredit-merchant-status-widget>';
+    }
+
+    /**
+     * Imported or incomplete orders can have no creation date.
+     */
+    protected function format_order_created_date($order): string
+    {
+        $created = $order->get_date_created();
+        if (!$created) {
+            return '';
+        }
+
+        return $created->format('Y-m-d');
     }
 
     public function mark_shipped($order_id, $order)

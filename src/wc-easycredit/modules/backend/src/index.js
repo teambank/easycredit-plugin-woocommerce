@@ -19,18 +19,29 @@ jQuery(function ($) {
 		const apiToken = $("#woocommerce_easycredit_api_token").val();
 		const apiSignature = $("#woocommerce_easycredit_api_signature").val();
 
-		$.getJSON(
-			getBaseUrl("verify_credentials"),
-			{
+		$.ajax({
+			url: getBaseUrl("verify_credentials"),
+			method: "POST",
+			dataType: "json",
+			data: {
+				_ajax_nonce: wc_easycredit_config.nonce,
 				api_key: apiKey,
 				api_token: apiToken,
 				api_signature: apiSignature,
 			},
-			(r) => {
+		})
+			.done((r) => {
 				button.prop("disabled", false);
 				window.alert(r.msg); // eslint-disable-line no-alert
-			},
-		);
+			})
+			.fail((xhr) => {
+				button.prop("disabled", false);
+				const message =
+					xhr.responseJSON && xhr.responseJSON.msg
+						? xhr.responseJSON.msg
+						: "Die Zugangsdaten konnten nicht geprüft werden.";
+				window.alert(message); // eslint-disable-line no-alert
+			});
 	});
 
 	let customUploader;

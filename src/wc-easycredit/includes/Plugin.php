@@ -298,9 +298,15 @@ class Plugin
 
     public function get_method_by_payment_type($paymentType)
     {
-        return current(array_filter($this->paymentGateways, function ($gateway) use ($paymentType) {
+        if (!is_string($paymentType)) {
+            return false;
+        }
+
+        $matches = array_filter($this->paymentGateways, function ($gateway) use ($paymentType) {
             return str_replace('_PAYMENT', '', $paymentType) === str_replace('_PAYMENT', '', $gateway->PAYMENT_TYPE);
-        }));
+        });
+
+        return $matches ? current($matches) : false;
     }
 
     public function get_payment_type_by_method($method)
@@ -395,10 +401,14 @@ class Plugin
             $postData = $_POST;
         }
 
-        $params = isset($_REQUEST['easycredit']) ? $_REQUEST['easycredit'] : [];
+        $params = (isset($_REQUEST['easycredit']) && is_array($_REQUEST['easycredit'])) ? $_REQUEST['easycredit'] : [];
         if (isset($params['paymentType'])) {
-            $paymentType = $params['paymentType'];
-            WC()->session->set('chosen_payment_method', $this->get_method_by_payment_type($paymentType)->id);
+            $gateway = $this->get_method_by_payment_type($params['paymentType']);
+            if (!$gateway || !function_exists('WC') || !WC()->session) {
+                $this->handleError(__('The selected easyCredit payment method is not available.', 'wc-easycredit'));
+                return;
+            }
+            WC()->session->set('chosen_payment_method', $gateway->id);
         }
 
         try {
@@ -590,11 +600,12 @@ class Plugin
             'wc_easycredit_js',
             $this->plugin_url . 'modules/backend/build/index.js',
             ['jquery'],
-            '1.0'
+            '1.1'
         );
 
         wp_localize_script('wc_easycredit_js', 'wc_easycredit_config', [
             'url' => admin_url('admin-post.php'),
+            'nonce' => wp_create_nonce('wc_easycredit_verify_credentials'),
         ]);
 
         wp_enqueue_style(
@@ -627,12 +638,33 @@ class Plugin
 
     public function verify_credentials()
     {
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json([
+                'status' => false,
+                'msg' => __('You are not allowed to verify easyCredit credentials.', 'wc-easycredit'),
+            ], 403);
+        }
+
+        $nonce = (isset($_POST['_ajax_nonce']) && is_string($_POST['_ajax_nonce']))
+            ? sanitize_text_field(wp_unslash($_POST['_ajax_nonce']))
+            : '';
+        if (!wp_verify_nonce($nonce, 'wc_easycredit_verify_credentials')) {
+            wp_send_json([
+                'status' => false,
+                'msg' => __('The request could not be verified.', 'wc-easycredit'),
+            ], 403);
+        }
+
         $status = [
             'status' => true,
             'msg' => __('Credentials are valid! Your can now offer easyCredit payment in your store.', 'wc-easycredit'),
         ];
 
-        $error = $this->check_credentials($_REQUEST['api_key'], $_REQUEST['api_token'], $_REQUEST['api_signature']);
+        $error = $this->check_credentials(
+            $this->posted_credential('api_key'),
+            $this->posted_credential('api_token'),
+            $this->posted_credential('api_signature')
+        );
         if ($error) {
             $status = [
                 'status' => false,
@@ -641,6 +673,15 @@ class Plugin
         }
 
         wp_send_json($status);
+    }
+
+    protected function posted_credential($key): string
+    {
+        if (!isset($_POST[$key]) || !is_string($_POST[$key])) {
+            return '';
+        }
+
+        return sanitize_text_field(wp_unslash($_POST[$key]));
     }
 
     public function check_credentials($apiKey, $apiToken, $apiSignature = null)

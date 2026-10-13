@@ -26,39 +26,51 @@ class RestApi
         $this->plugin = $plugin;
         $this->integration = $integration;
 
-        add_action('rest_api_init', function() {
-            if (is_user_logged_in() && (current_user_can('shop_manager') ||
-                current_user_can('administrator')
-            )) {
-                $this->register_routes();
-            }
-        });
+        add_action('rest_api_init', [$this, 'register_routes']);
     }
-    
+
+    /**
+     * Checked on every request. Registering the routes only for the current
+     * user is not enough: WordPress drops that user when the REST nonce is
+     * missing and would still run a callback that allows everyone.
+     */
+    public function merchant_permissions_check()
+    {
+        if (current_user_can('manage_woocommerce')) {
+            return true;
+        }
+
+        return new \WP_Error(
+            'rest_forbidden',
+            __('Sorry, you are not allowed to manage easyCredit transactions.', 'wc-easycredit'),
+            ['status' => rest_authorization_required_code()]
+        );
+    }
+
     public function register_routes()
     {
-        register_rest_route('easycredit/v1', '/transactions', [
+        $routeArgs = [
+            'permission_callback' => [$this, 'merchant_permissions_check'],
+        ];
+
+        register_rest_route('easycredit/v1', '/transactions', $routeArgs + [
             'methods' => 'GET',
             'callback' => [$this, 'get_transactions'],
-            'permission_callback' => '__return_true', // // allow for anybody as routes are only registered in admin
         ]);
 
-        register_rest_route('easycredit/v1', '/transaction', [
+        register_rest_route('easycredit/v1', '/transaction', $routeArgs + [
             'methods' => 'GET',
             'callback' => [$this, 'get_transaction'],
-            'permission_callback' => '__return_true', // // allow for anybody as routes are only registered in admin
         ]);
 
-        register_rest_route('easycredit/v1', '/capture', [
+        register_rest_route('easycredit/v1', '/capture', $routeArgs + [
             'methods' => 'POST',
             'callback' => [$this, 'capture'],
-            'permission_callback' => '__return_true', // allow for anybody as routes are only registered in admin
         ]);
 
-        register_rest_route('easycredit/v1', '/refund', [
+        register_rest_route('easycredit/v1', '/refund', $routeArgs + [
             'methods' => 'POST',
             'callback' => [$this, 'refund'],
-            'permission_callback' => '__return_true', // allow for anybody as routes are only registered in admin
         ]);
     }
 
