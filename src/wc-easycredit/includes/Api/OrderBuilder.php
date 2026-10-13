@@ -68,23 +68,82 @@ class OrderBuilder extends TransactionBuilderAbstract
             ->build($address);
     }
 
+    /**
+     * Classic checkout (WooCommerce 3 through 11) copies billing onto the shipping
+     * fields when the customer does not ship elsewhere, and never stores
+     * ship_to_different_address on the order. Block checkout writes both addresses
+     * directly. A stored flag is still honored for checkouts that did save it.
+     */
     public function getShippingAddress()
     {
-        $_key = 'billing';
-        if ($this->order->get_meta('ship_to_different_address')) {
-            $_key = 'shipping';
-        }
-
-        $address = $this->order->get_address($_key);
+        $shipping = $this->order->get_address('shipping');
+        $useShipping = $this->legacyShipToDifferentAddress() || $this->shippingAddressDiffers($shipping);
+        $address = $useShipping ? $shipping : $this->order->get_address('billing');
 
         // Fallback to stored customer data if order doesn't have address
         if (empty(\array_filter($address)) && $this->isLoggedIn()) {
-            $address = ($_key == 'billing') ? $this->customer->get_billing() : $this->customer->get_shipping();
+            if ($useShipping) {
+                $address = $this->customer->get_shipping();
+                if (empty(\array_filter($address))) {
+                    $address = $this->customer->get_billing();
+                }
+            } else {
+                $address = $this->customer->get_billing();
+            }
         }
 
         return $this->addressBuilder
             ->setAddress(new ShippingAddress(null))
             ->build($address);
+    }
+
+    protected function legacyShipToDifferentAddress(): bool
+    {
+        $flag = $this->order->get_meta('ship_to_different_address');
+        if ($flag === '' || $flag === null || is_array($flag)) {
+            return false;
+        }
+        if (is_bool($flag)) {
+            return $flag;
+        }
+
+        return function_exists('wc_string_to_bool')
+            ? wc_string_to_bool((string) $flag)
+            : in_array((string) $flag, ['1', 'yes', 'true'], true);
+    }
+
+    protected function shippingAddressDiffers(array $shipping): bool
+    {
+        // Country alone is not a destination: older checkouts leave the base country
+        // on an otherwise empty shipping address when nothing is shipped separately.
+        if (!$this->addressHasDestination($shipping)) {
+            return false;
+        }
+
+        $billing = $this->order->get_address('billing');
+        foreach (['first_name', 'last_name', 'company', 'address_1', 'address_2', 'city', 'state', 'postcode', 'country'] as $field) {
+            if ($this->addressField($shipping, $field) !== $this->addressField($billing, $field)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function addressHasDestination(array $address): bool
+    {
+        foreach (['address_1', 'city', 'postcode'] as $field) {
+            if ($this->addressField($address, $field) !== '') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function addressField(array $address, string $field): string
+    {
+        return isset($address[$field]) ? trim((string) $address[$field]) : '';
     }
 
     public function getCustomer()

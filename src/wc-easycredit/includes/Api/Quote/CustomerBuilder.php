@@ -21,20 +21,32 @@ class CustomerBuilder
 
     public function getFirstname()
     {
-        if (!$this->isLoggedIn()) {
-            $address = $this->getBillingAddress();
-            return $address['first_name'] ?? '';
-        }
-        return $this->customer->get_first_name();
+        return $this->nameFromBillingAddress('first_name', 'get_first_name');
     }
 
     public function getLastname()
     {
-        if (!$this->isLoggedIn()) {
-            $address = $this->getBillingAddress();
-            return $address['last_name'] ?? '';
+        return $this->nameFromBillingAddress('last_name', 'get_last_name');
+    }
+
+    /**
+     * Checkout billing name wins. WooCommerce only copies it onto the account
+     * name when that is still empty, so a logged-in customer can pay under a
+     * different name than the profile. Fall back to the account name when the
+     * checkout address has none.
+     */
+    protected function nameFromBillingAddress(string $addressKey, string $accountGetter): string
+    {
+        $address = $this->getBillingAddress();
+        $name = isset($address[$addressKey]) ? trim((string) $address[$addressKey]) : '';
+        if ($name !== '') {
+            return $name;
         }
-        return $this->customer->get_last_name();
+        if ($this->isLoggedIn()) {
+            return trim((string) $this->customer->{$accountGetter}());
+        }
+
+        return '';
     }
 
     public function getEmail()

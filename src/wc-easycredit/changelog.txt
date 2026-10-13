@@ -2,6 +2,10 @@
 
 - WooCommerce-Hilfsfunktionen werden mit Präfix deklariert, damit Namenskonflikte mit anderen Plugins ausbleiben
 - Kompatibilität aktualisiert: getestet bis WordPress 7.1 und WooCommerce 11.2.1
+- abweichende Lieferadresse wird an easyCredit übergeben, auch wenn WooCommerce das Feld ship_to_different_address nicht an der Bestellung speichert
+- bei angemeldeten Kunden wird der Name aus der Rechnungsadresse verwendet
+- die Anzahl bisheriger Bestellungen stimmt auch mit den WooCommerce-Bestelltabellen (HPOS)
+- automatische Versandbestätigung und Erstattung finden die Transaktions-ID auch dann, wenn sie nur in den Bestelldaten von easyCredit steht
 
 = 3.1.5 =
 

@@ -99,7 +99,7 @@ class InterestFeeHandler
     {
         foreach ($order->get_items('fee') as $fee_item) {
             if (self::is_interest_fee_item($fee_item)) {
-                return; // fee already present (amount may have changed)
+                return; // already on the order; a new order-pay start removes it before the next amount is added
             }
         }
 

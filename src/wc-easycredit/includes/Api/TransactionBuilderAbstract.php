@@ -72,19 +72,21 @@ abstract class TransactionBuilderAbstract
 
     public function getOrderCount()
     {
-        if (!$this->isLoggedIn()) {
+        if (!$this->isLoggedIn() || !function_exists('wc_get_orders')) {
             return 0;
         }
 
-        $query = new \WP_Query();
-        $query->query([
-            'numberposts' => -1,
-            'meta_key' => '_customer_user',
-            'meta_value' => $this->customer->get_id(),
-            'post_type' => \wc_get_order_types(),
-            'post_status' => \array_keys(\wc_get_order_statuses()),
+        // wc_get_orders() reads the customer id through the order data store, so the
+        // count stays the same with posts (WooCommerce 6.9 and earlier) and with HPOS.
+        $orders = wc_get_orders([
+            'customer_id' => $this->customer->get_id(),
+            'limit' => -1,
+            'return' => 'ids',
+            'status' => \array_keys(\wc_get_order_statuses()),
+            'type' => 'shop_order',
         ]);
-        return $query->found_posts;
+
+        return \is_array($orders) ? \count($orders) : 0;
     }
 
     protected function _getItems(array $items): array

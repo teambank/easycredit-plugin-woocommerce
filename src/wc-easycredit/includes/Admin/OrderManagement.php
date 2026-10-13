@@ -160,7 +160,7 @@ class OrderManagement
 
         try {
             try {
-                $txId = $order->get_transaction_id();
+                $txId = $this->resolve_transaction_id($order);
                 if (!$txId) {
                     throw new \Exception(__('The transaction id of this transaction is not available. This usually happens if the webhook which confirms the transaction is not working properly.', 'wc-easycredit'));
                 }
@@ -194,7 +194,7 @@ class OrderManagement
 
         try {
             try {
-                $txId = $order->get_transaction_id();
+                $txId = $this->resolve_transaction_id($order);
                 if (!$txId) {
                     throw new \Exception(__('The transaction id of this transaction is not available. This usually happens if the webhook which confirms the transaction is not working properly.', 'wc-easycredit'));
                 }
@@ -220,6 +220,21 @@ class OrderManagement
         } catch (\Exception $e) {
             $order->add_order_note(sprintf(__('Refund update failed with message: %s', 'wc-easycredit'), $e->getMessage()));
         }
+    }
+
+    /**
+     * payment_complete() stores the id on the order only when the transaction is
+     * already authorized. The plugin meta is written either way, and the merchant
+     * widget reads that meta.
+     */
+    protected function resolve_transaction_id($order): string
+    {
+        $txId = (string) $order->get_transaction_id();
+        if ($txId !== '') {
+            return $txId;
+        }
+
+        return (string) $order->get_meta(Plugin::META_KEY_TRANSACTION_ID);
     }
 
     protected function get_order($post = null)
