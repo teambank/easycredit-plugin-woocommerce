@@ -54,10 +54,11 @@ function getMatrixIncludes() {
 		return includes;
 	}
 
+	// Local dev should resolve any CI matrix combination; reduced is CI-only.
 	const matrixSet =
-		process.env.WP_ENV_MATRIX === "full"
-			? "FULL_VERSIONS"
-			: "REDUCED_VERSIONS";
+		process.env.WP_ENV_MATRIX === "reduced"
+			? "REDUCED_VERSIONS"
+			: "FULL_VERSIONS";
 	const versions = parseVersionArray(raw, matrixSet);
 
 	if (!Array.isArray(versions) || versions.length === 0) {

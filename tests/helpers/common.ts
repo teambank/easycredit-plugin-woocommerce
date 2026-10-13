@@ -3,6 +3,7 @@ import { delay, randomize, doWithRetry } from "./utils";
 import {
 	goThroughPaymentPageViaApi,
 	resolvePaymentPageMode,
+	waitForPaymentRedirect,
 	PAYMENT_SANDBOX,
 	NATIVE_TERMS_VALIDATION_PATTERN,
 	blocksNativeTermsFailureLocator,
@@ -211,7 +212,15 @@ export const goThroughPaymentPage = async ({
 
 	if (mode === "api") {
 		return test.step(`easyCredit Payment via API (${paymentType})`, async () => {
-			await goThroughPaymentPageViaApi({ page, paymentType, express });
+			await goThroughPaymentPageViaApi({
+				page,
+				paymentType,
+				express,
+				// returnAction() sends the customer back to checkout; confirmOrder() places the order.
+				returnUrlPattern: /\/checkout\/|order-received|easycredit\/.*return/i,
+				fallbackReturnUrl: "/easycredit/return",
+				preparePage: waitForPaymentRedirect,
+			});
 		});
 	}
 

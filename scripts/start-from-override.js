@@ -47,9 +47,11 @@ function readWooVersion() {
 	const raw = fs.readFileSync(OVERRIDE_PATH, "utf8");
 	const cfg = JSON.parse(raw);
 
-	// Preferred: explicit env var from override
-	if (cfg.env && cfg.env.WOOCOMMERCE_VERSION) {
-		return cfg.env.WOOCOMMERCE_VERSION;
+	// Preferred: explicit WooCommerce version from override (config or legacy env)
+	const wooVersion =
+		cfg.config?.WOOCOMMERCE_VERSION ?? cfg.env?.WOOCOMMERCE_VERSION;
+	if (wooVersion) {
+		return wooVersion;
 	}
 
 	const core = cfg.core;
