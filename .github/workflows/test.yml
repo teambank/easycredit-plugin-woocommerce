@@ -21,7 +21,7 @@ on:
 
 jobs:
   resolve-matrix:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       versions: ${{ steps.matrix.outputs.versions }}
       fail-fast: ${{ steps.matrix.outputs.fail-fast }}
@@ -183,7 +183,7 @@ jobs:
           done
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report-${{ matrix.woocommerce-version }}
           path: playwright-report/
@@ -193,12 +193,12 @@ jobs:
     name: Deploy Playwright reports
     needs: [resolve-matrix, ci-current]
     if: ${{ always() && needs.ci-current.result != 'cancelled' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Download all Playwright reports
         id: download-reports
         continue-on-error: true
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: playwright-report-*
           path: artifacts
