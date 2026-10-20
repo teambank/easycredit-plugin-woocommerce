@@ -18,6 +18,8 @@ Das Plugin hat neben WooCommerce keine weiteren Abhängigkeiten. Es wurde für d
 
 PHP 5.6 wird bis maximal v1.7.2 unterstützt. Ab v2.0.0 des Plugins ist mindestens PHP 7.0 erforderlich.
 
+Der Blocks-Checkout wird ab WooCommerce 9.1 geprüft. WooCommerce 8.9 ist nicht Teil der Tests: der Checkout-Block setzt den Button „Kostenpflichtig bestellen“ auf ``disabled``, sobald die Summe neu berechnet wird. Ein Klick in diesem Moment geht verloren, die Bestellung wird nach der Rückkehr von easyCredit nicht abgeschlossen. Der Classic Checkout auf WooCommerce 8.x bleibt in den Tests enthalten.
+
 Zugangsdaten für "easyCredit"
 ------------------------------------------
 
