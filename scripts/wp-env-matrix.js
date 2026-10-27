@@ -70,6 +70,23 @@ function getMatrixIncludes() {
 	return versions;
 }
 
+function wordpressCoreZip(version) {
+	return `https://wordpress.org/wordpress-${version}.zip`;
+}
+
+function wordpressVersionFromCore(core) {
+	const value = String(core || "");
+	const fromGit = /^WordPress\/WordPress#(.+)$/.exec(value);
+	if (fromGit) {
+		return fromGit[1];
+	}
+
+	const fromZip = /\/wordpress-(\d+(?:\.\d+)*)\.zip(?:\?.*)?$/.exec(value);
+	return fromZip ? fromZip[1] : null;
+}
+
 module.exports = {
 	getMatrixIncludes,
+	wordpressCoreZip,
+	wordpressVersionFromCore,
 };

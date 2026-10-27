@@ -1,5 +1,5 @@
 {
-  "core": "wordpress/wordpress",
+  "core": "https://wordpress.org/wordpress-6.5.zip",
   "themes": [
     "https://downloads.wordpress.org/theme/storefront.latest-stable.zip"
   ],

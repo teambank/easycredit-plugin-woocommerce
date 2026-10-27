@@ -3,7 +3,10 @@
 const fs = require("fs");
 const path = require("path");
 const { spawnSync } = require("child_process");
-const { getMatrixIncludes } = require("./wp-env-matrix");
+const {
+	getMatrixIncludes,
+	wordpressVersionFromCore,
+} = require("./wp-env-matrix");
 
 const ROOT = process.cwd();
 const OVERRIDE_PATH = path.join(ROOT, ".wp-env.override.json");
@@ -59,18 +62,16 @@ function readWooVersion() {
 
 	if (!core || !php) {
 		throw new Error(
-			".wp-env.override.json must contain \"core\" and \"phpVersion\".",
+			'.wp-env.override.json must contain "core" and "phpVersion".',
 		);
 	}
 
-	const match = /^WordPress\/WordPress#(.+)$/.exec(core);
-	if (!match) {
+	const wp = wordpressVersionFromCore(core);
+	if (!wp) {
 		throw new Error(
-			`Unexpected core format "${core}". Expected "WordPress/WordPress#<version>".`,
+			`Unexpected core format "${core}". Expected a WordPress release zip or "WordPress/WordPress#<version>".`,
 		);
 	}
-
-	const wp = match[1];
 	const includes = getMatrixIncludes();
 
 	const entry = includes.find(
@@ -105,6 +106,7 @@ function main() {
 			cwd: ROOT,
 			env: { ...process.env, VERSION: wooVersion },
 		});
+
 	} catch (err) {
 		console.error(`Error: ${err.message}`);
 		process.exit(1);

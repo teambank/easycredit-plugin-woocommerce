@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const readline = require("readline");
-const { getMatrixIncludes } = require("./wp-env-matrix");
+const { getMatrixIncludes, wordpressCoreZip } = require("./wp-env-matrix");
 
 function printOptions(includes) {
 	console.log("Available version combinations from test.yml:\n");
@@ -116,7 +116,9 @@ async function main() {
 		const woo = chosen["woocommerce-version"];
 
 		const wpEnvConfig = {
-			core: `WordPress/WordPress#${wp}`,
+			// Release zip, not a git clone. wp-env fetches every tag for a git ref,
+			// which keeps hundreds of megabytes of history next to the checkout.
+			core: wordpressCoreZip(wp),
 			phpVersion: php,
 			config: {
 				WOOCOMMERCE_VERSION: woo,

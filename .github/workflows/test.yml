@@ -124,7 +124,7 @@ jobs:
           npm install --frozen-lockfile
       - name: Install Wordpress & wooCommerce
         run: |
-          node -e 'console.log(JSON.stringify({"core": "WordPress/WordPress#${{ matrix.wordpress-version }}", "phpVersion": "${{ matrix.php-version }}", "lifecycleScripts":{}}, null, 2));' > .wp-env.override.json
+          node -e 'console.log(JSON.stringify({"core": "https://wordpress.org/wordpress-${{ matrix.wordpress-version }}.zip", "phpVersion": "${{ matrix.php-version }}", "lifecycleScripts":{}}, null, 2));' > .wp-env.override.json
           wp-env start
 
           WORDPRESS_STUBS_VERSION="$(node scripts/resolve-composer-stub-versions.js "${{ matrix.wordpress-version }}" "${{ matrix.woocommerce-version }}")"
