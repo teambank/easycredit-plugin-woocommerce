@@ -20,7 +20,9 @@ EXPOSE 8889
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-# Playwright/Chromium system libraries (ubuntu26 arm64 has no playwright install-deps support)
+# Playwright/Chromium system libraries (ubuntu26 arm64 has no playwright install-deps support).
+# GTK is only required for Firefox and WebKit. Chromium does not need it, and
+# installing it pulls in LLVM and Mesa.
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     libglib2.0-0t64 \
     libnspr4 \
@@ -41,7 +43,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     libcups2t64 \
     libcairo2 \
     libpango-1.0-0 \
-    libgtk-3-0t64 \
     libdrm2 \
     fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
