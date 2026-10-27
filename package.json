@@ -25,12 +25,17 @@
   },
   "dependencies": {
     "@playwright/test": "^1.58",
-    "@wordpress/env": "^11.4.0",
+    "@wordpress/env": "11.17.0",
     "easycredit-playwright-payment": "github:netzkollektiv/easycredit-playwright-payment",
     "yaml": "^2.6.0"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.32",
     "@types/node": "^24.1.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@wordpress/env@11.17.0": "patches/@wordpress__env@11.17.0.patch"
+    }
   }
 }

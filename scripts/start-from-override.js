@@ -107,6 +107,21 @@ function main() {
 			env: { ...process.env, VERSION: wooVersion },
 		});
 
+		// A version switch leaves the previous PHP image in the BuildKit cache.
+		// `prune -af` drops that cache, not only the dangling records, and a
+		// rebuilt image leaves the previous one untagged.
+		const prune = spawnSync("docker", ["builder", "prune", "-af"], {
+			stdio: "inherit",
+		});
+		if (prune.error || prune.status) {
+			console.log("Skipped Docker build cache cleanup.");
+		}
+		const imagePrune = spawnSync("docker", ["image", "prune", "-f"], {
+			stdio: "inherit",
+		});
+		if (imagePrune.error || imagePrune.status) {
+			console.log("Skipped unused Docker image cleanup.");
+		}
 	} catch (err) {
 		console.error(`Error: ${err.message}`);
 		process.exit(1);

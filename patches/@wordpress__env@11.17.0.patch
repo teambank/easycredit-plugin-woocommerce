@@ -1,0 +1,158 @@
+diff --git a/lib/runtime/docker/build-docker-compose-config.js b/lib/runtime/docker/build-docker-compose-config.js
+index 26362758a8ae8d8fbe1cdd108910bb0656e17fe6..e47cb17cae271a345b28f8efff95c61d0a4f826f 100644
+--- a/lib/runtime/docker/build-docker-compose-config.js
++++ b/lib/runtime/docker/build-docker-compose-config.js
+@@ -262,7 +262,12 @@ module.exports = function buildDockerComposeConfig( config ) {
+ 			},
+ 			extra_hosts: [ 'host.docker.internal:host-gateway' ],
+ 		},
+-		phpmyadmin: {
++	};
++
++	// phpMyAdmin is an ~800MB image, and `docker compose pull` fetches every
++	// service that declares an image. Only include it when it is enabled.
++	if ( config.env.development.phpmyadmin ) {
++		services.phpmyadmin = {
+ 			image: 'phpmyadmin',
+ 			ports: [ developmentPhpmyadminPorts ],
+ 			environment: {
+@@ -271,8 +276,8 @@ module.exports = function buildDockerComposeConfig( config ) {
+ 				PMA_USER: 'root',
+ 				PMA_PASSWORD: 'password',
+ 			},
+-		},
+-	};
++		};
++	}
+ 
+ 	const volumes = {
+ 		...( ! config.env.development.coreSource && { wordpress: {} } ),
+@@ -340,16 +345,18 @@ module.exports = function buildDockerComposeConfig( config ) {
+ 			},
+ 			extra_hosts: [ 'host.docker.internal:host-gateway' ],
+ 		};
+-		services[ 'tests-phpmyadmin' ] = {
+-			image: 'phpmyadmin',
+-			ports: [ testsPhpmyadminPorts ],
+-			environment: {
+-				PMA_PORT: 3306,
+-				PMA_HOST: 'tests-mysql',
+-				PMA_USER: 'root',
+-				PMA_PASSWORD: 'password',
+-			},
+-		};
++		if ( config.env.tests.phpmyadmin ) {
++			services[ 'tests-phpmyadmin' ] = {
++				image: 'phpmyadmin',
++				ports: [ testsPhpmyadminPorts ],
++				environment: {
++					PMA_PORT: 3306,
++					PMA_HOST: 'tests-mysql',
++					PMA_USER: 'root',
++					PMA_PASSWORD: 'password',
++				},
++			};
++		}
+ 
+ 		if ( ! config.env.tests.coreSource ) {
+ 			volumes[ 'tests-wordpress' ] = {};
+diff --git a/lib/runtime/docker/docker-config.js b/lib/runtime/docker/docker-config.js
+index d7003a010c88e50c0b4625e739773ecf0c60ada2..d1822606f40cbde92bbff664f3e95ca6bf9689c5 100644
+--- a/lib/runtime/docker/docker-config.js
++++ b/lib/runtime/docker/docker-config.js
+@@ -165,35 +165,43 @@ function installDependencies( service, env, config ) {
+ 	// At times we may need to evaluate the environment. This is because the
+ 	// WordPress image uses Ubuntu while the CLI image uses Alpine.
+ 
++	// Compilers are only required to build Xdebug or SPX. PHPUnit is only
++	// required when the tests environment is in use.
++	const installBuildTools =
++		( config.xdebug && config.xdebug !== 'off' ) ||
++		( config.spx && config.spx !== 'off' );
++	const installPhpUnit =
++		env === 'tests' || config.testsEnvironment !== false;
++
+ 	// Start with some environment-specific dependency installations.
+ 	switch ( service ) {
+ 		case 'wordpress': {
++			const wordpressPackages = [ 'git', 'sudo' ];
++			if ( installBuildTools ) {
++				wordpressPackages.unshift( '$PHPIZE_DEPS' );
++			}
+ 			dockerFileContent += `
+-# Make sure we're working with the latest packages.
+-RUN apt-get clean
+-RUN apt-get -qy update
+-
+-# Install some basic PHP dependencies.
+-RUN apt-get -qy install $PHPIZE_DEPS && touch /usr/local/etc/php/php.ini
+-
+-# Install git
+-RUN apt-get -qy install git
+-
+-# Set up sudo so they can have root access.
+-RUN apt-get -qy install sudo
++# Install git and sudo. The compiler toolchain is included only when an
++# extension such as Xdebug has to be built. Apt lists are removed in this
++# same step so they are not kept in the image.
++RUN apt-get update \\
++ && apt-get install -y --no-install-recommends ${ wordpressPackages.join(
++		' '
++	) } \\
++ && touch /usr/local/etc/php/php.ini \\
++ && apt-get clean \\
++ && rm -rf /var/lib/apt/lists/*
+ RUN echo "#$HOST_UID ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers`;
+ 			break;
+ 		}
+ 		case 'cli': {
++			const cliPackages = installBuildTools
++				? '$PHPIZE_DEPS sudo linux-headers'
++				: 'sudo';
+ 			dockerFileContent += `
+-# Make sure we're working with the latest packages.
+-RUN apk update
+-
+-# Install some basic PHP dependencies.
+-RUN apk --no-cache add $PHPIZE_DEPS && touch /usr/local/etc/php/php.ini
+-
+-# Set up sudo so they can have root access.
+-RUN apk --no-cache add sudo linux-headers
++# Install sudo. The compiler toolchain is included only when an extension
++# such as Xdebug has to be built.
++RUN apk --no-cache add ${ cliPackages } && touch /usr/local/etc/php/php.ini
+ RUN echo "#$HOST_UID ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+ 
+ # The MariaDB 11.4+ client requires TLS by default, which MariaDB servers
+@@ -239,13 +247,15 @@ RUN export COMPOSER_HASH=\`curl -sS https://composer.github.io/installer.sig\` &
+ RUN php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+ RUN rm /tmp/composer-setup.php`;
+ 
+-	// Install any Composer packages we might need globally.
+-	// Make sure to do this as the user and ensure the binaries are available in the $PATH.
+-	dockerFileContent += `
++	// Install PHPUnit only for the tests environment. The package and its
++	// dependencies add a large layer that Playwright-based projects never use.
++	if ( installPhpUnit ) {
++		dockerFileContent += `
+ USER $HOST_UID:$HOST_GID
+ ENV PATH="\${PATH}:/home/$HOST_USERNAME/.composer/vendor/bin"
+ RUN composer global require --dev phpunit/phpunit:"^5.7.21 || ^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0"
+ USER root`;
++	}
+ 
+ 	return dockerFileContent;
+ }
+diff --git a/lib/test/build-docker-compose-config.js b/lib/test/build-docker-compose-config.js
+index aa98ba2f79ae897dfb5cb1c062001aa35b0e1596..75673e19bac95a87cb450ffc7c9da8320fc0421b 100644
+--- a/lib/test/build-docker-compose-config.js
++++ b/lib/test/build-docker-compose-config.js
+@@ -422,7 +422,7 @@ describe( 'buildDockerComposeConfig', () => {
+ 			expect( dockerConfig.services.mysql ).toBeDefined();
+ 			expect( dockerConfig.services.wordpress ).toBeDefined();
+ 			expect( dockerConfig.services.cli ).toBeDefined();
+-			expect( dockerConfig.services.phpmyadmin ).toBeDefined();
++			expect( dockerConfig.services.phpmyadmin ).toBeUndefined();
+ 
+ 			// Tests services should not exist.
+ 			expect( dockerConfig.services[ 'tests-mysql' ] ).toBeUndefined();
