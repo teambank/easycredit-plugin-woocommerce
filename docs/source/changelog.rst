@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.1.7
+-----
+
+- eine ungültige Rechnungs-E-Mail-Adresse im Checkout führt nicht mehr zu einem Fatal Error
+
 3.1.6
 -----
 

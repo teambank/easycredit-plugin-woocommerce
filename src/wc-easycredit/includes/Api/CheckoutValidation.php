@@ -81,10 +81,22 @@ class CheckoutValidation
 
         try {
             if ($billing !== null) {
-                $this->apply_customer_address('billing', $billing);
+                $address_error = $this->apply_customer_address('billing', $billing);
+                if ($address_error !== '') {
+                    return [
+                        'message' => $address_error,
+                        'invalidated' => true,
+                    ];
+                }
             }
             if ($shipping !== null) {
-                $this->apply_customer_address('shipping', $shipping);
+                $address_error = $this->apply_customer_address('shipping', $shipping);
+                if ($address_error !== '') {
+                    return [
+                        'message' => $address_error,
+                        'invalidated' => true,
+                    ];
+                }
             }
 
             $this->integration->storage()->set('express', false);
@@ -121,26 +133,55 @@ class CheckoutValidation
         $this->set_customer_address_fields('shipping', $addresses['shipping'], self::SHIPPING_ADDRESS_FIELDS);
     }
 
-    private function apply_customer_address(string $type, array $address): void
+    private function apply_customer_address(string $type, array $address): string
     {
         $fields = $type === 'billing'
             ? self::BILLING_ADDRESS_FIELDS
             : self::SHIPPING_ADDRESS_FIELDS;
 
-        $this->set_customer_address_fields(
+        return $this->set_customer_address_fields(
             $type,
             $this->normalize_checkout_address($address),
             $fields
         );
     }
 
-    private function set_customer_address_fields(string $type, array $address, array $fields): void
+    /**
+     * WooCommerce throws WC_Data_Exception for values such as an incomplete billing email.
+     * Checkout validation receives in-progress addresses, so that stays a validation result.
+     * Restore must keep going after a rejected value, otherwise later fields stay overwritten.
+     */
+    private function set_customer_address_fields(string $type, array $address, array $fields): string
     {
+        $error = '';
+
         foreach ($fields as $field) {
-            if (array_key_exists($field, $address)) {
-                WC()->customer->{"set_{$type}_{$field}"}($address[$field]);
+            if (!array_key_exists($field, $address)) {
+                continue;
+            }
+
+            try {
+                WC()->customer->{"set_{$type}_{$field}"}($this->address_field_value($address[$field]));
+            } catch (\WC_Data_Exception $exception) {
+                if ($error === '') {
+                    $error = $exception->getMessage();
+                }
             }
         }
+
+        return $error;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function address_field_value($value): string
+    {
+        if (is_string($value) || is_numeric($value)) {
+            return (string) $value;
+        }
+
+        return '';
     }
 
     private function normalize_checkout_address(array $address): array

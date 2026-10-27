@@ -10,7 +10,7 @@
  * License URI:     https://opensource.org/licenses/MIT
  * Text Domain:     wc-easycredit
  * Domain Path:     /languages
- * Version:         3.1.6
+ * Version:         3.1.7
  * Requires Plugins: woocommerce
  * Requires at least: 4.4
  * Tested up to: 7.1
@@ -21,7 +21,7 @@
 
 defined('ABSPATH') or exit;
 
-define('WC_EASYCREDIT_VERSION', '3.1.6');
+define('WC_EASYCREDIT_VERSION', '3.1.7');
 define('WC_EASYCREDIT_ID', 'easycredit');
 
 use Netzkollektiv\EasyCredit\Plugin;
