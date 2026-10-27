@@ -24,7 +24,7 @@
     "test:compat:german-market": "COMPAT_STACK=german-market node scripts/compat/run.js"
   },
   "dependencies": {
-    "@playwright/test": "^1.58",
+    "@playwright/test": "^1.64.1",
     "@wordpress/env": "11.17.0",
     "easycredit-playwright-payment": "github:netzkollektiv/easycredit-playwright-payment",
     "yaml": "^2.6.0"
