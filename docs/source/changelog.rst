@@ -5,6 +5,7 @@ Changelog
 -----
 
 - eine ungültige Rechnungs-E-Mail-Adresse im Checkout führt nicht mehr zu einem Fatal Error
+- die Versandsteuer bleibt auf der Bestellung, wenn die Zinsen nach der Zahlung ergänzt oder entfernt werden
 
 3.1.6
 -----

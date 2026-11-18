@@ -105,12 +105,14 @@ class InterestFeeHandler
 
         $item_fee = new \WC_Order_Item_Fee();
         $item_fee->set_name(self::get_interest_fee_name());
+        $item_fee->set_tax_status('none');
+        $item_fee->set_tax_class('0');
         $item_fee->set_amount($interest_amount);
         $item_fee->set_total($interest_amount);
         $item_fee->set_total_tax(0);
         $item_fee->set_taxes(['total' => []]);
         $order->add_item($item_fee);
-        $order->calculate_totals();
+        self::recalculate_order_totals($order);
         self::clear_interest_fee_taxes_on_order($order);
         $order->save();
     }
@@ -143,7 +145,7 @@ class InterestFeeHandler
     }
 
     /**
-     * Strip split taxes German Market may have applied to the interest fee line.
+     * Strip split taxes German Market or Germanized may have applied to the interest fee line.
      */
     public static function clear_interest_fee_taxes_on_order(\WC_Order $order): void
     {
@@ -163,7 +165,7 @@ class InterestFeeHandler
         }
 
         if ($changed) {
-            $order->calculate_totals();
+            self::recalculate_order_totals($order);
         }
     }
 
@@ -187,10 +189,89 @@ class InterestFeeHandler
         }
 
         if ($removed) {
-            $order->calculate_totals();
+            self::recalculate_order_totals($order);
             $order->save();
         }
 
         return $removed;
+    }
+
+    /**
+     * Rebuild the order total after a fee change without losing shipping tax.
+     *
+     * A full recalculation asks WooCommerce to recompute shipping tax. Germanized
+     * then replaces that result and, on an already saved order, can leave the net
+     * shipping amount with the tax cleared. The financed total was taken before
+     * this runs, so the shipping lines are put back when that happens.
+     */
+    private static function recalculate_order_totals(\WC_Order $order): void
+    {
+        $shipping_before = self::shipping_tax_snapshot($order);
+        $order->calculate_totals();
+
+        if (!self::restore_wiped_shipping_taxes($order, $shipping_before)) {
+            return;
+        }
+
+        if (is_callable([$order, 'update_taxes'])) {
+            $order->update_taxes();
+        } else {
+            $shipping_tax = 0.0;
+            foreach ($order->get_items('shipping') as $item) {
+                $shipping_tax += (float) $item->get_total_tax();
+            }
+            $order->set_shipping_tax($shipping_tax);
+        }
+
+        // Taxes are already on the lines; only the grand total needs summing.
+        $order->calculate_totals(false);
+    }
+
+    /**
+     * @return array<int, array{total: float|string, total_tax: float|string, taxes: array}>
+     */
+    private static function shipping_tax_snapshot(\WC_Order $order): array
+    {
+        $snapshot = [];
+
+        foreach ($order->get_items('shipping') as $item_id => $item) {
+            if (!$item instanceof \WC_Order_Item_Shipping) {
+                continue;
+            }
+
+            $snapshot[(int) $item_id] = [
+                'total' => $item->get_total(),
+                'total_tax' => $item->get_total_tax(),
+                'taxes' => $item->get_taxes(),
+            ];
+        }
+
+        return $snapshot;
+    }
+
+    /**
+     * @param array<int, array{total: float|string, total_tax: float|string, taxes: array}> $snapshot
+     */
+    private static function restore_wiped_shipping_taxes(\WC_Order $order, array $snapshot): bool
+    {
+        $restored = false;
+
+        foreach ($order->get_items('shipping') as $item_id => $item) {
+            if (!$item instanceof \WC_Order_Item_Shipping || !isset($snapshot[(int) $item_id])) {
+                continue;
+            }
+
+            $saved = $snapshot[(int) $item_id];
+            if ((float) $saved['total_tax'] <= 0.0 || (float) $item->get_total_tax() !== 0.0) {
+                continue;
+            }
+
+            $item->set_total($saved['total']);
+            $item->set_taxes($saved['taxes']);
+            $item->save();
+            $restored = true;
+        }
+
+        return $restored;
     }
 }
