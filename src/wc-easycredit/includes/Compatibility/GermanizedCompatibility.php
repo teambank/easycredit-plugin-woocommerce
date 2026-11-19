@@ -13,6 +13,9 @@ use Netzkollektiv\EasyCredit\Plugin;
  * Defers mandatory Germanized legal checkboxes during the initial financing redirect
  * and requires real checkbox confirmation after the customer returns with a plan.
  *
+ * Also delays Germanized instant order confirmation (and the stock reduction tied to it)
+ * until payment_complete, then ensures the confirmation mails are sent.
+ *
  * Verified in CI with:
  * - WordPress 7.0
  * - WooCommerce 10.9.2
@@ -33,6 +36,11 @@ class GermanizedCompatibility
         '_min_age',
     ];
 
+    /**
+     * @var list<int>
+     */
+    private array $pendingConfirmationOrderIds = [];
+
     public function __construct(Plugin $plugin)
     {
         $this->plugin = $plugin;
@@ -40,6 +48,7 @@ class GermanizedCompatibility
 
         add_filter('woocommerce_gzd_instant_order_confirmation', [$this, 'delay_until_payment_complete'], 10, 2);
         add_filter('woocommerce_germanized_send_instant_order_confirmation', [$this, 'delay_until_payment_complete'], 10, 2);
+        add_action('woocommerce_payment_complete', [$this, 'maybe_send_delayed_confirmation'], 100);
 
         add_action('woocommerce_gzd_run_legal_checkboxes_checkout', [$this, 'maybeRelaxCheckboxValidation'], 5);
         add_action('woocommerce_after_checkout_validation', [$this, 'relaxCheckboxValidationForClassicCheckout'], 0, 2);
@@ -50,6 +59,12 @@ class GermanizedCompatibility
     }
 
     /**
+     * Hold back Germanized's instant confirmation while the order still needs payment.
+     *
+     * Re-reads the order from the datastore so a stale Blocks PaymentContext object
+     * (still pending in memory after payment_complete on another instance) does not
+     * keep suppressing New Order / Bestellbestätigung forever.
+     *
      * @param bool $send_confirmation
      * @param \WC_Order|int|null $order
      */
@@ -69,6 +84,84 @@ class GermanizedCompatibility
         }
 
         return $send_confirmation;
+    }
+
+    /**
+     * After easyCredit payment_complete, ensure Germanized confirmation mails go out.
+     *
+     * Germanized suppresses the status-transition copies of Neue Bestellung and
+     * Bestellbestätigung once the order is paid, and expects its own confirmation
+     * instead. WooCommerce 11 queues that action and only dispatches the queue on
+     * shutdown at priority 100, so a later PHP shutdown misses it. Run just before
+     * that dispatch and trigger the mails directly.
+     *
+     * @param int $order_id
+     */
+    public function maybe_send_delayed_confirmation($order_id): void
+    {
+        $order_id = (int) $order_id;
+        if ($order_id <= 0) {
+            return;
+        }
+
+        $order = wc_get_order($order_id);
+        if (!$order instanceof \WC_Order) {
+            return;
+        }
+
+        if (!$this->plugin->is_easycredit_method($order->get_payment_method())) {
+            return;
+        }
+
+        $this->pendingConfirmationOrderIds[] = $order_id;
+
+        if (!has_action('shutdown', [$this, 'send_pending_confirmations'])) {
+            add_action('shutdown', [$this, 'send_pending_confirmations'], 20);
+        }
+    }
+
+    public function send_pending_confirmations(): void
+    {
+        $order_ids = $this->pendingConfirmationOrderIds;
+        $this->pendingConfirmationOrderIds = [];
+
+        foreach ($order_ids as $order_id) {
+            $this->send_delayed_confirmation_if_needed($order_id);
+        }
+    }
+
+    /**
+     * @param int $order_id
+     */
+    public function send_delayed_confirmation_if_needed($order_id): void
+    {
+        if (did_action('woocommerce_germanized_order_confirmation_sent')) {
+            return;
+        }
+
+        if (!function_exists('WC_germanized')) {
+            return;
+        }
+
+        $emails = WC_germanized()->emails ?? null;
+        if (!$emails || !is_callable([$emails, 'trigger_order_confirmation_emails'])) {
+            return;
+        }
+
+        $order = wc_get_order((int) $order_id);
+        if (!$order instanceof \WC_Order) {
+            return;
+        }
+
+        if (!$this->plugin->is_easycredit_method($order->get_payment_method())) {
+            return;
+        }
+
+        if ($order->needs_payment()) {
+            return;
+        }
+
+        $emails->trigger_order_confirmation_emails($order, $order->get_id());
     }
 
     /**
@@ -185,15 +278,22 @@ class GermanizedCompatibility
      */
     private function resolve_order($order): ?\WC_Order
     {
+        $order_id = 0;
+
         if ($order instanceof \WC_Order) {
-            return $order;
+            $order_id = (int) $order->get_id();
+        } elseif (is_numeric($order)) {
+            $order_id = (int) $order;
         }
 
-        if (is_numeric($order)) {
-            $order = wc_get_order((int) $order);
+        if ($order_id <= 0) {
             return $order instanceof \WC_Order ? $order : null;
         }
 
-        return null;
+        // Always re-read: Blocks keeps a pre-payment order instance in PaymentContext
+        // while process_payment() calls payment_complete() on a different instance.
+        $fresh = wc_get_order($order_id);
+
+        return $fresh instanceof \WC_Order ? $fresh : null;
     }
 }
