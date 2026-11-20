@@ -929,7 +929,7 @@ eastasianwidth@^0.2.0:
 
 "easycredit-playwright-payment@github:netzkollektiv/easycredit-playwright-payment":
   version "1.0.0"
-  resolved "git+ssh://git@github.com/netzkollektiv/easycredit-playwright-payment.git#21c0843045ecf757c0392b68a088e983a5a516cc"
+  resolved "git+ssh://git@github.com/netzkollektiv/easycredit-playwright-payment.git#637e6d6f2019b694f8c98d1c13cb7d02cc822dbb"
 
 ecdsa-sig-formatter@1.0.11:
   version "1.0.11"
