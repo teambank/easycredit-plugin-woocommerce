@@ -596,6 +596,18 @@ export const confirmOrder = async ({
 		const orderSummaryBlock = isClassicCheckout
 			? page.locator(".woocommerce-checkout-review-order-table")
 			: page.locator(".wp-block-woocommerce-checkout-totals-block");
+		// WooCommerce 11.3 collapses the checkout order summary. Fee lines stay in the panel.
+		if (!isClassicCheckout) {
+			const summaryToggle = orderSummaryBlock.getByRole("button", {
+				name: /Bestellübersicht|Order summary/i,
+			});
+			if (
+				(await summaryToggle.count()) > 0 &&
+				(await summaryToggle.first().getAttribute("aria-expanded")) !== "true"
+			) {
+				await summaryToggle.first().click();
+			}
+		}
 		if (paymentType === PaymentTypes.INSTALLMENT) {
 			await expect
 				.soft(orderSummaryBlock)
