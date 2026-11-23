@@ -7,6 +7,7 @@ import {
 	doWithRetry,
 } from "../helpers/utils";
 import {
+	addToCartButtonName,
 	goToProduct,
 	goToCart,
 	fillBlocksCheckout,
@@ -79,7 +80,7 @@ test.describe("go through blocks checkout @bill", () => {
 test.describe("go through @express blocks checkout @installment", () => {
 	test("blocksExpressCheckoutInstallments", async ({ page }) => {
 		await goToProduct(page);
-		await page.getByRole("button", { name: "In den Warenkorb" }).first().click();
+		await page.getByRole("button", { name: addToCartButtonName }).first().click();
 
 		await goToCart(page);
 		await startExpress({ page, paymentType: PaymentTypes.INSTALLMENT });
@@ -99,7 +100,7 @@ test.describe("go through @express blocks checkout @installment", () => {
 test.describe("go through @express blocks checkout @bill", () => {
 	test("blocksExpressCheckoutBill", async ({ page }) => {
 		await goToProduct(page);
-		await page.getByRole("button", { name: "In den Warenkorb" }).first().click();
+		await page.getByRole("button", { name: addToCartButtonName }).first().click();
 
 		await goToCart(page);
 

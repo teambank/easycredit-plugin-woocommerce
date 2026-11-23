@@ -10,6 +10,11 @@ import {
 } from "../api/payment-api";
 import { PaymentTypes } from "./types";
 
+export const addToCartButtonName = /In den Warenkorb|Add to cart/i;
+
+export const placeOrderButtonName =
+	/jetzt kaufen|pflichtig bestellen|Bestellung aufgeben|Place order/i;
+
 export const easycreditCheckoutLocator = (
 	page,
 	paymentType: PaymentTypes = PaymentTypes.INSTALLMENT,
@@ -37,7 +42,7 @@ export const goToProduct = async (page, sku = "regular") => {
 
 export const addCurrentProductToCart = async (page) => {
 	await test.step(`Add current product to cart and go to checkout`, async () => {
-		await page.getByRole("button", { name: "In den Warenkorb" }).first().click();
+		await page.getByRole("button", { name: addToCartButtonName }).first().click();
 		await page.goto("index.php/checkout/");
 	});
 };
@@ -56,18 +61,18 @@ export const addCurrentProductToClassicCart = async (
 
 export const fillClassicCheckout = async (page) => {
 	await page
-		.getByRole("textbox", { name: /^Vorname/ })
+		.getByRole("textbox", { name: /^(Vorname|First name)/ })
 		.fill(randomize("Ralf"));
-	await page.getByRole("textbox", { name: /^Nachname/ }).fill("Ratenkauf");
+	await page.getByRole("textbox", { name: /^(Nachname|Last name)/ }).fill("Ratenkauf");
 	await page
-		.getByRole("textbox", { name: /^(Straße|Adresse)/ })
+		.getByRole("textbox", { name: /^(Straße|Adresse|Street address)/ })
 		.fill("Beuthener Str. 25");
-	await page.getByRole("textbox", { name: /^Postleitzahl/ }).fill("90471");
+	await page.getByRole("textbox", { name: /^(Postleitzahl|Postcode)/ }).fill("90471");
 	await page
-		.getByRole("textbox", { name: /^(Ort \/ Stadt|Stadt)/ })
+		.getByRole("textbox", { name: /^(Ort \/ Stadt|Stadt|Town \/ City)/ })
 		.fill("Nürnberg");
 	await page
-		.getByLabel(/^E-Mail-Adresse/)
+		.getByLabel(/^(E-Mail-Adresse|Email address)/)
 		.fill("ralf.ratenkauf@teambank.de");
 };
 
@@ -85,15 +90,15 @@ export const fillClassicShippingAddress = async (
 ) => {
 	const shippingFields = page.locator(".woocommerce-shipping-fields");
 
-	await page.getByLabel(/Lieferung an eine andere Adresse/i).check();
-	await shippingFields.getByRole("textbox", { name: /^Vorname/ }).fill("Ralf");
-	await shippingFields.getByRole("textbox", { name: /^Nachname/ }).fill("Ratenkauf");
+	await page.getByLabel(/Lieferung an eine andere Adresse|Ship to a different address/i).check();
+	await shippingFields.getByRole("textbox", { name: /^(Vorname|First name)/ }).fill("Ralf");
+	await shippingFields.getByRole("textbox", { name: /^(Nachname|Last name)/ }).fill("Ratenkauf");
 	await shippingFields
-		.getByRole("textbox", { name: /^(Straße|Adresse)/ })
+		.getByRole("textbox", { name: /^(Straße|Adresse|Street address)/ })
 		.fill(street);
-	await shippingFields.getByRole("textbox", { name: /^Postleitzahl/ }).fill(postcode);
+	await shippingFields.getByRole("textbox", { name: /^(Postleitzahl|Postcode)/ }).fill(postcode);
 	await shippingFields
-		.getByRole("textbox", { name: /^(Ort \/ Stadt|Stadt)/ })
+		.getByRole("textbox", { name: /^(Ort \/ Stadt|Stadt|Town \/ City)/ })
 		.fill(city);
 	await shippingFields.getByRole("textbox", { name: /^Postleitzahl/ }).blur();
 };
@@ -103,7 +108,7 @@ export const checkClassicCompanyBlocked = async (page) => {
 		const widget = easycreditCheckoutLocator(page);
 		await widget.waitFor({ state: "visible" });
 
-		const companyField = page.getByRole("textbox", { name: /Firmenname/i }).first();
+		const companyField = page.getByRole("textbox", { name: /Firmenname|Company name/i }).first();
 		await companyField.fill("Test GmbH");
 		await companyField.blur();
 
@@ -120,7 +125,7 @@ export const checkClassicCompanyInvalidation = async (page) => {
 		const widget = easycreditCheckoutLocator(page);
 		await widget.waitFor({ state: "visible" });
 
-		const companyField = page.getByRole("textbox", { name: /Firmenname/i }).first();
+		const companyField = page.getByRole("textbox", { name: /Firmenname|Company name/i }).first();
 		await companyField.fill("Test GmbH");
 		await companyField.blur();
 
@@ -620,7 +625,7 @@ export const confirmOrder = async ({
 
 		const placeOrderButton = isClassicCheckout
 			? page.getByRole("button", {
-					name: /jetzt kaufen|pflichtig bestellen|Bestellung aufgeben/i,
+					name: placeOrderButtonName,
 				})
 			: blocksPlaceOrderButtonLocator(page);
 

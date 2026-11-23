@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { takeScreenshot, scaleDown } from "../helpers/utils";
 import {
 	goToProduct,
+	addToCartButtonName,
 	fillClassicCheckout,
 	goThroughPaymentPage,
 	confirmOrder,
@@ -23,7 +24,7 @@ test.describe("Go through classic @installment", () => {
 	test("standardCheckoutInstallments", async ({ page }) => {
 		await goToProduct(page);
 
-		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.getByRole("button", { name: addToCartButtonName }).click();
 		await page.goto("index.php/checkout/");
 
 		await fillClassicCheckout(page);
@@ -49,7 +50,7 @@ test.describe("Go through classic @bill", () => {
 	test("standardCheckoutBill", async ({ page }) => {
 		await goToProduct(page);
 
-		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.getByRole("button", { name: addToCartButtonName }).click();
 		await page.goto("index.php/checkout/");
 
 		await fillClassicCheckout(page);
@@ -117,7 +118,7 @@ test.describe("last item in stock can be purchased @installment", () => {
 
 	test("lastStockItemInstallmentCheckout", async ({ page }) => {
 		await goToProduct(page, LAST_STOCK_SKU);
-		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.getByRole("button", { name: addToCartButtonName }).click();
 		await page.goto("index.php/checkout/");
 
 		await fillClassicCheckout(page);
@@ -176,7 +177,7 @@ test.describe("company should not be able to pay @bill @installment", () => {
 	test("companyBlocked", async ({ page }) => {
 		await goToProduct(page);
 
-		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.getByRole("button", { name: addToCartButtonName }).click();
 		await page.goto("index.php/checkout/");
 
 		await fillClassicCheckout(page);
@@ -188,7 +189,7 @@ test.describe("company change should invalidate payment @installment", () => {
 	test("checkoutCompanyChange", async ({ page }) => {
 		await goToProduct(page);
 
-		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.getByRole("button", { name: addToCartButtonName }).click();
 		await page.goto("index.php/checkout/");
 
 		await fillClassicCheckout(page);
@@ -208,7 +209,7 @@ test.describe("shipping address must equal billing address for easyCredit", () =
 	test("classicCheckoutShippingDiffersFromBillingShowsError", async ({ page }) => {
 		await goToProduct(page);
 
-		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.getByRole("button", { name: addToCartButtonName }).click();
 		await page.goto("index.php/checkout/");
 
 		await fillClassicCheckout(page);

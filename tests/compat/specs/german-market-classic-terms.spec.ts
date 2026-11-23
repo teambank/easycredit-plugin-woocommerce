@@ -73,7 +73,7 @@ test.describe("German Market legal checkboxes defer classic @compat @compat-germ
 		await expect(page.locator("easycredit-checkout")).toHaveAttribute("payment-plan");
 
 		const placeOrderButton = page.getByRole("button", {
-			name: /jetzt kaufen|pflichtig bestellen|Bestellung aufgeben/i,
+			name: /jetzt kaufen|pflichtig bestellen|Bestellung aufgeben|Place order/i,
 		});
 		await placeOrderButton.click();
 

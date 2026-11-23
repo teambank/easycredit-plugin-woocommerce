@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { takeScreenshot, scaleDown, greaterOrEqualsThan } from "../helpers/utils";
 import {
+	addToCartButtonName,
+	placeOrderButtonName,
 	goToProduct,
 	fillClassicCheckout,
 	fillBlocksCheckout,
@@ -29,7 +31,7 @@ const prepareCheckout = async (page, isClassic: boolean) => {
 	await goToProduct(page);
 
 	if (isClassic) {
-		await page.getByRole("button", { name: "In den Warenkorb" }).click();
+		await page.getByRole("button", { name: addToCartButtonName }).click();
 		await page.goto("index.php/checkout/");
 		await fillClassicCheckout(page);
 		return;
@@ -72,7 +74,7 @@ test.describe("native WC terms defer classic @installment", () => {
 		await expectNativeTermsCheckbox(page, { isClassicCheckout: true, checked: false });
 
 		const placeOrderButton = page.getByRole("button", {
-			name: /jetzt kaufen|pflichtig bestellen|Bestellung aufgeben/i,
+			name: placeOrderButtonName,
 		});
 		await placeOrderButton.click();
 
