@@ -127,6 +127,11 @@ jobs:
           node -e 'console.log(JSON.stringify({"core": "https://wordpress.org/wordpress-${{ matrix.wordpress-version }}.zip", "phpVersion": "${{ matrix.php-version }}", "lifecycleScripts":{}}, null, 2));' > .wp-env.override.json
           pnpm exec wp-env start
 
+          # WordPress 5.9 otherwise updates itself to the current release during the
+          # suite. The checkout request in that window comes back empty.
+          pnpm exec wp-env run cli wp config set AUTOMATIC_UPDATER_DISABLED true --raw
+          pnpm exec wp-env run cli wp config set WP_AUTO_UPDATE_CORE false --raw
+
           WORDPRESS_STUBS_VERSION="$(node scripts/resolve-composer-stub-versions.js "${{ matrix.wordpress-version }}" "${{ matrix.woocommerce-version }}")"
           WOOCOMMERCE_STUBS_VERSION="$(node scripts/resolve-composer-stub-versions.js --woocommerce "${{ matrix.woocommerce-version }}")"
 
