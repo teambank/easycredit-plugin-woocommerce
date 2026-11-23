@@ -100,7 +100,9 @@ export const fillClassicShippingAddress = async (
 	await shippingFields
 		.getByRole("textbox", { name: /^(Ort \/ Stadt|Stadt|Town \/ City)/ })
 		.fill(city);
-	await shippingFields.getByRole("textbox", { name: /^Postleitzahl/ }).blur();
+	await shippingFields
+		.getByRole("textbox", { name: /^(Postleitzahl|Postcode)/ })
+		.blur();
 };
 
 export const checkClassicCompanyBlocked = async (page) => {
